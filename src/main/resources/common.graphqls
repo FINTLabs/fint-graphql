@@ -1,0 +1,18 @@
+type Identifikator {
+    gyldighetsperiode: String
+    identifikatorverdi: String
+}
+
+type Periode {
+    beskrivelse: String
+    start: String
+    slutt: String
+}
+
+type Kontaktinformasjon {
+    epostadresse: String
+    mobiltelefonnummer: String
+    nettsted: String
+    sip: String
+    telefonnummer: String
+}

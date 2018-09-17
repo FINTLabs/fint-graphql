@@ -1,0 +1,8 @@
+type Personalressurs {
+    systemId: Identifikator
+    ansattnummer: Identifikator
+    ansettelsesperiode: Periode
+    ansiennitet: String
+    brukernavn: Identifikator
+    kontaktinformasjon: Kontaktinformasjon
+}
