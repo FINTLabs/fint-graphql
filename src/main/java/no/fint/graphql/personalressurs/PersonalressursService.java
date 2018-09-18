@@ -1,4 +1,4 @@
-package no.fint.graphql.integration.personalressurs;
+package no.fint.graphql.personalressurs;
 
 import no.fint.model.resource.administrasjon.personal.PersonalressursResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ public class PersonalressursService {
                 .retrieve()
                 .bodyToMono(PersonalressursResources.class)
                 .block();
-
     }
 
 }
