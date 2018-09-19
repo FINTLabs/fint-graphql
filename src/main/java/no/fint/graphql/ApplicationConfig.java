@@ -16,7 +16,7 @@ public class ApplicationConfig {
         return WebClient.create("https://play-with-fint.felleskomponent.no");
     }
 
-    @Bean
+    // @Bean
     public DataLoaderRegistry dataLoaderRegistry(List<DataLoader<?, ?>> loaderList) {
         DataLoaderRegistry registry = new DataLoaderRegistry();
         for (DataLoader<?, ?> loader : loaderList) {
