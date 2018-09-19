@@ -12,10 +12,10 @@ import java.util.List;
 public class PersonalressursQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
-    private PersonalressursService service;
+    private PersonalressursService personalressursService;
 
     public List<PersonalressursResource> getPersonalressurs() {
-        PersonalressursResources resources = service.getPersonalressursResources();
+        PersonalressursResources resources = personalressursService.getPersonalressursResources();
         return resources.getContent();
     }
 

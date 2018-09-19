@@ -22,7 +22,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
 
     public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold) {
         List<Link> personalressursLinks = arbeidsforhold.getLinks().get("personalressurs");
-        if (personalressursLinks.isEmpty()) {
+        if (personalressursLinks == null || personalressursLinks.isEmpty()) {
             return null;
         }
 

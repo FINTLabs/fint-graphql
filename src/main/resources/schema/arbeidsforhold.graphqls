@@ -8,5 +8,6 @@ type Arbeidsforhold {
     stillingstittel: String
     tilstedeprosent: Int
     arslonn: Int
+
     personalressurs: Personalressurs
 }
