@@ -15,7 +15,7 @@ public class ArbeidsforholdQueryResolver implements GraphQLQueryResolver {
     private ArbeidsforholdService service;
 
     public List<ArbeidsforholdResource> getArbeidsforhold() {
-        ArbeidsforholdResources resources = service.getArbeidsforhold();
+        ArbeidsforholdResources resources = service.getArbeidsforholdResources();
         return resources.getContent();
     }
 }

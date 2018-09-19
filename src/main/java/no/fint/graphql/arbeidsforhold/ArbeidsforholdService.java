@@ -11,7 +11,7 @@ public class ArbeidsforholdService {
     @Autowired
     private WebClient webClient;
 
-    public ArbeidsforholdResources getArbeidsforhold() {
+    public ArbeidsforholdResources getArbeidsforholdResources() {
         return webClient.get()
                 .uri("/administrasjon/personal/arbeidsforhold")
                 .retrieve()

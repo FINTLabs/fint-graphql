@@ -15,7 +15,7 @@ public class PersonalressursQueryResolver implements GraphQLQueryResolver {
     private PersonalressursService service;
 
     public List<PersonalressursResource> getPersonalressurs() {
-        PersonalressursResources resources = service.getPersonalressurs();
+        PersonalressursResources resources = service.getPersonalressursResources();
         return resources.getContent();
     }
 

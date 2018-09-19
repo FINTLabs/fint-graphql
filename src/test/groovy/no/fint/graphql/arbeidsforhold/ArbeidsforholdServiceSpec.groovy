@@ -11,7 +11,7 @@ class ArbeidsforholdServiceSpec extends Specification {
         def service = new ArbeidsforholdService(webClient: WebClient.create("https://play-with-fint.felleskomponent.no"))
 
         when:
-        def arbeidsforhold = service.getArbeidsforhold()
+        def arbeidsforhold = service.getArbeidsforholdResources()
 
         then:
         arbeidsforhold

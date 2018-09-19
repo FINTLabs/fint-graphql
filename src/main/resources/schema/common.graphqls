@@ -16,3 +16,9 @@ type Kontaktinformasjon {
     sip: String
     telefonnummer: String
 }
+
+type Adresse {
+    adresselinje: [String]
+    postnummer: String
+    poststed: String
+}

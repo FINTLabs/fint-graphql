@@ -10,7 +10,7 @@ class PersonalressursServiceSpec extends Specification {
         def service = new PersonalressursService(webClient: WebClient.create("https://play-with-fint.felleskomponent.no"))
 
         when:
-        def personalressurs = service.getPersonalressurs()
+        def personalressurs = service.getPersonalressursResources()
 
         then:
         personalressurs

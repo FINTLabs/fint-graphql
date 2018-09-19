@@ -1,0 +1,8 @@
+type Person {
+    bilde: String
+    bostedsadresse: Adresse
+    fodselsdato: String
+    fodselsnummer: Identifikator
+    kontaktinformasjon: Kontaktinformasjon
+    postadresse: Adresse
+}
