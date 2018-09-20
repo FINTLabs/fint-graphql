@@ -10,4 +10,5 @@ type Arbeidsforhold {
     arslonn: Int
 
     personalressurs: Personalressurs
+    arbeidssted: Organisasjonselement
 }

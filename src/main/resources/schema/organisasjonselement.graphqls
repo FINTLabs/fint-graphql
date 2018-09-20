@@ -1,0 +1,17 @@
+type Organisasjonselement {
+    gyldighetsperiode: Periode
+    kortnavn: String
+    navn: String
+    organisasjonsId: Identifikator
+    organisasjonsKode: Identifikator
+    forretningsadresse: Adresse
+    organisasjonsnavn: String
+    organisasjonsnummer: Identifikator
+    kontaktinformasjon: Kontaktinformasjon
+    postadresse: Adresse
+
+    overordnet: Organisasjonselement
+    underordnet: Organisasjonselement
+    leder: Arbeidsforhold
+    arbeidsforhold: Arbeidsforhold
+}

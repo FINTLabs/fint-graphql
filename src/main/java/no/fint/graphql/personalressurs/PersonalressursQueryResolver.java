@@ -14,8 +14,8 @@ public class PersonalressursQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PersonalressursService personalressursService;
 
-    public List<PersonalressursResource> getPersonalressurs() {
-        PersonalressursResources resources = personalressursService.getPersonalressursResources();
+    public List<PersonalressursResource> getPersonalressurs(String sinceTimeStamp) {
+        PersonalressursResources resources = personalressursService.getPersonalressursResources(sinceTimeStamp);
         return resources.getContent();
     }
 

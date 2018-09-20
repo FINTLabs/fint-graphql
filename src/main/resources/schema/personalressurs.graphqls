@@ -7,4 +7,5 @@ type Personalressurs {
     kontaktinformasjon: Kontaktinformasjon
 
     person: Person
+    arbeidsforhold: Arbeidsforhold
 }

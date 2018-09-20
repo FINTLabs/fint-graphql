@@ -1,5 +1,6 @@
 package no.fint.graphql.personalressurs;
 
+import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,9 @@ public class PersonalressursService {
     @Autowired
     private WebClient webClient;
 
-    public PersonalressursResources getPersonalressursResources() {
+    public PersonalressursResources getPersonalressursResources(String sinceTimeStamp) {
         return webClient.get()
-                .uri("/administrasjon/personal/personalressurs")
+                .uri(ResourceUrlBuilder.urlWithQueryParams("/administrasjon/personal/personalressurs", sinceTimeStamp))
                 .retrieve()
                 .bodyToMono(PersonalressursResources.class)
                 .block();
