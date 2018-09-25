@@ -1,4 +1,5 @@
 type Person {
+    navn: Personnavn
     bilde: String
     bostedsadresse: Adresse
     fodselsdato: String

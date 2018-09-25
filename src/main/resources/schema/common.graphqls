@@ -22,3 +22,9 @@ type Adresse {
     postnummer: String
     poststed: String
 }
+
+type Personnavn {
+    fornavn: String
+    mellomnavn: String
+    etternavn: String
+}
