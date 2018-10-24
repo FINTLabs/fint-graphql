@@ -1,0 +1,22 @@
+# Built from tag v3.1.0
+
+type Person {
+	# Attributes
+    kontaktinformasjon: Kontaktinformasjon
+    postadresse: Adresse
+    bilde: String
+    bostedsadresse: Adresse
+    fodselsdato: String
+    fodselsnummer: Identifikator
+    navn: Personnavn
+
+
+	# Relations
+    statsborgerskap: Landkode
+    kjonn: Kjonn
+    malform: Sprak
+    personalressurs: Personalressurs
+    morsmal: Sprak
+    parorende: Kontaktperson
+    elev: Elev
+}

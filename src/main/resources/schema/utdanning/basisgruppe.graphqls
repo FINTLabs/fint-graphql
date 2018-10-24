@@ -1,0 +1,20 @@
+# Built from tag v3.1.0
+
+type Basisgruppe {
+	# Attributes
+    beskrivelse: String
+    navn: String
+    periode: List<Periode>
+    systemId: Identifikator
+
+
+	# Relations
+    trinn: Arstrinn
+    skole: Skole
+    undervisningsforhold: Undervisningsforhold
+    elevforhold: Elevforhold
+    kontaktlarergruppe: Kontaktlarergruppe
+    grepreferanse: String
+    vigoreferanse: String
+    medlemskap: Medlemskap
+}

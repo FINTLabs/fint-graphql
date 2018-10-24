@@ -1,0 +1,22 @@
+# Built from tag v3.1.0
+
+type Fasttillegg {
+	# Attributes
+    anvist: String
+    attestert: String
+    beskrivelse: String
+    kontert: String
+    kontostreng: Kontostreng
+    opptjent: Periode
+    periode: Periode
+    systemId: Identifikator
+    belop: Long
+
+
+	# Relations
+    lonnsart: Lonnsart
+    anviser: Personalressurs
+    konterer: Personalressurs
+    attestant: Personalressurs
+    arbeidsforhold: Arbeidsforhold
+}

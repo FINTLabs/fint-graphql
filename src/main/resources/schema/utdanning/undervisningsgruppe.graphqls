@@ -1,0 +1,20 @@
+# Built from tag v3.1.0
+
+type Undervisningsgruppe {
+	# Attributes
+    beskrivelse: String
+    navn: String
+    periode: List<Periode>
+    systemId: Identifikator
+
+
+	# Relations
+    fag: Fag
+    skole: Skole
+    elevforhold: Elevforhold
+    undervisningsforhold: Undervisningsforhold
+    time: Time
+    grepreferanse: String
+    vigoreferanse: String
+    medlemskap: Medlemskap
+}

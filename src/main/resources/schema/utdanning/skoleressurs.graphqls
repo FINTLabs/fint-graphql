@@ -1,0 +1,13 @@
+# Built from tag v3.1.0
+
+type Skoleressurs {
+	# Attributes
+    feidenavn: Identifikator
+    systemId: Identifikator
+
+
+	# Relations
+    personalressurs: Personalressurs
+    undervisningsforhold: Undervisningsforhold
+    skole: Skole
+}

@@ -1,0 +1,11 @@
+# Built from tag v3.1.0
+
+type Rom {
+	# Attributes
+    navn: String
+    systemId: Identifikator
+
+
+	# Relations
+    time: Time
+}

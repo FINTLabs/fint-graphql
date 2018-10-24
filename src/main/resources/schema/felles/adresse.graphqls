@@ -1,0 +1,12 @@
+# Built from tag v3.1.0
+
+type Adresse {
+	# Attributes
+    adresselinje: List<String>
+    postnummer: String
+    poststed: String
+
+
+	# Relations
+    land: Landkode
+}

@@ -1,0 +1,36 @@
+// Built from tag v3.1.0
+
+package no.fint.graphql.model.administrasjon.uketimetall;
+
+import no.fint.graphql.ResourceUrlBuilder;
+import no.fint.model.resource.administrasjon.kodeverk.UketimetallResource;
+import no.fint.model.resource.administrasjon.kodeverk.UketimetallResources;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Service
+public class UketimetallService {
+
+    @Autowired
+    private WebClient webClient;
+
+    public UketimetallResources getUketimetallResources(String sinceTimeStamp) {
+
+
+        return webClient.get()
+                .uri(ResourceUrlBuilder.urlWithQueryParams("administrasjon/kodeverk/uketimetall", sinceTimeStamp))
+                .retrieve()
+                .bodyToMono(UketimetallResources.class)
+                .block();
+    }
+
+    public UketimetallResource getUketimetallResource(String url) {
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(UketimetallResource.class)
+                .block();
+    }
+}
+

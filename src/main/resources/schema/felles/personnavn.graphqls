@@ -1,0 +1,9 @@
+# Built from tag v3.1.0
+
+type Personnavn {
+	# Attributes
+    etternavn: String
+    fornavn: String
+    mellomnavn: String
+
+}

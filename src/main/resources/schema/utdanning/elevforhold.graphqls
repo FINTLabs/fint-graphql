@@ -1,0 +1,20 @@
+# Built from tag v3.1.0
+
+type Elevforhold {
+	# Attributes
+    beskrivelse: String
+    systemId: Identifikator
+
+
+	# Relations
+    basisgruppe: Basisgruppe
+    elev: Elev
+    kategori: Elevkategori
+    skole: Skole
+    eksamensgruppe: Eksamensgruppe
+    kontaktlarergruppe: Kontaktlarergruppe
+    undervisningsgruppe: Undervisningsgruppe
+    vurdering: Vurdering
+    fravar: Fravar
+    medlemskap: Medlemskap
+}

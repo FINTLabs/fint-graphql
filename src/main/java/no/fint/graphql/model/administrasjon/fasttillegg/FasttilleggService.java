@@ -1,0 +1,36 @@
+// Built from tag v3.1.0
+
+package no.fint.graphql.model.administrasjon.fasttillegg;
+
+import no.fint.graphql.ResourceUrlBuilder;
+import no.fint.model.resource.administrasjon.personal.FasttilleggResource;
+import no.fint.model.resource.administrasjon.personal.FasttilleggResources;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Service
+public class FasttilleggService {
+
+    @Autowired
+    private WebClient webClient;
+
+    public FasttilleggResources getFasttilleggResources(String sinceTimeStamp) {
+
+
+        return webClient.get()
+                .uri(ResourceUrlBuilder.urlWithQueryParams("administrasjon/personal/fasttillegg", sinceTimeStamp))
+                .retrieve()
+                .bodyToMono(FasttilleggResources.class)
+                .block();
+    }
+
+    public FasttilleggResource getFasttilleggResource(String url) {
+        return webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(FasttilleggResource.class)
+                .block();
+    }
+}
+

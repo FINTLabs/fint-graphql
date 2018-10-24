@@ -1,0 +1,11 @@
+# Built from tag v3.1.0
+
+type Kontostreng {
+
+
+	# Relations
+    ansvar: Ansvar
+    art: Art
+    funksjon: Funksjon
+    prosjekt: Prosjekt
+}

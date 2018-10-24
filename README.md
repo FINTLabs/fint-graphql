@@ -39,3 +39,21 @@ Some queries to get you going:
   }
 }
 ```
+
+### Birthday directory, with first names, birthdays, and mobile phone numbers
+
+```graphql
+{
+  personalressurs {
+    person {
+      navn {
+        fornavn
+      }
+      fodselsdato
+      kontaktinformasjon {
+        mobiltelefonnummer
+      }
+    }
+  }
+}
+```

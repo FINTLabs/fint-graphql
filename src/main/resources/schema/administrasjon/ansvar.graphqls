@@ -1,0 +1,17 @@
+# Built from tag v3.1.0
+
+type Ansvar {
+	# Attributes
+    gyldighetsperiode: Periode
+    kode: String
+    navn: String
+    passiv: Boolean
+    systemId: Identifikator
+
+
+	# Relations
+    overordnet: Ansvar
+    underordnet: Ansvar
+    organisasjonselement: Organisasjonselement
+    fullmakt: Fullmakt
+}

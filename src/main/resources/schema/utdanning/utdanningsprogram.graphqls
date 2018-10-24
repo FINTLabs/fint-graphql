@@ -1,0 +1,17 @@
+# Built from tag v3.1.0
+
+type Utdanningsprogram {
+	# Attributes
+    beskrivelse: String
+    navn: String
+    periode: List<Periode>
+    systemId: Identifikator
+
+
+	# Relations
+    skole: Skole
+    programomrade: Programomrade
+    grepreferanse: String
+    vigoreferanse: String
+    medlemskap: Medlemskap
+}

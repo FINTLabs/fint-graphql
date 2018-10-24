@@ -1,0 +1,11 @@
+# Built from tag v3.1.0
+
+type Kontaktinformasjon {
+	# Attributes
+    epostadresse: String
+    mobiltelefonnummer: String
+    nettsted: String
+    sip: String
+    telefonnummer: String
+
+}

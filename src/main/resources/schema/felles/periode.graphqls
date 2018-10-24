@@ -1,0 +1,9 @@
+# Built from tag v3.1.0
+
+type Periode {
+	# Attributes
+    beskrivelse: String
+    slutt: String
+    start: String
+
+}

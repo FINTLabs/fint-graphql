@@ -1,0 +1,11 @@
+# Built from tag v3.1.0
+
+type Rolle {
+	# Attributes
+    beskrivelse: String
+    navn: Identifikator
+
+
+	# Relations
+    fullmakt: Fullmakt
+}

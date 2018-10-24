@@ -1,6 +1,6 @@
 package no.fint.graphql.arbeidsforhold
 
-
+import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService
 import org.springframework.web.reactive.function.client.WebClient
 import spock.lang.Specification
 

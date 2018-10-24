@@ -34,6 +34,7 @@ repositories {
 
 apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.4.0/dependencies.gradle'
 dependencies {
+    compile("no.fint:fint-utdanning-resource-model-java:${apiVersion}")
     compile("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
 
     compile('com.graphql-java:graphql-spring-boot-starter:5.0.2')

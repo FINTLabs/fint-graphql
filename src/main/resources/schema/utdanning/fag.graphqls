@@ -1,0 +1,19 @@
+# Built from tag v3.1.0
+
+type Fag {
+	# Attributes
+    beskrivelse: String
+    navn: String
+    periode: List<Periode>
+    systemId: Identifikator
+
+
+	# Relations
+    programomrade: Programomrade
+    skole: Skole
+    undervisningsgruppe: Undervisningsgruppe
+    eksamensgruppe: Eksamensgruppe
+    grepreferanse: String
+    vigoreferanse: String
+    medlemskap: Medlemskap
+}

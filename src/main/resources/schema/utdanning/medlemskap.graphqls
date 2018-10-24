@@ -1,0 +1,14 @@
+# Built from tag v3.1.0
+
+type Medlemskap {
+	# Attributes
+    systemId: Identifikator
+
+
+	# Relations
+    medlem: String
+    fortlopendeVurdering: Vurdering
+    gruppe: String
+    endeligVurdering: Vurdering
+    fravar: Fravar
+}

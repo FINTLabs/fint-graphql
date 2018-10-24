@@ -1,0 +1,17 @@
+# Built from tag v3.1.0
+
+type Arstrinn {
+	# Attributes
+    beskrivelse: String
+    navn: String
+    periode: List<Periode>
+    systemId: Identifikator
+
+
+	# Relations
+    programomrade: Programomrade
+    basisgruppe: Basisgruppe
+    grepreferanse: String
+    vigoreferanse: String
+    medlemskap: Medlemskap
+}

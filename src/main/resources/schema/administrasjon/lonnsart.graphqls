@@ -1,0 +1,12 @@
+# Built from tag v3.1.0
+
+type Lonnsart {
+	# Attributes
+    gyldighetsperiode: Periode
+    kode: String
+    navn: String
+    passiv: Boolean
+    systemId: Identifikator
+    beskrivelse: String
+
+}

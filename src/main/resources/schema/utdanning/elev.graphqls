@@ -1,0 +1,15 @@
+# Built from tag v3.1.0
+
+type Elev {
+	# Attributes
+    brukernavn: Identifikator
+    elevnummer: Identifikator
+    feidenavn: Identifikator
+    kontaktinformasjon: Kontaktinformasjon
+    systemId: Identifikator
+
+
+	# Relations
+    person: Person
+    elevforhold: Elevforhold
+}

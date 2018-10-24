@@ -1,0 +1,15 @@
+# Built from tag v3.1.0
+
+type Time {
+	# Attributes
+    beskrivelse: String
+    navn: String
+    systemId: Identifikator
+    tidsrom: Periode
+
+
+	# Relations
+    undervisningsgruppe: Undervisningsgruppe
+    undervisningsforhold: Undervisningsforhold
+    rom: Rom
+}

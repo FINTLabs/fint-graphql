@@ -1,6 +1,6 @@
 package no.fint.graphql.person
 
-
+import no.fint.graphql.model.felles.person.PersonService
 import org.springframework.web.reactive.function.client.WebClient
 import spock.lang.Specification
 

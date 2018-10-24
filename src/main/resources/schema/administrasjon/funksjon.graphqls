@@ -1,0 +1,16 @@
+# Built from tag v3.1.0
+
+type Funksjon {
+	# Attributes
+    gyldighetsperiode: Periode
+    kode: String
+    navn: String
+    passiv: Boolean
+    systemId: Identifikator
+
+
+	# Relations
+    overordnet: Funksjon
+    underordnet: Funksjon
+    fullmakt: Fullmakt
+}

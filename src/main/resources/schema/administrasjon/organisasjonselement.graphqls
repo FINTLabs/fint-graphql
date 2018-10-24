@@ -1,0 +1,24 @@
+# Built from tag v3.1.0
+
+type Organisasjonselement {
+	# Attributes
+    forretningsadresse: Adresse
+    organisasjonsnavn: String
+    organisasjonsnummer: Identifikator
+    gyldighetsperiode: Periode
+    kortnavn: String
+    navn: String
+    organisasjonsId: Identifikator
+    organisasjonsKode: Identifikator
+    kontaktinformasjon: Kontaktinformasjon
+    postadresse: Adresse
+
+
+	# Relations
+    ansvar: Ansvar
+    leder: Personalressurs
+    overordnet: Organisasjonselement
+    underordnet: Organisasjonselement
+    skole: Skole
+    arbeidsforhold: Arbeidsforhold
+}

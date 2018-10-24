@@ -1,0 +1,18 @@
+# Built from tag v3.1.0
+
+type Programomrade {
+	# Attributes
+    beskrivelse: String
+    navn: String
+    periode: List<Periode>
+    systemId: Identifikator
+
+
+	# Relations
+    utdanningsprogram: Utdanningsprogram
+    fag: Fag
+    trinn: Arstrinn
+    grepreferanse: String
+    vigoreferanse: String
+    medlemskap: Medlemskap
+}

@@ -1,0 +1,14 @@
+# Built from tag v3.1.0
+
+type Fullmakt {
+	# Attributes
+    gyldighetsperiode: Periode
+    systemId: Identifikator
+
+
+	# Relations
+    myndighet: String
+    stedfortreder: Personalressurs
+    fullmektig: Personalressurs
+    rolle: Rolle
+}

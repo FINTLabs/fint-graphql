@@ -1,5 +1,6 @@
 package no.fint.graphql.personalressurs
 
+import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService
 import org.springframework.web.reactive.function.client.WebClient
 import spock.lang.Specification
 

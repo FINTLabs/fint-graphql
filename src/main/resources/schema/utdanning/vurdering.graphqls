@@ -1,0 +1,15 @@
+# Built from tag v3.1.0
+
+type Vurdering {
+	# Attributes
+    endelig: Boolean
+    kommentar: String
+    systemId: Identifikator
+
+
+	# Relations
+    elevforhold: Elevforhold
+    undervisningsgruppe: Undervisningsgruppe
+    eksamensgruppe: Eksamensgruppe
+    karakter: Karakterverdi
+}

@@ -1,0 +1,11 @@
+# Built from tag v3.1.0
+
+type Landkode {
+	# Attributes
+    gyldighetsperiode: Periode
+    kode: String
+    navn: String
+    passiv: Boolean
+    systemId: Identifikator
+
+}

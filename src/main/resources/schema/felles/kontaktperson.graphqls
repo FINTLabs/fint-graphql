@@ -1,0 +1,13 @@
+# Built from tag v3.1.0
+
+type Kontaktperson {
+	# Attributes
+    foreldreansvar: Boolean
+    systemId: Identifikator
+    type: String
+
+
+	# Relations
+    kontaktperson: Person
+    person: Person
+}

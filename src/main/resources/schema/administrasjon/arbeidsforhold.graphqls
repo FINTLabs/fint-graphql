@@ -1,0 +1,28 @@
+# Built from tag v3.1.0
+
+type Arbeidsforhold {
+	# Attributes
+    ansettelsesprosent: Long
+    gyldighetsperiode: Periode
+    hovedstilling: Boolean
+    lonnsprosent: Long
+    stillingsnummer: String
+    stillingstittel: String
+    systemId: Identifikator
+    tilstedeprosent: Long
+    arslonn: Long
+
+
+	# Relations
+    ansvar: Ansvar
+    arbeidsforholdstype: Arbeidsforholdstype
+    funksjon: Funksjon
+    stillingskode: Stillingskode
+    timerPerUke: Uketimetall
+    arbeidssted: Organisasjonselement
+    personalleder: Personalressurs
+    fravar: Fravar
+    lonn: String
+    personalressurs: Personalressurs
+    undervisningsforhold: Undervisningsforhold
+}
