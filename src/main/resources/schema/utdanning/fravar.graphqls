@@ -2,11 +2,11 @@
 
 type Fravar {
 	# Attributes
-    dokumentert: Boolean
-    foresPaVitnemal: Boolean
-    gjelderPeriode: Periode
-    kommentar: String
-    systemId: Identifikator
+    dokumentert: Boolean!
+    foresPaVitnemal: Boolean!
+    gjelderPeriode: Periode!
+    kommentar: String!
+    systemId: Identifikator!
 
 
 	# Relations

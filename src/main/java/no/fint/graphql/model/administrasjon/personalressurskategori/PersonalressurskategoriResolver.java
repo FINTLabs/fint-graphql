@@ -16,7 +16,7 @@ import no.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriRes
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonPersonalressurskategoriResolver")
 public class PersonalressurskategoriResolver implements GraphQLResolver<PersonalressurskategoriResource> {
 
 	

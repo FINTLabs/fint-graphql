@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("utdanningSkoleeiertypeQueryResolver")
 public class SkoleeiertypeQueryResolver implements GraphQLQueryResolver {
 
     @Autowired

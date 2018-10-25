@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("fellesKommuneQueryResolver")
 public class KommuneQueryResolver implements GraphQLQueryResolver {
 
     @Autowired

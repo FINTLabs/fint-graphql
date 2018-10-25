@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("utdanningBasisgruppeQueryResolver")
 public class BasisgruppeQueryResolver implements GraphQLQueryResolver {
 
     @Autowired

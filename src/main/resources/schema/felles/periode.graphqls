@@ -4,6 +4,6 @@ type Periode {
 	# Attributes
     beskrivelse: String
     slutt: String
-    start: String
+    start: String!
 
 }

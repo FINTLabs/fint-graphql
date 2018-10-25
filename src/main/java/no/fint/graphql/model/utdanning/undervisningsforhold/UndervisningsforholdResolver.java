@@ -36,7 +36,7 @@ import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningUndervisningsforholdResolver")
 public class UndervisningsforholdResolver implements GraphQLResolver<UndervisningsforholdResource> {
 
 	

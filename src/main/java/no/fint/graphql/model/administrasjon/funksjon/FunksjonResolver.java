@@ -22,7 +22,7 @@ import no.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonFunksjonResolver")
 public class FunksjonResolver implements GraphQLResolver<FunksjonResource> {
 
 	

@@ -2,10 +2,10 @@
 
 type Basisgruppe {
 	# Attributes
-    beskrivelse: String
-    navn: String
-    periode: List<Periode>
-    systemId: Identifikator
+    beskrivelse: String!
+    navn: String!
+    periode: [Periode]!
+    systemId: Identifikator!
 
 
 	# Relations

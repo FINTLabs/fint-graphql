@@ -2,8 +2,8 @@
 
 type Undervisningsforhold {
 	# Attributes
-    beskrivelse: String
-    systemId: Identifikator
+    beskrivelse: String!
+    systemId: Identifikator!
 
 
 	# Relations

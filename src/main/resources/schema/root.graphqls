@@ -1,0 +1,8 @@
+ type Query {
+     personalressurs(sinceTimeStamp: String): [Personalressurs]
+     arbeidsforhold(sinceTimeStamp: String): [Arbeidsforhold]
+     person(sinceTimeStamp: String): [Person]
+     organisasjonselement(sinceTimeStamp: String): [Organisasjonselement]
+
+     elev(sinceTimeStamp: String): [Elev]
+ }

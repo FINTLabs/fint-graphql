@@ -16,7 +16,7 @@ import no.fint.model.resource.felles.kodeverk.iso.KjonnResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("fellesKjonnResolver")
 public class KjonnResolver implements GraphQLResolver<KjonnResource> {
 
 	

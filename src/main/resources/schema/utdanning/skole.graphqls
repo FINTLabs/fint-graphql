@@ -7,9 +7,9 @@ type Skole {
     organisasjonsnummer: Identifikator
     domenenavn: String
     juridiskNavn: String
-    navn: String
-    skolenummer: Identifikator
-    systemId: Identifikator
+    navn: String!
+    skolenummer: Identifikator!
+    systemId: Identifikator!
     kontaktinformasjon: Kontaktinformasjon
     postadresse: Adresse
 

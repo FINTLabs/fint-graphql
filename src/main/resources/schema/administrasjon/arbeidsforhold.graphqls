@@ -2,15 +2,15 @@
 
 type Arbeidsforhold {
 	# Attributes
-    ansettelsesprosent: Long
-    gyldighetsperiode: Periode
-    hovedstilling: Boolean
-    lonnsprosent: Long
-    stillingsnummer: String
+    ansettelsesprosent: Long!
+    gyldighetsperiode: Periode!
+    hovedstilling: Boolean!
+    lonnsprosent: Long!
+    stillingsnummer: String!
     stillingstittel: String
-    systemId: Identifikator
-    tilstedeprosent: Long
-    arslonn: Long
+    systemId: Identifikator!
+    tilstedeprosent: Long!
+    arslonn: Long!
 
 
 	# Relations

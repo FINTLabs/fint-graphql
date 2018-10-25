@@ -2,8 +2,8 @@
 
 type Fravar {
 	# Attributes
-    periode: Periode
-    prosent: Long
+    periode: Periode!
+    prosent: Long!
     systemId: Identifikator
 
 

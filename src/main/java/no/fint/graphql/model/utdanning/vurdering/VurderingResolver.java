@@ -26,7 +26,7 @@ import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningVurderingResolver")
 public class VurderingResolver implements GraphQLResolver<VurderingResource> {
 
 	

@@ -3,9 +3,9 @@
 type Fravarsgrunn {
 	# Attributes
     gyldighetsperiode: Periode
-    kode: String
-    navn: String
+    kode: String!
+    navn: String!
     passiv: Boolean
-    systemId: Identifikator
+    systemId: Identifikator!
 
 }

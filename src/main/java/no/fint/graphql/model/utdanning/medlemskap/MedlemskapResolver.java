@@ -22,7 +22,7 @@ import no.fint.model.resource.utdanning.vurdering.FravarResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningMedlemskapResolver")
 public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
 
 	

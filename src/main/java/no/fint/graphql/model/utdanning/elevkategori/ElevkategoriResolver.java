@@ -16,7 +16,7 @@ import no.fint.model.resource.utdanning.kodeverk.ElevkategoriResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningElevkategoriResolver")
 public class ElevkategoriResolver implements GraphQLResolver<ElevkategoriResource> {
 
 	

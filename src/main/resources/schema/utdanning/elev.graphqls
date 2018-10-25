@@ -6,7 +6,7 @@ type Elev {
     elevnummer: Identifikator
     feidenavn: Identifikator
     kontaktinformasjon: Kontaktinformasjon
-    systemId: Identifikator
+    systemId: Identifikator!
 
 
 	# Relations

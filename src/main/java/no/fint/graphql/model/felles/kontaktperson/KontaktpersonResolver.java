@@ -20,7 +20,7 @@ import no.fint.model.resource.felles.PersonResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("fellesKontaktpersonResolver")
 public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResource> {
 
 	

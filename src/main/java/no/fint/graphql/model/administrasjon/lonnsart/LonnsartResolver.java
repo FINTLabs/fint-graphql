@@ -16,7 +16,7 @@ import no.fint.model.resource.administrasjon.kodeverk.LonnsartResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonLonnsartResolver")
 public class LonnsartResolver implements GraphQLResolver<LonnsartResource> {
 
 	

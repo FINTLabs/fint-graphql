@@ -2,8 +2,8 @@
 
 type Personnavn {
 	# Attributes
-    etternavn: String
-    fornavn: String
+    etternavn: String!
+    fornavn: String!
     mellomnavn: String
 
 }

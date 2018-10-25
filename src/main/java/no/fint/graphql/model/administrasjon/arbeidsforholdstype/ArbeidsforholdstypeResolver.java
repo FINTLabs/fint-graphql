@@ -20,7 +20,7 @@ import no.fint.model.resource.administrasjon.kodeverk.ArbeidsforholdstypeResourc
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonArbeidsforholdstypeResolver")
 public class ArbeidsforholdstypeResolver implements GraphQLResolver<ArbeidsforholdstypeResource> {
 
 	

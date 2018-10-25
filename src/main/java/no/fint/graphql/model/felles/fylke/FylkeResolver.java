@@ -20,7 +20,7 @@ import no.fint.model.resource.felles.kodeverk.KommuneResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("fellesFylkeResolver")
 public class FylkeResolver implements GraphQLResolver<FylkeResource> {
 
 	

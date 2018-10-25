@@ -3,10 +3,10 @@
 type Fravarstype {
 	# Attributes
     gyldighetsperiode: Periode
-    kode: String
-    navn: String
+    kode: String!
+    navn: String!
     passiv: Boolean
-    systemId: Identifikator
-    beskrivelse: String
+    systemId: Identifikator!
+    beskrivelse: String!
 
 }

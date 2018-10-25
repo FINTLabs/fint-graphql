@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("fellesKjonnQueryResolver")
 public class KjonnQueryResolver implements GraphQLQueryResolver {
 
     @Autowired

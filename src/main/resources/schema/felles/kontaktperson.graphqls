@@ -2,9 +2,9 @@
 
 type Kontaktperson {
 	# Attributes
-    foreldreansvar: Boolean
-    systemId: Identifikator
-    type: String
+    foreldreansvar: Boolean!
+    systemId: Identifikator!
+    type: String!
 
 
 	# Relations

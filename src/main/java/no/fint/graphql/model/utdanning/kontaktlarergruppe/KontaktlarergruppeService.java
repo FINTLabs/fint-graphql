@@ -2,6 +2,7 @@
 
 package no.fint.graphql.model.utdanning.kontaktlarergruppe;
 
+import no.fint.graphql.model.Endpoints;
 import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResources;
@@ -9,17 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Service
+@Service("utdanningKontaktlarergruppeService")
 public class KontaktlarergruppeService {
 
     @Autowired
     private WebClient webClient;
 
+    @Autowired
+    private Endpoints endpoints;
+
     public KontaktlarergruppeResources getKontaktlarergruppeResources(String sinceTimeStamp) {
 
 
         return webClient.get()
-                .uri(ResourceUrlBuilder.urlWithQueryParams("utdanning/elev/kontaktlarergruppe", sinceTimeStamp))
+                .uri(ResourceUrlBuilder.urlWithQueryParams(endpoints.getUtdanningElev() + "/kontaktlarergruppe", sinceTimeStamp))
                 .retrieve()
                 .bodyToMono(KontaktlarergruppeResources.class)
                 .block();

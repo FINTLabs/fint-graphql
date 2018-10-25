@@ -2,6 +2,7 @@
 
 package no.fint.graphql.model.administrasjon.rolle;
 
+import no.fint.graphql.model.Endpoints;
 import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.model.resource.administrasjon.fullmakt.RolleResource;
 import no.fint.model.resource.administrasjon.fullmakt.RolleResources;
@@ -9,17 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Service
+@Service("administrasjonRolleService")
 public class RolleService {
 
     @Autowired
     private WebClient webClient;
 
+    @Autowired
+    private Endpoints endpoints;
+
     public RolleResources getRolleResources(String sinceTimeStamp) {
 
 
         return webClient.get()
-                .uri(ResourceUrlBuilder.urlWithQueryParams("administrasjon/fullmakt/rolle", sinceTimeStamp))
+                .uri(ResourceUrlBuilder.urlWithQueryParams(endpoints.getAdministrasjonFullmakt() + "/rolle", sinceTimeStamp))
                 .retrieve()
                 .bodyToMono(RolleResources.class)
                 .block();

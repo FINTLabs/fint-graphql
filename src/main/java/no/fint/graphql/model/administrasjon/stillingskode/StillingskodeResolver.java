@@ -20,7 +20,7 @@ import no.fint.model.resource.administrasjon.kodeverk.StillingskodeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonStillingskodeResolver")
 public class StillingskodeResolver implements GraphQLResolver<StillingskodeResource> {
 
 	

@@ -3,9 +3,9 @@
 type Time {
 	# Attributes
     beskrivelse: String
-    navn: String
-    systemId: Identifikator
-    tidsrom: Periode
+    navn: String!
+    systemId: Identifikator!
+    tidsrom: Periode!
 
 
 	# Relations

@@ -20,7 +20,7 @@ import no.fint.model.resource.utdanning.timeplan.TimeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningRomResolver")
 public class RomResolver implements GraphQLResolver<RomResource> {
 
 	

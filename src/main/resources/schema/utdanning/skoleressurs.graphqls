@@ -3,7 +3,7 @@
 type Skoleressurs {
 	# Attributes
     feidenavn: Identifikator
-    systemId: Identifikator
+    systemId: Identifikator!
 
 
 	# Relations

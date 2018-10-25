@@ -28,7 +28,7 @@ import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonOrganisasjonselementResolver")
 public class OrganisasjonselementResolver implements GraphQLResolver<OrganisasjonselementResource> {
 
 	

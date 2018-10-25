@@ -22,7 +22,7 @@ import no.fint.model.resource.utdanning.elev.ElevforholdResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningElevResolver")
 public class ElevResolver implements GraphQLResolver<ElevResource> {
 
 	

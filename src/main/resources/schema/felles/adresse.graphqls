@@ -2,7 +2,7 @@
 
 type Adresse {
 	# Attributes
-    adresselinje: List<String>
+    adresselinje: [String]!
     postnummer: String
     poststed: String
 

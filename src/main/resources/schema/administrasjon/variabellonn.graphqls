@@ -4,13 +4,13 @@ type Variabellonn {
 	# Attributes
     anvist: String
     attestert: String
-    beskrivelse: String
+    beskrivelse: String!
     kontert: String
-    kontostreng: Kontostreng
+    kontostreng: Kontostreng!
     opptjent: Periode
-    periode: Periode
+    periode: Periode!
     systemId: Identifikator
-    antall: Long
+    antall: Long!
     belop: Long
 
 

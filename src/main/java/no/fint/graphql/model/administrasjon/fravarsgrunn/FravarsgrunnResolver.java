@@ -16,7 +16,7 @@ import no.fint.model.resource.administrasjon.kodeverk.FravarsgrunnResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonFravarsgrunnResolver")
 public class FravarsgrunnResolver implements GraphQLResolver<FravarsgrunnResource> {
 
 	

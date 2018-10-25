@@ -24,7 +24,7 @@ import no.fint.model.resource.utdanning.timeplan.RomResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningTimeResolver")
 public class TimeResolver implements GraphQLResolver<TimeResource> {
 
 	

@@ -30,7 +30,7 @@ import no.fint.model.resource.utdanning.elev.ElevResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("fellesPersonResolver")
 public class PersonResolver implements GraphQLResolver<PersonResource> {
 
 	

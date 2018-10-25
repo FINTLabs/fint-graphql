@@ -2,8 +2,8 @@
 
 type Elevforhold {
 	# Attributes
-    beskrivelse: String
-    systemId: Identifikator
+    beskrivelse: String!
+    systemId: Identifikator!
 
 
 	# Relations

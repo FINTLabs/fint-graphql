@@ -4,13 +4,13 @@ type Fastlonn {
 	# Attributes
     anvist: String
     attestert: String
-    beskrivelse: String
+    beskrivelse: String!
     kontert: String
-    kontostreng: Kontostreng
+    kontostreng: Kontostreng!
     opptjent: Periode
-    periode: Periode
+    periode: Periode!
     systemId: Identifikator
-    prosent: Long
+    prosent: Long!
 
 
 	# Relations

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("administrasjonFastlonnQueryResolver")
 public class FastlonnQueryResolver implements GraphQLQueryResolver {
 
     @Autowired

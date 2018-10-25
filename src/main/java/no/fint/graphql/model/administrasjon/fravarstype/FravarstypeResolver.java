@@ -16,7 +16,7 @@ import no.fint.model.resource.administrasjon.kodeverk.FravarstypeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonFravarstypeResolver")
 public class FravarstypeResolver implements GraphQLResolver<FravarstypeResource> {
 
 	

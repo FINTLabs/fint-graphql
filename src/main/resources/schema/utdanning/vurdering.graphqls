@@ -2,9 +2,9 @@
 
 type Vurdering {
 	# Attributes
-    endelig: Boolean
-    kommentar: String
-    systemId: Identifikator
+    endelig: Boolean!
+    kommentar: String!
+    systemId: Identifikator!
 
 
 	# Relations

@@ -8,8 +8,8 @@ type Organisasjonselement {
     gyldighetsperiode: Periode
     kortnavn: String
     navn: String
-    organisasjonsId: Identifikator
-    organisasjonsKode: Identifikator
+    organisasjonsId: Identifikator!
+    organisasjonsKode: Identifikator!
     kontaktinformasjon: Kontaktinformasjon
     postadresse: Adresse
 

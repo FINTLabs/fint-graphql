@@ -16,7 +16,7 @@ import no.fint.model.resource.administrasjon.kodeverk.UketimetallResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonUketimetallResolver")
 public class UketimetallResolver implements GraphQLResolver<UketimetallResource> {
 
 	

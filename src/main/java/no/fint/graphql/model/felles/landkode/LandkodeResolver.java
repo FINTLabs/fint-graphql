@@ -16,7 +16,7 @@ import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("fellesLandkodeResolver")
 public class LandkodeResolver implements GraphQLResolver<LandkodeResource> {
 
 	

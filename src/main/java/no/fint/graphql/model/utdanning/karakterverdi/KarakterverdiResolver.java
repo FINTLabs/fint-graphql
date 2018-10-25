@@ -20,7 +20,7 @@ import no.fint.model.resource.utdanning.kodeverk.KarakterskalaResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningKarakterverdiResolver")
 public class KarakterverdiResolver implements GraphQLResolver<KarakterverdiResource> {
 
 	

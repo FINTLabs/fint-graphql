@@ -2,8 +2,8 @@
 
 type Fullmakt {
 	# Attributes
-    gyldighetsperiode: Periode
-    systemId: Identifikator
+    gyldighetsperiode: Periode!
+    systemId: Identifikator!
 
 
 	# Relations

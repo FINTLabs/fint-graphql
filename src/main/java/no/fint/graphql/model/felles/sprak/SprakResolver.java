@@ -16,7 +16,7 @@ import no.fint.model.resource.felles.kodeverk.iso.SprakResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("fellesSprakResolver")
 public class SprakResolver implements GraphQLResolver<SprakResource> {
 
 	

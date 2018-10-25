@@ -30,7 +30,7 @@ import no.fint.model.resource.utdanning.elev.SkoleressursResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("administrasjonPersonalressursResolver")
 public class PersonalressursResolver implements GraphQLResolver<PersonalressursResource> {
 
 	

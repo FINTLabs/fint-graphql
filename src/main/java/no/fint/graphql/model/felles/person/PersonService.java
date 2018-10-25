@@ -2,6 +2,7 @@
 
 package no.fint.graphql.model.felles.person;
 
+import no.fint.graphql.model.Endpoints;
 import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.PersonResources;
@@ -9,17 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Service
+@Service("fellesPersonService")
 public class PersonService {
 
     @Autowired
     private WebClient webClient;
 
+    @Autowired
+    private Endpoints endpoints;
+
     public PersonResources getPersonResources(String sinceTimeStamp) {
 
-        // TODO Generator generates path "felles/person" !!
+
         return webClient.get()
-                .uri(ResourceUrlBuilder.urlWithQueryParams("administrasjon/personal/person", sinceTimeStamp))
+                .uri(ResourceUrlBuilder.urlWithQueryParams(endpoints.getFelles() + "/person", sinceTimeStamp))
                 .retrieve()
                 .bodyToMono(PersonResources.class)
                 .block();

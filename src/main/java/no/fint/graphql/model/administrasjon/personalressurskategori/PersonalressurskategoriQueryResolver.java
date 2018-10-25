@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("administrasjonPersonalressurskategoriQueryResolver")
 public class PersonalressurskategoriQueryResolver implements GraphQLQueryResolver {
 
     @Autowired

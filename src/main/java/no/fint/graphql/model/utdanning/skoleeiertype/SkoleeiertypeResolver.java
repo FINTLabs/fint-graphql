@@ -16,7 +16,7 @@ import no.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningSkoleeiertypeResolver")
 public class SkoleeiertypeResolver implements GraphQLResolver<SkoleeiertypeResource> {
 
 	

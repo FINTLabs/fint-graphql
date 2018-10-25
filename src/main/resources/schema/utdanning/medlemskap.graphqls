@@ -2,7 +2,7 @@
 
 type Medlemskap {
 	# Attributes
-    systemId: Identifikator
+    systemId: Identifikator!
 
 
 	# Relations

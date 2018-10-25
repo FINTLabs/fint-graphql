@@ -2,6 +2,7 @@
 
 package no.fint.graphql.model.utdanning.fag;
 
+import no.fint.graphql.model.Endpoints;
 import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.model.resource.utdanning.timeplan.FagResource;
 import no.fint.model.resource.utdanning.timeplan.FagResources;
@@ -9,17 +10,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Service
+@Service("utdanningFagService")
 public class FagService {
 
     @Autowired
     private WebClient webClient;
 
+    @Autowired
+    private Endpoints endpoints;
+
     public FagResources getFagResources(String sinceTimeStamp) {
 
 
         return webClient.get()
-                .uri(ResourceUrlBuilder.urlWithQueryParams("utdanning/timeplan/fag", sinceTimeStamp))
+                .uri(ResourceUrlBuilder.urlWithQueryParams(endpoints.getUtdanningTimeplan() + "/fag", sinceTimeStamp))
                 .retrieve()
                 .bodyToMono(FagResources.class)
                 .block();

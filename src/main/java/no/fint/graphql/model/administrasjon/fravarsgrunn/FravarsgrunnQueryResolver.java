@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+@Component("administrasjonFravarsgrunnQueryResolver")
 public class FravarsgrunnQueryResolver implements GraphQLQueryResolver {
 
     @Autowired

@@ -2,8 +2,8 @@
 
 type Personalressurs {
 	# Attributes
-    ansattnummer: Identifikator
-    ansettelsesperiode: Periode
+    ansattnummer: Identifikator!
+    ansettelsesperiode: Periode!
     ansiennitet: String
     brukernavn: Identifikator
     kontaktinformasjon: Kontaktinformasjon

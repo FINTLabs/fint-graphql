@@ -40,7 +40,7 @@ import no.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResou
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("utdanningSkoleResolver")
 public class SkoleResolver implements GraphQLResolver<SkoleResource> {
 
 	
