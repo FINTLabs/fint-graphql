@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.5.RELEASE'
+        springBootVersion = '2.0.6.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -37,9 +37,9 @@ dependencies {
     compile("no.fint:fint-utdanning-resource-model-java:${apiVersion}")
     compile("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
 
-    compile('com.graphql-java:graphql-spring-boot-starter:5.0.2')
-    compile('com.graphql-java:graphiql-spring-boot-starter:5.0.2')
-    compile('com.graphql-java:graphql-java-tools:5.2.0')
+    compile('com.graphql-java-kickstart:graphql-spring-boot-starter:5.0.5')
+    compile('com.graphql-java-kickstart:graphiql-spring-boot-starter:5.0.5')
+    compile('com.graphql-java-kickstart:graphql-java-tools:5.3.4')
 
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter')
