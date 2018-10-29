@@ -25,26 +25,25 @@ import org.springframework.stereotype.Component;
 @Component("utdanningMedlemskapResolver")
 public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
 
-	
-	@Autowired
-	private VurderingService vurderingService;
-	
-	@Autowired
-	private FravarService fravarService;
-	
-	
+
+    @Autowired
+    private VurderingService vurderingService;
+
+    @Autowired
+    private FravarService fravarService;
 
 
-	
-	
-	public VurderingResource getVurdering(MedlemskapResource medlemskap) {
+    public VurderingResource getFortlopendeVurdering(MedlemskapResource medlemskap) {
         return vurderingService.getVurderingResource(Links.get(medlemskap, "fortlopendeVurdering"));
     }
-	
-	public FravarResource getFravar(MedlemskapResource medlemskap) {
+
+    public VurderingResource getEndeligVurdering(MedlemskapResource medlemskap) {
+        return vurderingService.getVurderingResource(Links.get(medlemskap, "endeligVurdering"));
+    }
+
+    public FravarResource getFravar(MedlemskapResource medlemskap) {
         return fravarService.getFravarResource(Links.get(medlemskap, "fravar"));
     }
-	
-	
+
 }
 

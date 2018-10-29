@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("utdanningFravarstypeResolver")
 public class FravarstypeResolver implements GraphQLResolver<FravarstypeResource> {
 
-	
 
-
-	
 }
 

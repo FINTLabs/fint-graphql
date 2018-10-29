@@ -31,47 +31,42 @@ import org.springframework.stereotype.Component;
 @Component("utdanningKontaktlarergruppeResolver")
 public class KontaktlarergruppeResolver implements GraphQLResolver<KontaktlarergruppeResource> {
 
-	
-	@Autowired
-	private BasisgruppeService basisgruppeService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private ElevforholdService elevforholdService;
-	
-	@Autowired
-	private UndervisningsforholdService undervisningsforholdService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private BasisgruppeService basisgruppeService;
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private ElevforholdService elevforholdService;
+
+    @Autowired
+    private UndervisningsforholdService undervisningsforholdService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public BasisgruppeResource getBasisgruppe(KontaktlarergruppeResource kontaktlarergruppe) {
+    public BasisgruppeResource getBasisgruppe(KontaktlarergruppeResource kontaktlarergruppe) {
         return basisgruppeService.getBasisgruppeResource(Links.get(kontaktlarergruppe, "basisgruppe"));
     }
-	
-	public SkoleResource getSkole(KontaktlarergruppeResource kontaktlarergruppe) {
+
+    public SkoleResource getSkole(KontaktlarergruppeResource kontaktlarergruppe) {
         return skoleService.getSkoleResource(Links.get(kontaktlarergruppe, "skole"));
     }
-	
-	public ElevforholdResource getElevforhold(KontaktlarergruppeResource kontaktlarergruppe) {
+
+    public ElevforholdResource getElevforhold(KontaktlarergruppeResource kontaktlarergruppe) {
         return elevforholdService.getElevforholdResource(Links.get(kontaktlarergruppe, "elevforhold"));
     }
-	
-	public UndervisningsforholdResource getUndervisningsforhold(KontaktlarergruppeResource kontaktlarergruppe) {
+
+    public UndervisningsforholdResource getUndervisningsforhold(KontaktlarergruppeResource kontaktlarergruppe) {
         return undervisningsforholdService.getUndervisningsforholdResource(Links.get(kontaktlarergruppe, "undervisningsforhold"));
     }
-	
-	public MedlemskapResource getMedlemskap(KontaktlarergruppeResource kontaktlarergruppe) {
+
+    public MedlemskapResource getMedlemskap(KontaktlarergruppeResource kontaktlarergruppe) {
         return medlemskapService.getMedlemskapResource(Links.get(kontaktlarergruppe, "medlemskap"));
     }
-	
-	
+
 }
 

@@ -23,19 +23,14 @@ import org.springframework.stereotype.Component;
 @Component("fellesKommuneResolver")
 public class KommuneResolver implements GraphQLResolver<KommuneResource> {
 
-	
-	@Autowired
-	private FylkeService fylkeService;
-	
-	
+
+    @Autowired
+    private FylkeService fylkeService;
 
 
-	
-	
-	public FylkeResource getFylke(KommuneResource kommune) {
+    public FylkeResource getFylke(KommuneResource kommune) {
         return fylkeService.getFylkeResource(Links.get(kommune, "fylke"));
     }
-	
-	
+
 }
 

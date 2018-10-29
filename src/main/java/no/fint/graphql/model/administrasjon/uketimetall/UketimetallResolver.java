@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonUketimetallResolver")
 public class UketimetallResolver implements GraphQLResolver<UketimetallResource> {
 
-	
 
-
-	
 }
 

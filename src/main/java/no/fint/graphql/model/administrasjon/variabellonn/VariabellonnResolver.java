@@ -27,33 +27,36 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonVariabellonnResolver")
 public class VariabellonnResolver implements GraphQLResolver<VariabellonnResource> {
 
-	
-	@Autowired
-	private LonnsartService lonnsartService;
-	
-	@Autowired
-	private PersonalressursService personalressursService;
-	
-	@Autowired
-	private ArbeidsforholdService arbeidsforholdService;
-	
-	
+
+    @Autowired
+    private LonnsartService lonnsartService;
+
+    @Autowired
+    private PersonalressursService personalressursService;
+
+    @Autowired
+    private ArbeidsforholdService arbeidsforholdService;
 
 
-	
-	
-	public LonnsartResource getLonnsart(VariabellonnResource variabellonn) {
+    public LonnsartResource getLonnsart(VariabellonnResource variabellonn) {
         return lonnsartService.getLonnsartResource(Links.get(variabellonn, "lonnsart"));
     }
-	
-	public PersonalressursResource getPersonalressurs(VariabellonnResource variabellonn) {
+
+    public PersonalressursResource getAnviser(VariabellonnResource variabellonn) {
         return personalressursService.getPersonalressursResource(Links.get(variabellonn, "anviser"));
     }
-	
-	public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn) {
+
+    public PersonalressursResource getKonterer(VariabellonnResource variabellonn) {
+        return personalressursService.getPersonalressursResource(Links.get(variabellonn, "konterer"));
+    }
+
+    public PersonalressursResource getAttestant(VariabellonnResource variabellonn) {
+        return personalressursService.getPersonalressursResource(Links.get(variabellonn, "attestant"));
+    }
+
+    public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn) {
         return arbeidsforholdService.getArbeidsforholdResource(Links.get(variabellonn, "arbeidsforhold"));
     }
-	
-	
+
 }
 

@@ -23,19 +23,14 @@ import org.springframework.stereotype.Component;
 @Component("utdanningRomResolver")
 public class RomResolver implements GraphQLResolver<RomResource> {
 
-	
-	@Autowired
-	private TimeService timeService;
-	
-	
+
+    @Autowired
+    private TimeService timeService;
 
 
-	
-	
-	public TimeResource getTime(RomResource rom) {
+    public TimeResource getTime(RomResource rom) {
         return timeService.getTimeResource(Links.get(rom, "time"));
     }
-	
-	
+
 }
 

@@ -23,19 +23,14 @@ import org.springframework.stereotype.Component;
 @Component("utdanningKarakterverdiResolver")
 public class KarakterverdiResolver implements GraphQLResolver<KarakterverdiResource> {
 
-	
-	@Autowired
-	private KarakterskalaService karakterskalaService;
-	
-	
+
+    @Autowired
+    private KarakterskalaService karakterskalaService;
 
 
-	
-	
-	public KarakterskalaResource getKarakterskala(KarakterverdiResource karakterverdi) {
+    public KarakterskalaResource getSkala(KarakterverdiResource karakterverdi) {
         return karakterskalaService.getKarakterskalaResource(Links.get(karakterverdi, "skala"));
     }
-	
-	
+
 }
 

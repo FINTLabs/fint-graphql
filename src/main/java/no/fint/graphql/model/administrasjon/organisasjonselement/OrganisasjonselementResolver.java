@@ -31,47 +31,46 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonOrganisasjonselementResolver")
 public class OrganisasjonselementResolver implements GraphQLResolver<OrganisasjonselementResource> {
 
-	
-	@Autowired
-	private AnsvarService ansvarService;
-	
-	@Autowired
-	private PersonalressursService personalressursService;
-	
-	@Autowired
-	private OrganisasjonselementService organisasjonselementService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private ArbeidsforholdService arbeidsforholdService;
-	
-	
+
+    @Autowired
+    private AnsvarService ansvarService;
+
+    @Autowired
+    private PersonalressursService personalressursService;
+
+    @Autowired
+    private OrganisasjonselementService organisasjonselementService;
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private ArbeidsforholdService arbeidsforholdService;
 
 
-	
-	
-	public AnsvarResource getAnsvar(OrganisasjonselementResource organisasjonselement) {
+    public AnsvarResource getAnsvar(OrganisasjonselementResource organisasjonselement) {
         return ansvarService.getAnsvarResource(Links.get(organisasjonselement, "ansvar"));
     }
-	
-	public PersonalressursResource getPersonalressurs(OrganisasjonselementResource organisasjonselement) {
+
+    public PersonalressursResource getLeder(OrganisasjonselementResource organisasjonselement) {
         return personalressursService.getPersonalressursResource(Links.get(organisasjonselement, "leder"));
     }
-	
-	public OrganisasjonselementResource getOrganisasjonselement(OrganisasjonselementResource organisasjonselement) {
+
+    public OrganisasjonselementResource getOverordnet(OrganisasjonselementResource organisasjonselement) {
         return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement, "overordnet"));
     }
-	
-	public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement) {
+
+    public OrganisasjonselementResource getUnderordnet(OrganisasjonselementResource organisasjonselement) {
+        return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement, "underordnet"));
+    }
+
+    public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement) {
         return skoleService.getSkoleResource(Links.get(organisasjonselement, "skole"));
     }
-	
-	public ArbeidsforholdResource getArbeidsforhold(OrganisasjonselementResource organisasjonselement) {
+
+    public ArbeidsforholdResource getArbeidsforhold(OrganisasjonselementResource organisasjonselement) {
         return arbeidsforholdService.getArbeidsforholdResource(Links.get(organisasjonselement, "arbeidsforhold"));
     }
-	
-	
+
 }
 

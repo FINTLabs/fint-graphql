@@ -33,54 +33,49 @@ import org.springframework.stereotype.Component;
 @Component("utdanningBasisgruppeResolver")
 public class BasisgruppeResolver implements GraphQLResolver<BasisgruppeResource> {
 
-	
-	@Autowired
-	private ArstrinnService arstrinnService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private UndervisningsforholdService undervisningsforholdService;
-	
-	@Autowired
-	private ElevforholdService elevforholdService;
-	
-	@Autowired
-	private KontaktlarergruppeService kontaktlarergruppeService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private ArstrinnService arstrinnService;
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private UndervisningsforholdService undervisningsforholdService;
+
+    @Autowired
+    private ElevforholdService elevforholdService;
+
+    @Autowired
+    private KontaktlarergruppeService kontaktlarergruppeService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public ArstrinnResource getArstrinn(BasisgruppeResource basisgruppe) {
+    public ArstrinnResource getTrinn(BasisgruppeResource basisgruppe) {
         return arstrinnService.getArstrinnResource(Links.get(basisgruppe, "trinn"));
     }
-	
-	public SkoleResource getSkole(BasisgruppeResource basisgruppe) {
+
+    public SkoleResource getSkole(BasisgruppeResource basisgruppe) {
         return skoleService.getSkoleResource(Links.get(basisgruppe, "skole"));
     }
-	
-	public UndervisningsforholdResource getUndervisningsforhold(BasisgruppeResource basisgruppe) {
+
+    public UndervisningsforholdResource getUndervisningsforhold(BasisgruppeResource basisgruppe) {
         return undervisningsforholdService.getUndervisningsforholdResource(Links.get(basisgruppe, "undervisningsforhold"));
     }
-	
-	public ElevforholdResource getElevforhold(BasisgruppeResource basisgruppe) {
+
+    public ElevforholdResource getElevforhold(BasisgruppeResource basisgruppe) {
         return elevforholdService.getElevforholdResource(Links.get(basisgruppe, "elevforhold"));
     }
-	
-	public KontaktlarergruppeResource getKontaktlarergruppe(BasisgruppeResource basisgruppe) {
+
+    public KontaktlarergruppeResource getKontaktlarergruppe(BasisgruppeResource basisgruppe) {
         return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(basisgruppe, "kontaktlarergruppe"));
     }
-	
-	public MedlemskapResource getMedlemskap(BasisgruppeResource basisgruppe) {
+
+    public MedlemskapResource getMedlemskap(BasisgruppeResource basisgruppe) {
         return medlemskapService.getMedlemskapResource(Links.get(basisgruppe, "medlemskap"));
     }
-	
-	
+
 }
 

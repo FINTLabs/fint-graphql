@@ -39,75 +39,74 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonArbeidsforholdResolver")
 public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdResource> {
 
-	
-	@Autowired
-	private AnsvarService ansvarService;
-	
-	@Autowired
-	private ArbeidsforholdstypeService arbeidsforholdstypeService;
-	
-	@Autowired
-	private FunksjonService funksjonService;
-	
-	@Autowired
-	private StillingskodeService stillingskodeService;
-	
-	@Autowired
-	private UketimetallService uketimetallService;
-	
-	@Autowired
-	private OrganisasjonselementService organisasjonselementService;
-	
-	@Autowired
-	private PersonalressursService personalressursService;
-	
-	@Autowired
-	private FravarService fravarService;
-	
-	@Autowired
-	private UndervisningsforholdService undervisningsforholdService;
-	
-	
+
+    @Autowired
+    private AnsvarService ansvarService;
+
+    @Autowired
+    private ArbeidsforholdstypeService arbeidsforholdstypeService;
+
+    @Autowired
+    private FunksjonService funksjonService;
+
+    @Autowired
+    private StillingskodeService stillingskodeService;
+
+    @Autowired
+    private UketimetallService uketimetallService;
+
+    @Autowired
+    private OrganisasjonselementService organisasjonselementService;
+
+    @Autowired
+    private PersonalressursService personalressursService;
+
+    @Autowired
+    private FravarService fravarService;
+
+    @Autowired
+    private UndervisningsforholdService undervisningsforholdService;
 
 
-	
-	
-	public AnsvarResource getAnsvar(ArbeidsforholdResource arbeidsforhold) {
+    public AnsvarResource getAnsvar(ArbeidsforholdResource arbeidsforhold) {
         return ansvarService.getAnsvarResource(Links.get(arbeidsforhold, "ansvar"));
     }
-	
-	public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold) {
+
+    public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold) {
         return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforhold, "arbeidsforholdstype"));
     }
-	
-	public FunksjonResource getFunksjon(ArbeidsforholdResource arbeidsforhold) {
+
+    public FunksjonResource getFunksjon(ArbeidsforholdResource arbeidsforhold) {
         return funksjonService.getFunksjonResource(Links.get(arbeidsforhold, "funksjon"));
     }
-	
-	public StillingskodeResource getStillingskode(ArbeidsforholdResource arbeidsforhold) {
+
+    public StillingskodeResource getStillingskode(ArbeidsforholdResource arbeidsforhold) {
         return stillingskodeService.getStillingskodeResource(Links.get(arbeidsforhold, "stillingskode"));
     }
-	
-	public UketimetallResource getUketimetall(ArbeidsforholdResource arbeidsforhold) {
+
+    public UketimetallResource getTimerPerUke(ArbeidsforholdResource arbeidsforhold) {
         return uketimetallService.getUketimetallResource(Links.get(arbeidsforhold, "timerPerUke"));
     }
-	
-	public OrganisasjonselementResource getOrganisasjonselement(ArbeidsforholdResource arbeidsforhold) {
+
+    public OrganisasjonselementResource getArbeidssted(ArbeidsforholdResource arbeidsforhold) {
         return organisasjonselementService.getOrganisasjonselementResource(Links.get(arbeidsforhold, "arbeidssted"));
     }
-	
-	public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold) {
+
+    public PersonalressursResource getPersonalleder(ArbeidsforholdResource arbeidsforhold) {
         return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold, "personalleder"));
     }
-	
-	public FravarResource getFravar(ArbeidsforholdResource arbeidsforhold) {
+
+    public FravarResource getFravar(ArbeidsforholdResource arbeidsforhold) {
         return fravarService.getFravarResource(Links.get(arbeidsforhold, "fravar"));
     }
-	
-	public UndervisningsforholdResource getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold) {
+
+    public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold) {
+        return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold, "personalressurs"));
+    }
+
+    public UndervisningsforholdResource getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold) {
         return undervisningsforholdService.getUndervisningsforholdResource(Links.get(arbeidsforhold, "undervisningsforhold"));
     }
-	
-	
+
 }
 

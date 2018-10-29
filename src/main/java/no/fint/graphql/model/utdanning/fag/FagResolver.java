@@ -31,47 +31,42 @@ import org.springframework.stereotype.Component;
 @Component("utdanningFagResolver")
 public class FagResolver implements GraphQLResolver<FagResource> {
 
-	
-	@Autowired
-	private ProgramomradeService programomradeService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private UndervisningsgruppeService undervisningsgruppeService;
-	
-	@Autowired
-	private EksamensgruppeService eksamensgruppeService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private ProgramomradeService programomradeService;
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private UndervisningsgruppeService undervisningsgruppeService;
+
+    @Autowired
+    private EksamensgruppeService eksamensgruppeService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public ProgramomradeResource getProgramomrade(FagResource fag) {
+    public ProgramomradeResource getProgramomrade(FagResource fag) {
         return programomradeService.getProgramomradeResource(Links.get(fag, "programomrade"));
     }
-	
-	public SkoleResource getSkole(FagResource fag) {
+
+    public SkoleResource getSkole(FagResource fag) {
         return skoleService.getSkoleResource(Links.get(fag, "skole"));
     }
-	
-	public UndervisningsgruppeResource getUndervisningsgruppe(FagResource fag) {
+
+    public UndervisningsgruppeResource getUndervisningsgruppe(FagResource fag) {
         return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(fag, "undervisningsgruppe"));
     }
-	
-	public EksamensgruppeResource getEksamensgruppe(FagResource fag) {
+
+    public EksamensgruppeResource getEksamensgruppe(FagResource fag) {
         return eksamensgruppeService.getEksamensgruppeResource(Links.get(fag, "eksamensgruppe"));
     }
-	
-	public MedlemskapResource getMedlemskap(FagResource fag) {
+
+    public MedlemskapResource getMedlemskap(FagResource fag) {
         return medlemskapService.getMedlemskapResource(Links.get(fag, "medlemskap"));
     }
-	
-	
+
 }
 

@@ -25,26 +25,25 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonFullmaktResolver")
 public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
 
-	
-	@Autowired
-	private PersonalressursService personalressursService;
-	
-	@Autowired
-	private RolleService rolleService;
-	
-	
+
+    @Autowired
+    private PersonalressursService personalressursService;
+
+    @Autowired
+    private RolleService rolleService;
 
 
-	
-	
-	public PersonalressursResource getPersonalressurs(FullmaktResource fullmakt) {
+    public PersonalressursResource getStedfortreder(FullmaktResource fullmakt) {
         return personalressursService.getPersonalressursResource(Links.get(fullmakt, "stedfortreder"));
     }
-	
-	public RolleResource getRolle(FullmaktResource fullmakt) {
+
+    public PersonalressursResource getFullmektig(FullmaktResource fullmakt) {
+        return personalressursService.getPersonalressursResource(Links.get(fullmakt, "fullmektig"));
+    }
+
+    public RolleResource getRolle(FullmaktResource fullmakt) {
         return rolleService.getRolleResource(Links.get(fullmakt, "rolle"));
     }
-	
-	
+
 }
 

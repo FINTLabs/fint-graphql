@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("fellesLandkodeResolver")
 public class LandkodeResolver implements GraphQLResolver<LandkodeResource> {
 
-	
 
-
-	
 }
 

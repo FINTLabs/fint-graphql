@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("fellesKjonnResolver")
 public class KjonnResolver implements GraphQLResolver<KjonnResource> {
 
-	
 
-
-	
 }
 

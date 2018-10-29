@@ -27,33 +27,32 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonAnsvarResolver")
 public class AnsvarResolver implements GraphQLResolver<AnsvarResource> {
 
-	
-	@Autowired
-	private AnsvarService ansvarService;
-	
-	@Autowired
-	private OrganisasjonselementService organisasjonselementService;
-	
-	@Autowired
-	private FullmaktService fullmaktService;
-	
-	
+
+    @Autowired
+    private AnsvarService ansvarService;
+
+    @Autowired
+    private OrganisasjonselementService organisasjonselementService;
+
+    @Autowired
+    private FullmaktService fullmaktService;
 
 
-	
-	
-	public AnsvarResource getAnsvar(AnsvarResource ansvar) {
+    public AnsvarResource getOverordnet(AnsvarResource ansvar) {
         return ansvarService.getAnsvarResource(Links.get(ansvar, "overordnet"));
     }
-	
-	public OrganisasjonselementResource getOrganisasjonselement(AnsvarResource ansvar) {
+
+    public AnsvarResource getUnderordnet(AnsvarResource ansvar) {
+        return ansvarService.getAnsvarResource(Links.get(ansvar, "underordnet"));
+    }
+
+    public OrganisasjonselementResource getOrganisasjonselement(AnsvarResource ansvar) {
         return organisasjonselementService.getOrganisasjonselementResource(Links.get(ansvar, "organisasjonselement"));
     }
-	
-	public FullmaktResource getFullmakt(AnsvarResource ansvar) {
+
+    public FullmaktResource getFullmakt(AnsvarResource ansvar) {
         return fullmaktService.getFullmaktResource(Links.get(ansvar, "fullmakt"));
     }
-	
-	
+
 }
 

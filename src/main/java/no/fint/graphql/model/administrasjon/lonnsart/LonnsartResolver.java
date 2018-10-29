@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonLonnsartResolver")
 public class LonnsartResolver implements GraphQLResolver<LonnsartResource> {
 
-	
 
-
-	
 }
 

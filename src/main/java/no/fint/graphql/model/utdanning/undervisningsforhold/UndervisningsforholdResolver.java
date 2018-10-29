@@ -39,75 +39,70 @@ import org.springframework.stereotype.Component;
 @Component("utdanningUndervisningsforholdResolver")
 public class UndervisningsforholdResolver implements GraphQLResolver<UndervisningsforholdResource> {
 
-	
-	@Autowired
-	private ArbeidsforholdService arbeidsforholdService;
-	
-	@Autowired
-	private BasisgruppeService basisgruppeService;
-	
-	@Autowired
-	private KontaktlarergruppeService kontaktlarergruppeService;
-	
-	@Autowired
-	private UndervisningsgruppeService undervisningsgruppeService;
-	
-	@Autowired
-	private EksamensgruppeService eksamensgruppeService;
-	
-	@Autowired
-	private TimeService timeService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private SkoleressursService skoleressursService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private ArbeidsforholdService arbeidsforholdService;
+
+    @Autowired
+    private BasisgruppeService basisgruppeService;
+
+    @Autowired
+    private KontaktlarergruppeService kontaktlarergruppeService;
+
+    @Autowired
+    private UndervisningsgruppeService undervisningsgruppeService;
+
+    @Autowired
+    private EksamensgruppeService eksamensgruppeService;
+
+    @Autowired
+    private TimeService timeService;
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private SkoleressursService skoleressursService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public ArbeidsforholdResource getArbeidsforhold(UndervisningsforholdResource undervisningsforhold) {
+    public ArbeidsforholdResource getArbeidsforhold(UndervisningsforholdResource undervisningsforhold) {
         return arbeidsforholdService.getArbeidsforholdResource(Links.get(undervisningsforhold, "arbeidsforhold"));
     }
-	
-	public BasisgruppeResource getBasisgruppe(UndervisningsforholdResource undervisningsforhold) {
+
+    public BasisgruppeResource getBasisgruppe(UndervisningsforholdResource undervisningsforhold) {
         return basisgruppeService.getBasisgruppeResource(Links.get(undervisningsforhold, "basisgruppe"));
     }
-	
-	public KontaktlarergruppeResource getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold) {
+
+    public KontaktlarergruppeResource getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold) {
         return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(undervisningsforhold, "kontaktlarergruppe"));
     }
-	
-	public UndervisningsgruppeResource getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold) {
+
+    public UndervisningsgruppeResource getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold) {
         return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(undervisningsforhold, "undervisningsgruppe"));
     }
-	
-	public EksamensgruppeResource getEksamensgruppe(UndervisningsforholdResource undervisningsforhold) {
+
+    public EksamensgruppeResource getEksamensgruppe(UndervisningsforholdResource undervisningsforhold) {
         return eksamensgruppeService.getEksamensgruppeResource(Links.get(undervisningsforhold, "eksamensgruppe"));
     }
-	
-	public TimeResource getTime(UndervisningsforholdResource undervisningsforhold) {
+
+    public TimeResource getTime(UndervisningsforholdResource undervisningsforhold) {
         return timeService.getTimeResource(Links.get(undervisningsforhold, "time"));
     }
-	
-	public SkoleResource getSkole(UndervisningsforholdResource undervisningsforhold) {
+
+    public SkoleResource getSkole(UndervisningsforholdResource undervisningsforhold) {
         return skoleService.getSkoleResource(Links.get(undervisningsforhold, "skole"));
     }
-	
-	public SkoleressursResource getSkoleressurs(UndervisningsforholdResource undervisningsforhold) {
+
+    public SkoleressursResource getSkoleressurs(UndervisningsforholdResource undervisningsforhold) {
         return skoleressursService.getSkoleressursResource(Links.get(undervisningsforhold, "skoleressurs"));
     }
-	
-	public MedlemskapResource getMedlemskap(UndervisningsforholdResource undervisningsforhold) {
+
+    public MedlemskapResource getMedlemskap(UndervisningsforholdResource undervisningsforhold) {
         return medlemskapService.getMedlemskapResource(Links.get(undervisningsforhold, "medlemskap"));
     }
-	
-	
+
 }
 

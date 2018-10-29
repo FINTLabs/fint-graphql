@@ -23,19 +23,18 @@ import org.springframework.stereotype.Component;
 @Component("fellesKontaktpersonResolver")
 public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResource> {
 
-	
-	@Autowired
-	private PersonService personService;
-	
-	
+
+    @Autowired
+    private PersonService personService;
 
 
-	
-	
-	public PersonResource getPerson(KontaktpersonResource kontaktperson) {
+    public PersonResource getKontaktperson(KontaktpersonResource kontaktperson) {
         return personService.getPersonResource(Links.get(kontaktperson, "kontaktperson"));
     }
-	
-	
+
+    public PersonResource getPerson(KontaktpersonResource kontaktperson) {
+        return personService.getPersonResource(Links.get(kontaktperson, "person"));
+    }
+
 }
 

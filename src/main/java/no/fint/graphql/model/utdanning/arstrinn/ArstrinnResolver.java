@@ -27,33 +27,28 @@ import org.springframework.stereotype.Component;
 @Component("utdanningArstrinnResolver")
 public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
 
-	
-	@Autowired
-	private ProgramomradeService programomradeService;
-	
-	@Autowired
-	private BasisgruppeService basisgruppeService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private ProgramomradeService programomradeService;
+
+    @Autowired
+    private BasisgruppeService basisgruppeService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public ProgramomradeResource getProgramomrade(ArstrinnResource arstrinn) {
+    public ProgramomradeResource getProgramomrade(ArstrinnResource arstrinn) {
         return programomradeService.getProgramomradeResource(Links.get(arstrinn, "programomrade"));
     }
-	
-	public BasisgruppeResource getBasisgruppe(ArstrinnResource arstrinn) {
+
+    public BasisgruppeResource getBasisgruppe(ArstrinnResource arstrinn) {
         return basisgruppeService.getBasisgruppeResource(Links.get(arstrinn, "basisgruppe"));
     }
-	
-	public MedlemskapResource getMedlemskap(ArstrinnResource arstrinn) {
+
+    public MedlemskapResource getMedlemskap(ArstrinnResource arstrinn) {
         return medlemskapService.getMedlemskapResource(Links.get(arstrinn, "medlemskap"));
     }
-	
-	
+
 }
 

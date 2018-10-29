@@ -23,19 +23,14 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonStillingskodeResolver")
 public class StillingskodeResolver implements GraphQLResolver<StillingskodeResource> {
 
-	
-	@Autowired
-	private StillingskodeService stillingskodeService;
-	
-	
+
+    @Autowired
+    private StillingskodeService stillingskodeService;
 
 
-	
-	
-	public StillingskodeResource getStillingskode(StillingskodeResource stillingskode) {
+    public StillingskodeResource getForelder(StillingskodeResource stillingskode) {
         return stillingskodeService.getStillingskodeResource(Links.get(stillingskode, "forelder"));
     }
-	
-	
+
 }
 

@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("utdanningSkoleeiertypeResolver")
 public class SkoleeiertypeResolver implements GraphQLResolver<SkoleeiertypeResource> {
 
-	
 
-
-	
 }
 

@@ -29,40 +29,35 @@ import org.springframework.stereotype.Component;
 @Component("utdanningProgramomradeResolver")
 public class ProgramomradeResolver implements GraphQLResolver<ProgramomradeResource> {
 
-	
-	@Autowired
-	private UtdanningsprogramService utdanningsprogramService;
-	
-	@Autowired
-	private FagService fagService;
-	
-	@Autowired
-	private ArstrinnService arstrinnService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private UtdanningsprogramService utdanningsprogramService;
+
+    @Autowired
+    private FagService fagService;
+
+    @Autowired
+    private ArstrinnService arstrinnService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public UtdanningsprogramResource getUtdanningsprogram(ProgramomradeResource programomrade) {
+    public UtdanningsprogramResource getUtdanningsprogram(ProgramomradeResource programomrade) {
         return utdanningsprogramService.getUtdanningsprogramResource(Links.get(programomrade, "utdanningsprogram"));
     }
-	
-	public FagResource getFag(ProgramomradeResource programomrade) {
+
+    public FagResource getFag(ProgramomradeResource programomrade) {
         return fagService.getFagResource(Links.get(programomrade, "fag"));
     }
-	
-	public ArstrinnResource getArstrinn(ProgramomradeResource programomrade) {
+
+    public ArstrinnResource getTrinn(ProgramomradeResource programomrade) {
         return arstrinnService.getArstrinnResource(Links.get(programomrade, "trinn"));
     }
-	
-	public MedlemskapResource getMedlemskap(ProgramomradeResource programomrade) {
+
+    public MedlemskapResource getMedlemskap(ProgramomradeResource programomrade) {
         return medlemskapService.getMedlemskapResource(Links.get(programomrade, "medlemskap"));
     }
-	
-	
+
 }
 

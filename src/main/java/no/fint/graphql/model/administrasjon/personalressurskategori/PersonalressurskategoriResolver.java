@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonPersonalressurskategoriResolver")
 public class PersonalressurskategoriResolver implements GraphQLResolver<PersonalressurskategoriResource> {
 
-	
 
-
-	
 }
 

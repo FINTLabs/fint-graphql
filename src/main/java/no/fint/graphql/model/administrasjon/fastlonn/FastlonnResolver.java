@@ -27,33 +27,36 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonFastlonnResolver")
 public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
 
-	
-	@Autowired
-	private LonnsartService lonnsartService;
-	
-	@Autowired
-	private PersonalressursService personalressursService;
-	
-	@Autowired
-	private ArbeidsforholdService arbeidsforholdService;
-	
-	
+
+    @Autowired
+    private LonnsartService lonnsartService;
+
+    @Autowired
+    private PersonalressursService personalressursService;
+
+    @Autowired
+    private ArbeidsforholdService arbeidsforholdService;
 
 
-	
-	
-	public LonnsartResource getLonnsart(FastlonnResource fastlonn) {
+    public LonnsartResource getLonnsart(FastlonnResource fastlonn) {
         return lonnsartService.getLonnsartResource(Links.get(fastlonn, "lonnsart"));
     }
-	
-	public PersonalressursResource getPersonalressurs(FastlonnResource fastlonn) {
+
+    public PersonalressursResource getAnviser(FastlonnResource fastlonn) {
         return personalressursService.getPersonalressursResource(Links.get(fastlonn, "anviser"));
     }
-	
-	public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn) {
+
+    public PersonalressursResource getKonterer(FastlonnResource fastlonn) {
+        return personalressursService.getPersonalressursResource(Links.get(fastlonn, "konterer"));
+    }
+
+    public PersonalressursResource getAttestant(FastlonnResource fastlonn) {
+        return personalressursService.getPersonalressursResource(Links.get(fastlonn, "attestant"));
+    }
+
+    public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn) {
         return arbeidsforholdService.getArbeidsforholdResource(Links.get(fastlonn, "arbeidsforhold"));
     }
-	
-	
+
 }
 

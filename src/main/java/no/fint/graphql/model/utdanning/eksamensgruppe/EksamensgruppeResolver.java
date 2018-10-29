@@ -31,47 +31,42 @@ import org.springframework.stereotype.Component;
 @Component("utdanningEksamensgruppeResolver")
 public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeResource> {
 
-	
-	@Autowired
-	private FagService fagService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private ElevforholdService elevforholdService;
-	
-	@Autowired
-	private UndervisningsforholdService undervisningsforholdService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private FagService fagService;
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private ElevforholdService elevforholdService;
+
+    @Autowired
+    private UndervisningsforholdService undervisningsforholdService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public FagResource getFag(EksamensgruppeResource eksamensgruppe) {
+    public FagResource getFag(EksamensgruppeResource eksamensgruppe) {
         return fagService.getFagResource(Links.get(eksamensgruppe, "fag"));
     }
-	
-	public SkoleResource getSkole(EksamensgruppeResource eksamensgruppe) {
+
+    public SkoleResource getSkole(EksamensgruppeResource eksamensgruppe) {
         return skoleService.getSkoleResource(Links.get(eksamensgruppe, "skole"));
     }
-	
-	public ElevforholdResource getElevforhold(EksamensgruppeResource eksamensgruppe) {
+
+    public ElevforholdResource getElevforhold(EksamensgruppeResource eksamensgruppe) {
         return elevforholdService.getElevforholdResource(Links.get(eksamensgruppe, "elevforhold"));
     }
-	
-	public UndervisningsforholdResource getUndervisningsforhold(EksamensgruppeResource eksamensgruppe) {
+
+    public UndervisningsforholdResource getUndervisningsforhold(EksamensgruppeResource eksamensgruppe) {
         return undervisningsforholdService.getUndervisningsforholdResource(Links.get(eksamensgruppe, "undervisningsforhold"));
     }
-	
-	public MedlemskapResource getMedlemskap(EksamensgruppeResource eksamensgruppe) {
+
+    public MedlemskapResource getMedlemskap(EksamensgruppeResource eksamensgruppe) {
         return medlemskapService.getMedlemskapResource(Links.get(eksamensgruppe, "medlemskap"));
     }
-	
-	
+
 }
 

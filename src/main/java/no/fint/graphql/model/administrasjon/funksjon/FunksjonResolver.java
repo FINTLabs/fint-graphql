@@ -25,26 +25,25 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonFunksjonResolver")
 public class FunksjonResolver implements GraphQLResolver<FunksjonResource> {
 
-	
-	@Autowired
-	private FunksjonService funksjonService;
-	
-	@Autowired
-	private FullmaktService fullmaktService;
-	
-	
+
+    @Autowired
+    private FunksjonService funksjonService;
+
+    @Autowired
+    private FullmaktService fullmaktService;
 
 
-	
-	
-	public FunksjonResource getFunksjon(FunksjonResource funksjon) {
+    public FunksjonResource getOverordnet(FunksjonResource funksjon) {
         return funksjonService.getFunksjonResource(Links.get(funksjon, "overordnet"));
     }
-	
-	public FullmaktResource getFullmakt(FunksjonResource funksjon) {
+
+    public FunksjonResource getUnderordnet(FunksjonResource funksjon) {
+        return funksjonService.getFunksjonResource(Links.get(funksjon, "underordnet"));
+    }
+
+    public FullmaktResource getFullmakt(FunksjonResource funksjon) {
         return fullmaktService.getFullmaktResource(Links.get(funksjon, "fullmakt"));
     }
-	
-	
+
 }
 

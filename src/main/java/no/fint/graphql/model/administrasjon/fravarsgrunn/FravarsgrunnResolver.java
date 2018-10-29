@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonFravarsgrunnResolver")
 public class FravarsgrunnResolver implements GraphQLResolver<FravarsgrunnResource> {
 
-	
 
-
-	
 }
 

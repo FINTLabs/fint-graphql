@@ -27,33 +27,28 @@ import org.springframework.stereotype.Component;
 @Component("utdanningTimeResolver")
 public class TimeResolver implements GraphQLResolver<TimeResource> {
 
-	
-	@Autowired
-	private UndervisningsgruppeService undervisningsgruppeService;
-	
-	@Autowired
-	private UndervisningsforholdService undervisningsforholdService;
-	
-	@Autowired
-	private RomService romService;
-	
-	
+
+    @Autowired
+    private UndervisningsgruppeService undervisningsgruppeService;
+
+    @Autowired
+    private UndervisningsforholdService undervisningsforholdService;
+
+    @Autowired
+    private RomService romService;
 
 
-	
-	
-	public UndervisningsgruppeResource getUndervisningsgruppe(TimeResource time) {
+    public UndervisningsgruppeResource getUndervisningsgruppe(TimeResource time) {
         return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(time, "undervisningsgruppe"));
     }
-	
-	public UndervisningsforholdResource getUndervisningsforhold(TimeResource time) {
+
+    public UndervisningsforholdResource getUndervisningsforhold(TimeResource time) {
         return undervisningsforholdService.getUndervisningsforholdResource(Links.get(time, "undervisningsforhold"));
     }
-	
-	public RomResource getRom(TimeResource time) {
+
+    public RomResource getRom(TimeResource time) {
         return romService.getRomResource(Links.get(time, "rom"));
     }
-	
-	
+
 }
 

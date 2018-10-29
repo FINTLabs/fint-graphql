@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("fellesSprakResolver")
 public class SprakResolver implements GraphQLResolver<SprakResource> {
 
-	
 
-
-	
 }
 

@@ -23,19 +23,14 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonProsjektResolver")
 public class ProsjektResolver implements GraphQLResolver<ProsjektResource> {
 
-	
-	@Autowired
-	private FullmaktService fullmaktService;
-	
-	
+
+    @Autowired
+    private FullmaktService fullmaktService;
 
 
-	
-	
-	public FullmaktResource getFullmakt(ProsjektResource prosjekt) {
+    public FullmaktResource getFullmakt(ProsjektResource prosjekt) {
         return fullmaktService.getFullmaktResource(Links.get(prosjekt, "fullmakt"));
     }
-	
-	
+
 }
 

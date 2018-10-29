@@ -29,40 +29,39 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonFravarResolver")
 public class FravarResolver implements GraphQLResolver<FravarResource> {
 
-	
-	@Autowired
-	private FravarsgrunnService fravarsgrunnService;
-	
-	@Autowired
-	private FravarstypeService fravarstypeService;
-	
-	@Autowired
-	private ArbeidsforholdService arbeidsforholdService;
-	
-	@Autowired
-	private FravarService fravarService;
-	
-	
+
+    @Autowired
+    private FravarsgrunnService fravarsgrunnService;
+
+    @Autowired
+    private FravarstypeService fravarstypeService;
+
+    @Autowired
+    private ArbeidsforholdService arbeidsforholdService;
+
+    @Autowired
+    private FravarService fravarService;
 
 
-	
-	
-	public FravarsgrunnResource getFravarsgrunn(FravarResource fravar) {
+    public FravarsgrunnResource getFravarsgrunn(FravarResource fravar) {
         return fravarsgrunnService.getFravarsgrunnResource(Links.get(fravar, "fravarsgrunn"));
     }
-	
-	public FravarstypeResource getFravarstype(FravarResource fravar) {
+
+    public FravarstypeResource getFravarstype(FravarResource fravar) {
         return fravarstypeService.getFravarstypeResource(Links.get(fravar, "fravarstype"));
     }
-	
-	public ArbeidsforholdResource getArbeidsforhold(FravarResource fravar) {
+
+    public ArbeidsforholdResource getArbeidsforhold(FravarResource fravar) {
         return arbeidsforholdService.getArbeidsforholdResource(Links.get(fravar, "arbeidsforhold"));
     }
-	
-	public FravarResource getFravar(FravarResource fravar) {
+
+    public FravarResource getFortsettelse(FravarResource fravar) {
         return fravarService.getFravarResource(Links.get(fravar, "fortsettelse"));
     }
-	
-	
+
+    public FravarResource getFortsetter(FravarResource fravar) {
+        return fravarService.getFravarResource(Links.get(fravar, "fortsetter"));
+    }
+
 }
 

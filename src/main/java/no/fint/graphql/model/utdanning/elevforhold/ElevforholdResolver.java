@@ -41,82 +41,77 @@ import org.springframework.stereotype.Component;
 @Component("utdanningElevforholdResolver")
 public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource> {
 
-	
-	@Autowired
-	private BasisgruppeService basisgruppeService;
-	
-	@Autowired
-	private ElevService elevService;
-	
-	@Autowired
-	private ElevkategoriService elevkategoriService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private EksamensgruppeService eksamensgruppeService;
-	
-	@Autowired
-	private KontaktlarergruppeService kontaktlarergruppeService;
-	
-	@Autowired
-	private UndervisningsgruppeService undervisningsgruppeService;
-	
-	@Autowired
-	private VurderingService vurderingService;
-	
-	@Autowired
-	private FravarService fravarService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private BasisgruppeService basisgruppeService;
+
+    @Autowired
+    private ElevService elevService;
+
+    @Autowired
+    private ElevkategoriService elevkategoriService;
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private EksamensgruppeService eksamensgruppeService;
+
+    @Autowired
+    private KontaktlarergruppeService kontaktlarergruppeService;
+
+    @Autowired
+    private UndervisningsgruppeService undervisningsgruppeService;
+
+    @Autowired
+    private VurderingService vurderingService;
+
+    @Autowired
+    private FravarService fravarService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public BasisgruppeResource getBasisgruppe(ElevforholdResource elevforhold) {
+    public BasisgruppeResource getBasisgruppe(ElevforholdResource elevforhold) {
         return basisgruppeService.getBasisgruppeResource(Links.get(elevforhold, "basisgruppe"));
     }
-	
-	public ElevResource getElev(ElevforholdResource elevforhold) {
+
+    public ElevResource getElev(ElevforholdResource elevforhold) {
         return elevService.getElevResource(Links.get(elevforhold, "elev"));
     }
-	
-	public ElevkategoriResource getElevkategori(ElevforholdResource elevforhold) {
+
+    public ElevkategoriResource getKategori(ElevforholdResource elevforhold) {
         return elevkategoriService.getElevkategoriResource(Links.get(elevforhold, "kategori"));
     }
-	
-	public SkoleResource getSkole(ElevforholdResource elevforhold) {
+
+    public SkoleResource getSkole(ElevforholdResource elevforhold) {
         return skoleService.getSkoleResource(Links.get(elevforhold, "skole"));
     }
-	
-	public EksamensgruppeResource getEksamensgruppe(ElevforholdResource elevforhold) {
+
+    public EksamensgruppeResource getEksamensgruppe(ElevforholdResource elevforhold) {
         return eksamensgruppeService.getEksamensgruppeResource(Links.get(elevforhold, "eksamensgruppe"));
     }
-	
-	public KontaktlarergruppeResource getKontaktlarergruppe(ElevforholdResource elevforhold) {
+
+    public KontaktlarergruppeResource getKontaktlarergruppe(ElevforholdResource elevforhold) {
         return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(elevforhold, "kontaktlarergruppe"));
     }
-	
-	public UndervisningsgruppeResource getUndervisningsgruppe(ElevforholdResource elevforhold) {
+
+    public UndervisningsgruppeResource getUndervisningsgruppe(ElevforholdResource elevforhold) {
         return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(elevforhold, "undervisningsgruppe"));
     }
-	
-	public VurderingResource getVurdering(ElevforholdResource elevforhold) {
+
+    public VurderingResource getVurdering(ElevforholdResource elevforhold) {
         return vurderingService.getVurderingResource(Links.get(elevforhold, "vurdering"));
     }
-	
-	public FravarResource getFravar(ElevforholdResource elevforhold) {
+
+    public FravarResource getFravar(ElevforholdResource elevforhold) {
         return fravarService.getFravarResource(Links.get(elevforhold, "fravar"));
     }
-	
-	public MedlemskapResource getMedlemskap(ElevforholdResource elevforhold) {
+
+    public MedlemskapResource getMedlemskap(ElevforholdResource elevforhold) {
         return medlemskapService.getMedlemskapResource(Links.get(elevforhold, "medlemskap"));
     }
-	
-	
+
 }
 

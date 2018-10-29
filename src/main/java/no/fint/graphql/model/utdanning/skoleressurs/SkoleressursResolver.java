@@ -27,33 +27,28 @@ import org.springframework.stereotype.Component;
 @Component("utdanningSkoleressursResolver")
 public class SkoleressursResolver implements GraphQLResolver<SkoleressursResource> {
 
-	
-	@Autowired
-	private PersonalressursService personalressursService;
-	
-	@Autowired
-	private UndervisningsforholdService undervisningsforholdService;
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	
+
+    @Autowired
+    private PersonalressursService personalressursService;
+
+    @Autowired
+    private UndervisningsforholdService undervisningsforholdService;
+
+    @Autowired
+    private SkoleService skoleService;
 
 
-	
-	
-	public PersonalressursResource getPersonalressurs(SkoleressursResource skoleressurs) {
+    public PersonalressursResource getPersonalressurs(SkoleressursResource skoleressurs) {
         return personalressursService.getPersonalressursResource(Links.get(skoleressurs, "personalressurs"));
     }
-	
-	public UndervisningsforholdResource getUndervisningsforhold(SkoleressursResource skoleressurs) {
+
+    public UndervisningsforholdResource getUndervisningsforhold(SkoleressursResource skoleressurs) {
         return undervisningsforholdService.getUndervisningsforholdResource(Links.get(skoleressurs, "undervisningsforhold"));
     }
-	
-	public SkoleResource getSkole(SkoleressursResource skoleressurs) {
+
+    public SkoleResource getSkole(SkoleressursResource skoleressurs) {
         return skoleService.getSkoleResource(Links.get(skoleressurs, "skole"));
     }
-	
-	
+
 }
 

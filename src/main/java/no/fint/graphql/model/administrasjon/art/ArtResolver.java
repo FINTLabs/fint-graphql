@@ -23,19 +23,14 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonArtResolver")
 public class ArtResolver implements GraphQLResolver<ArtResource> {
 
-	
-	@Autowired
-	private FullmaktService fullmaktService;
-	
-	
+
+    @Autowired
+    private FullmaktService fullmaktService;
 
 
-	
-	
-	public FullmaktResource getFullmakt(ArtResource art) {
+    public FullmaktResource getFullmakt(ArtResource art) {
         return fullmaktService.getFullmaktResource(Links.get(art, "fullmakt"));
     }
-	
-	
+
 }
 

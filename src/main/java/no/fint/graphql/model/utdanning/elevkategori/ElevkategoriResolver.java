@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 @Component("utdanningElevkategoriResolver")
 public class ElevkategoriResolver implements GraphQLResolver<ElevkategoriResource> {
 
-	
 
-
-	
 }
 

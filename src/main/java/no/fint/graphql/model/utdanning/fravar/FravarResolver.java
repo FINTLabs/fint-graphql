@@ -29,40 +29,35 @@ import org.springframework.stereotype.Component;
 @Component("utdanningFravarResolver")
 public class FravarResolver implements GraphQLResolver<FravarResource> {
 
-	
-	@Autowired
-	private ElevforholdService elevforholdService;
-	
-	@Autowired
-	private UndervisningsgruppeService undervisningsgruppeService;
-	
-	@Autowired
-	private EksamensgruppeService eksamensgruppeService;
-	
-	@Autowired
-	private FravarstypeService fravarstypeService;
-	
-	
+
+    @Autowired
+    private ElevforholdService elevforholdService;
+
+    @Autowired
+    private UndervisningsgruppeService undervisningsgruppeService;
+
+    @Autowired
+    private EksamensgruppeService eksamensgruppeService;
+
+    @Autowired
+    private FravarstypeService fravarstypeService;
 
 
-	
-	
-	public ElevforholdResource getElevforhold(FravarResource fravar) {
+    public ElevforholdResource getElevforhold(FravarResource fravar) {
         return elevforholdService.getElevforholdResource(Links.get(fravar, "elevforhold"));
     }
-	
-	public UndervisningsgruppeResource getUndervisningsgruppe(FravarResource fravar) {
+
+    public UndervisningsgruppeResource getUndervisningsgruppe(FravarResource fravar) {
         return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(fravar, "undervisningsgruppe"));
     }
-	
-	public EksamensgruppeResource getEksamensgruppe(FravarResource fravar) {
+
+    public EksamensgruppeResource getEksamensgruppe(FravarResource fravar) {
         return eksamensgruppeService.getEksamensgruppeResource(Links.get(fravar, "eksamensgruppe"));
     }
-	
-	public FravarstypeResource getFravarstype(FravarResource fravar) {
+
+    public FravarstypeResource getFravarstype(FravarResource fravar) {
         return fravarstypeService.getFravarstypeResource(Links.get(fravar, "fravarstype"));
     }
-	
-	
+
 }
 

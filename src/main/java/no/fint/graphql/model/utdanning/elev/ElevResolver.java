@@ -25,26 +25,21 @@ import org.springframework.stereotype.Component;
 @Component("utdanningElevResolver")
 public class ElevResolver implements GraphQLResolver<ElevResource> {
 
-	
-	@Autowired
-	private PersonService personService;
-	
-	@Autowired
-	private ElevforholdService elevforholdService;
-	
-	
+
+    @Autowired
+    private PersonService personService;
+
+    @Autowired
+    private ElevforholdService elevforholdService;
 
 
-	
-	
-	public PersonResource getPerson(ElevResource elev) {
+    public PersonResource getPerson(ElevResource elev) {
         return personService.getPersonResource(Links.get(elev, "person"));
     }
-	
-	public ElevforholdResource getElevforhold(ElevResource elev) {
+
+    public ElevforholdResource getElevforhold(ElevResource elev) {
         return elevforholdService.getElevforholdResource(Links.get(elev, "elevforhold"));
     }
-	
-	
+
 }
 

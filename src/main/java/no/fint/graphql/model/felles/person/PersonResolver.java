@@ -33,54 +33,53 @@ import org.springframework.stereotype.Component;
 @Component("fellesPersonResolver")
 public class PersonResolver implements GraphQLResolver<PersonResource> {
 
-	
-	@Autowired
-	private LandkodeService landkodeService;
-	
-	@Autowired
-	private KjonnService kjonnService;
-	
-	@Autowired
-	private SprakService sprakService;
-	
-	@Autowired
-	private PersonalressursService personalressursService;
-	
-	@Autowired
-	private KontaktpersonService kontaktpersonService;
-	
-	@Autowired
-	private ElevService elevService;
-	
-	
+
+    @Autowired
+    private LandkodeService landkodeService;
+
+    @Autowired
+    private KjonnService kjonnService;
+
+    @Autowired
+    private SprakService sprakService;
+
+    @Autowired
+    private PersonalressursService personalressursService;
+
+    @Autowired
+    private KontaktpersonService kontaktpersonService;
+
+    @Autowired
+    private ElevService elevService;
 
 
-	
-	
-	public LandkodeResource getLandkode(PersonResource person) {
+    public LandkodeResource getStatsborgerskap(PersonResource person) {
         return landkodeService.getLandkodeResource(Links.get(person, "statsborgerskap"));
     }
-	
-	public KjonnResource getKjonn(PersonResource person) {
+
+    public KjonnResource getKjonn(PersonResource person) {
         return kjonnService.getKjonnResource(Links.get(person, "kjonn"));
     }
-	
-	public SprakResource getSprak(PersonResource person) {
+
+    public SprakResource getMalform(PersonResource person) {
         return sprakService.getSprakResource(Links.get(person, "malform"));
     }
-	
-	public PersonalressursResource getPersonalressurs(PersonResource person) {
+
+    public PersonalressursResource getPersonalressurs(PersonResource person) {
         return personalressursService.getPersonalressursResource(Links.get(person, "personalressurs"));
     }
-	
-	public KontaktpersonResource getKontaktperson(PersonResource person) {
+
+    public SprakResource getMorsmal(PersonResource person) {
+        return sprakService.getSprakResource(Links.get(person, "morsmal"));
+    }
+
+    public KontaktpersonResource getParorende(PersonResource person) {
         return kontaktpersonService.getKontaktpersonResource(Links.get(person, "parorende"));
     }
-	
-	public ElevResource getElev(PersonResource person) {
+
+    public ElevResource getElev(PersonResource person) {
         return elevService.getElevResource(Links.get(person, "elev"));
     }
-	
-	
+
 }
 

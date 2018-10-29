@@ -23,19 +23,14 @@ import org.springframework.stereotype.Component;
 @Component("administrasjonArbeidsforholdstypeResolver")
 public class ArbeidsforholdstypeResolver implements GraphQLResolver<ArbeidsforholdstypeResource> {
 
-	
-	@Autowired
-	private ArbeidsforholdstypeService arbeidsforholdstypeService;
-	
-	
+
+    @Autowired
+    private ArbeidsforholdstypeService arbeidsforholdstypeService;
 
 
-	
-	
-	public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdstypeResource arbeidsforholdstype) {
+    public ArbeidsforholdstypeResource getForelder(ArbeidsforholdstypeResource arbeidsforholdstype) {
         return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforholdstype, "forelder"));
     }
-	
-	
+
 }
 

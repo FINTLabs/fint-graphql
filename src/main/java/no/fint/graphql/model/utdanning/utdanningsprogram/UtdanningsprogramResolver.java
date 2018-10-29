@@ -27,33 +27,28 @@ import org.springframework.stereotype.Component;
 @Component("utdanningUtdanningsprogramResolver")
 public class UtdanningsprogramResolver implements GraphQLResolver<UtdanningsprogramResource> {
 
-	
-	@Autowired
-	private SkoleService skoleService;
-	
-	@Autowired
-	private ProgramomradeService programomradeService;
-	
-	@Autowired
-	private MedlemskapService medlemskapService;
-	
-	
+
+    @Autowired
+    private SkoleService skoleService;
+
+    @Autowired
+    private ProgramomradeService programomradeService;
+
+    @Autowired
+    private MedlemskapService medlemskapService;
 
 
-	
-	
-	public SkoleResource getSkole(UtdanningsprogramResource utdanningsprogram) {
+    public SkoleResource getSkole(UtdanningsprogramResource utdanningsprogram) {
         return skoleService.getSkoleResource(Links.get(utdanningsprogram, "skole"));
     }
-	
-	public ProgramomradeResource getProgramomrade(UtdanningsprogramResource utdanningsprogram) {
+
+    public ProgramomradeResource getProgramomrade(UtdanningsprogramResource utdanningsprogram) {
         return programomradeService.getProgramomradeResource(Links.get(utdanningsprogram, "programomrade"));
     }
-	
-	public MedlemskapResource getMedlemskap(UtdanningsprogramResource utdanningsprogram) {
+
+    public MedlemskapResource getMedlemskap(UtdanningsprogramResource utdanningsprogram) {
         return medlemskapService.getMedlemskapResource(Links.get(utdanningsprogram, "medlemskap"));
     }
-	
-	
+
 }
 

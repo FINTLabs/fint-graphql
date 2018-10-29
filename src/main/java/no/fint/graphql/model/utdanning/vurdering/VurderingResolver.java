@@ -29,40 +29,35 @@ import org.springframework.stereotype.Component;
 @Component("utdanningVurderingResolver")
 public class VurderingResolver implements GraphQLResolver<VurderingResource> {
 
-	
-	@Autowired
-	private ElevforholdService elevforholdService;
-	
-	@Autowired
-	private UndervisningsgruppeService undervisningsgruppeService;
-	
-	@Autowired
-	private EksamensgruppeService eksamensgruppeService;
-	
-	@Autowired
-	private KarakterverdiService karakterverdiService;
-	
-	
+
+    @Autowired
+    private ElevforholdService elevforholdService;
+
+    @Autowired
+    private UndervisningsgruppeService undervisningsgruppeService;
+
+    @Autowired
+    private EksamensgruppeService eksamensgruppeService;
+
+    @Autowired
+    private KarakterverdiService karakterverdiService;
 
 
-	
-	
-	public ElevforholdResource getElevforhold(VurderingResource vurdering) {
+    public ElevforholdResource getElevforhold(VurderingResource vurdering) {
         return elevforholdService.getElevforholdResource(Links.get(vurdering, "elevforhold"));
     }
-	
-	public UndervisningsgruppeResource getUndervisningsgruppe(VurderingResource vurdering) {
+
+    public UndervisningsgruppeResource getUndervisningsgruppe(VurderingResource vurdering) {
         return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(vurdering, "undervisningsgruppe"));
     }
-	
-	public EksamensgruppeResource getEksamensgruppe(VurderingResource vurdering) {
+
+    public EksamensgruppeResource getEksamensgruppe(VurderingResource vurdering) {
         return eksamensgruppeService.getEksamensgruppeResource(Links.get(vurdering, "eksamensgruppe"));
     }
-	
-	public KarakterverdiResource getKarakterverdi(VurderingResource vurdering) {
+
+    public KarakterverdiResource getKarakter(VurderingResource vurdering) {
         return karakterverdiService.getKarakterverdiResource(Links.get(vurdering, "karakter"));
     }
-	
-	
+
 }
 
