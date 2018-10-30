@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.fravar;
 
@@ -44,19 +44,19 @@ public class FravarResolver implements GraphQLResolver<FravarResource> {
 
 
     public ElevforholdResource getElevforhold(FravarResource fravar) {
-        return elevforholdService.getElevforholdResource(Links.get(fravar, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(fravar.getElevforhold()));
     }
 
     public UndervisningsgruppeResource getUndervisningsgruppe(FravarResource fravar) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(fravar, "undervisningsgruppe"));
+        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(fravar.getUndervisningsgruppe()));
     }
 
     public EksamensgruppeResource getEksamensgruppe(FravarResource fravar) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(fravar, "eksamensgruppe"));
+        return eksamensgruppeService.getEksamensgruppeResource(Links.get(fravar.getEksamensgruppe()));
     }
 
     public FravarstypeResource getFravarstype(FravarResource fravar) {
-        return fravarstypeService.getFravarstypeResource(Links.get(fravar, "fravarstype"));
+        return fravarstypeService.getFravarstypeResource(Links.get(fravar.getFravarstype()));
     }
 
 }

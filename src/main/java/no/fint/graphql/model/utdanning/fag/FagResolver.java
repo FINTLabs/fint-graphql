@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.fag;
 
@@ -49,23 +49,23 @@ public class FagResolver implements GraphQLResolver<FagResource> {
 
 
     public ProgramomradeResource getProgramomrade(FagResource fag) {
-        return programomradeService.getProgramomradeResource(Links.get(fag, "programomrade"));
+        return programomradeService.getProgramomradeResource(Links.get(fag.getProgramomrade()));
     }
 
     public SkoleResource getSkole(FagResource fag) {
-        return skoleService.getSkoleResource(Links.get(fag, "skole"));
+        return skoleService.getSkoleResource(Links.get(fag.getSkole()));
     }
 
     public UndervisningsgruppeResource getUndervisningsgruppe(FagResource fag) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(fag, "undervisningsgruppe"));
+        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(fag.getUndervisningsgruppe()));
     }
 
     public EksamensgruppeResource getEksamensgruppe(FagResource fag) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(fag, "eksamensgruppe"));
+        return eksamensgruppeService.getEksamensgruppeResource(Links.get(fag.getEksamensgruppe()));
     }
 
     public MedlemskapResource getMedlemskap(FagResource fag) {
-        return medlemskapService.getMedlemskapResource(Links.get(fag, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(fag.getMedlemskap()));
     }
 
 }

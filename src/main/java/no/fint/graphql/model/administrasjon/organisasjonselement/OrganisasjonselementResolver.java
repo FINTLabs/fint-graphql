@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.organisasjonselement;
 
@@ -49,27 +49,27 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
 
 
     public AnsvarResource getAnsvar(OrganisasjonselementResource organisasjonselement) {
-        return ansvarService.getAnsvarResource(Links.get(organisasjonselement, "ansvar"));
+        return ansvarService.getAnsvarResource(Links.get(organisasjonselement.getAnsvar()));
     }
 
     public PersonalressursResource getLeder(OrganisasjonselementResource organisasjonselement) {
-        return personalressursService.getPersonalressursResource(Links.get(organisasjonselement, "leder"));
+        return personalressursService.getPersonalressursResource(Links.get(organisasjonselement.getLeder()));
     }
 
     public OrganisasjonselementResource getOverordnet(OrganisasjonselementResource organisasjonselement) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement, "overordnet"));
+        return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement.getOverordnet()));
     }
 
     public OrganisasjonselementResource getUnderordnet(OrganisasjonselementResource organisasjonselement) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement, "underordnet"));
+        return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement.getUnderordnet()));
     }
 
     public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement) {
-        return skoleService.getSkoleResource(Links.get(organisasjonselement, "skole"));
+        return skoleService.getSkoleResource(Links.get(organisasjonselement.getSkole()));
     }
 
     public ArbeidsforholdResource getArbeidsforhold(OrganisasjonselementResource organisasjonselement) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(organisasjonselement, "arbeidsforhold"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(organisasjonselement.getArbeidsforhold()));
     }
 
 }

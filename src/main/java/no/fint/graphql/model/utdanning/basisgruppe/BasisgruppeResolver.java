@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.basisgruppe;
 
@@ -54,27 +54,27 @@ public class BasisgruppeResolver implements GraphQLResolver<BasisgruppeResource>
 
 
     public ArstrinnResource getTrinn(BasisgruppeResource basisgruppe) {
-        return arstrinnService.getArstrinnResource(Links.get(basisgruppe, "trinn"));
+        return arstrinnService.getArstrinnResource(Links.get(basisgruppe.getTrinn()));
     }
 
     public SkoleResource getSkole(BasisgruppeResource basisgruppe) {
-        return skoleService.getSkoleResource(Links.get(basisgruppe, "skole"));
+        return skoleService.getSkoleResource(Links.get(basisgruppe.getSkole()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(BasisgruppeResource basisgruppe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(basisgruppe, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(basisgruppe.getUndervisningsforhold()));
     }
 
     public ElevforholdResource getElevforhold(BasisgruppeResource basisgruppe) {
-        return elevforholdService.getElevforholdResource(Links.get(basisgruppe, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(basisgruppe.getElevforhold()));
     }
 
     public KontaktlarergruppeResource getKontaktlarergruppe(BasisgruppeResource basisgruppe) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(basisgruppe, "kontaktlarergruppe"));
+        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(basisgruppe.getKontaktlarergruppe()));
     }
 
     public MedlemskapResource getMedlemskap(BasisgruppeResource basisgruppe) {
-        return medlemskapService.getMedlemskapResource(Links.get(basisgruppe, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(basisgruppe.getMedlemskap()));
     }
 
 }

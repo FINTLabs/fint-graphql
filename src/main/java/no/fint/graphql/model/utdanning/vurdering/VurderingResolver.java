@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.vurdering;
 
@@ -44,19 +44,19 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
 
 
     public ElevforholdResource getElevforhold(VurderingResource vurdering) {
-        return elevforholdService.getElevforholdResource(Links.get(vurdering, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(vurdering.getElevforhold()));
     }
 
     public UndervisningsgruppeResource getUndervisningsgruppe(VurderingResource vurdering) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(vurdering, "undervisningsgruppe"));
+        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(vurdering.getUndervisningsgruppe()));
     }
 
     public EksamensgruppeResource getEksamensgruppe(VurderingResource vurdering) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(vurdering, "eksamensgruppe"));
+        return eksamensgruppeService.getEksamensgruppeResource(Links.get(vurdering.getEksamensgruppe()));
     }
 
     public KarakterverdiResource getKarakter(VurderingResource vurdering) {
-        return karakterverdiService.getKarakterverdiResource(Links.get(vurdering, "karakter"));
+        return karakterverdiService.getKarakterverdiResource(Links.get(vurdering.getKarakter()));
     }
 
 }

@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.elev;
 
@@ -34,11 +34,11 @@ public class ElevResolver implements GraphQLResolver<ElevResource> {
 
 
     public PersonResource getPerson(ElevResource elev) {
-        return personService.getPersonResource(Links.get(elev, "person"));
+        return personService.getPersonResource(Links.get(elev.getPerson()));
     }
 
     public ElevforholdResource getElevforhold(ElevResource elev) {
-        return elevforholdService.getElevforholdResource(Links.get(elev, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(elev.getElevforhold()));
     }
 
 }

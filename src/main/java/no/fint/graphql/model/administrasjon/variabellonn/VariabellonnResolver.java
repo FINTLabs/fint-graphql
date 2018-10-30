@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.variabellonn;
 
@@ -39,23 +39,23 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
 
 
     public LonnsartResource getLonnsart(VariabellonnResource variabellonn) {
-        return lonnsartService.getLonnsartResource(Links.get(variabellonn, "lonnsart"));
+        return lonnsartService.getLonnsartResource(Links.get(variabellonn.getLonnsart()));
     }
 
     public PersonalressursResource getAnviser(VariabellonnResource variabellonn) {
-        return personalressursService.getPersonalressursResource(Links.get(variabellonn, "anviser"));
+        return personalressursService.getPersonalressursResource(Links.get(variabellonn.getAnviser()));
     }
 
     public PersonalressursResource getKonterer(VariabellonnResource variabellonn) {
-        return personalressursService.getPersonalressursResource(Links.get(variabellonn, "konterer"));
+        return personalressursService.getPersonalressursResource(Links.get(variabellonn.getKonterer()));
     }
 
     public PersonalressursResource getAttestant(VariabellonnResource variabellonn) {
-        return personalressursService.getPersonalressursResource(Links.get(variabellonn, "attestant"));
+        return personalressursService.getPersonalressursResource(Links.get(variabellonn.getAttestant()));
     }
 
     public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(variabellonn, "arbeidsforhold"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(variabellonn.getArbeidsforhold()));
     }
 
 }

@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.karakterverdi;
 
@@ -29,7 +29,7 @@ public class KarakterverdiResolver implements GraphQLResolver<KarakterverdiResou
 
 
     public KarakterskalaResource getSkala(KarakterverdiResource karakterverdi) {
-        return karakterskalaService.getKarakterskalaResource(Links.get(karakterverdi, "skala"));
+        return karakterskalaService.getKarakterskalaResource(Links.get(karakterverdi.getSkala()));
     }
 
 }

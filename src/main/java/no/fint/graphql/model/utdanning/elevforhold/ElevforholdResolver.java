@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.elevforhold;
 
@@ -74,43 +74,43 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
 
 
     public BasisgruppeResource getBasisgruppe(ElevforholdResource elevforhold) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(elevforhold, "basisgruppe"));
+        return basisgruppeService.getBasisgruppeResource(Links.get(elevforhold.getBasisgruppe()));
     }
 
     public ElevResource getElev(ElevforholdResource elevforhold) {
-        return elevService.getElevResource(Links.get(elevforhold, "elev"));
+        return elevService.getElevResource(Links.get(elevforhold.getElev()));
     }
 
     public ElevkategoriResource getKategori(ElevforholdResource elevforhold) {
-        return elevkategoriService.getElevkategoriResource(Links.get(elevforhold, "kategori"));
+        return elevkategoriService.getElevkategoriResource(Links.get(elevforhold.getKategori()));
     }
 
     public SkoleResource getSkole(ElevforholdResource elevforhold) {
-        return skoleService.getSkoleResource(Links.get(elevforhold, "skole"));
+        return skoleService.getSkoleResource(Links.get(elevforhold.getSkole()));
     }
 
     public EksamensgruppeResource getEksamensgruppe(ElevforholdResource elevforhold) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(elevforhold, "eksamensgruppe"));
+        return eksamensgruppeService.getEksamensgruppeResource(Links.get(elevforhold.getEksamensgruppe()));
     }
 
     public KontaktlarergruppeResource getKontaktlarergruppe(ElevforholdResource elevforhold) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(elevforhold, "kontaktlarergruppe"));
+        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(elevforhold.getKontaktlarergruppe()));
     }
 
     public UndervisningsgruppeResource getUndervisningsgruppe(ElevforholdResource elevforhold) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(elevforhold, "undervisningsgruppe"));
+        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(elevforhold.getUndervisningsgruppe()));
     }
 
     public VurderingResource getVurdering(ElevforholdResource elevforhold) {
-        return vurderingService.getVurderingResource(Links.get(elevforhold, "vurdering"));
+        return vurderingService.getVurderingResource(Links.get(elevforhold.getVurdering()));
     }
 
     public FravarResource getFravar(ElevforholdResource elevforhold) {
-        return fravarService.getFravarResource(Links.get(elevforhold, "fravar"));
+        return fravarService.getFravarResource(Links.get(elevforhold.getFravar()));
     }
 
     public MedlemskapResource getMedlemskap(ElevforholdResource elevforhold) {
-        return medlemskapService.getMedlemskapResource(Links.get(elevforhold, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(elevforhold.getMedlemskap()));
     }
 
 }

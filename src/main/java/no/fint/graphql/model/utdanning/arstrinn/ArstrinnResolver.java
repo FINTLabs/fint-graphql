@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.arstrinn;
 
@@ -39,15 +39,15 @@ public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
 
 
     public ProgramomradeResource getProgramomrade(ArstrinnResource arstrinn) {
-        return programomradeService.getProgramomradeResource(Links.get(arstrinn, "programomrade"));
+        return programomradeService.getProgramomradeResource(Links.get(arstrinn.getProgramomrade()));
     }
 
     public BasisgruppeResource getBasisgruppe(ArstrinnResource arstrinn) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(arstrinn, "basisgruppe"));
+        return basisgruppeService.getBasisgruppeResource(Links.get(arstrinn.getBasisgruppe()));
     }
 
     public MedlemskapResource getMedlemskap(ArstrinnResource arstrinn) {
-        return medlemskapService.getMedlemskapResource(Links.get(arstrinn, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(arstrinn.getMedlemskap()));
     }
 
 }

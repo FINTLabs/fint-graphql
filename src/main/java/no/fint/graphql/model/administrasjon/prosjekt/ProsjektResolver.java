@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.prosjekt;
 
@@ -29,7 +29,7 @@ public class ProsjektResolver implements GraphQLResolver<ProsjektResource> {
 
 
     public FullmaktResource getFullmakt(ProsjektResource prosjekt) {
-        return fullmaktService.getFullmaktResource(Links.get(prosjekt, "fullmakt"));
+        return fullmaktService.getFullmaktResource(Links.get(prosjekt.getFullmakt()));
     }
 
 }

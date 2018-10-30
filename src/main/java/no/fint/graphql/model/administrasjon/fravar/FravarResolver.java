@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.fravar;
 
@@ -44,23 +44,23 @@ public class FravarResolver implements GraphQLResolver<FravarResource> {
 
 
     public FravarsgrunnResource getFravarsgrunn(FravarResource fravar) {
-        return fravarsgrunnService.getFravarsgrunnResource(Links.get(fravar, "fravarsgrunn"));
+        return fravarsgrunnService.getFravarsgrunnResource(Links.get(fravar.getFravarsgrunn()));
     }
 
     public FravarstypeResource getFravarstype(FravarResource fravar) {
-        return fravarstypeService.getFravarstypeResource(Links.get(fravar, "fravarstype"));
+        return fravarstypeService.getFravarstypeResource(Links.get(fravar.getFravarstype()));
     }
 
     public ArbeidsforholdResource getArbeidsforhold(FravarResource fravar) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fravar, "arbeidsforhold"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fravar.getArbeidsforhold()));
     }
 
     public FravarResource getFortsettelse(FravarResource fravar) {
-        return fravarService.getFravarResource(Links.get(fravar, "fortsettelse"));
+        return fravarService.getFravarResource(Links.get(fravar.getFortsettelse()));
     }
 
     public FravarResource getFortsetter(FravarResource fravar) {
-        return fravarService.getFravarResource(Links.get(fravar, "fortsetter"));
+        return fravarService.getFravarResource(Links.get(fravar.getFortsetter()));
     }
 
 }

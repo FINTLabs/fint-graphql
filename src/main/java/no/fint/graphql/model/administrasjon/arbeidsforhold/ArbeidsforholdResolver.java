@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.arbeidsforhold;
 
@@ -69,43 +69,43 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
 
 
     public AnsvarResource getAnsvar(ArbeidsforholdResource arbeidsforhold) {
-        return ansvarService.getAnsvarResource(Links.get(arbeidsforhold, "ansvar"));
+        return ansvarService.getAnsvarResource(Links.get(arbeidsforhold.getAnsvar()));
     }
 
     public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold) {
-        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforhold, "arbeidsforholdstype"));
+        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforhold.getArbeidsforholdstype()));
     }
 
     public FunksjonResource getFunksjon(ArbeidsforholdResource arbeidsforhold) {
-        return funksjonService.getFunksjonResource(Links.get(arbeidsforhold, "funksjon"));
+        return funksjonService.getFunksjonResource(Links.get(arbeidsforhold.getFunksjon()));
     }
 
     public StillingskodeResource getStillingskode(ArbeidsforholdResource arbeidsforhold) {
-        return stillingskodeService.getStillingskodeResource(Links.get(arbeidsforhold, "stillingskode"));
+        return stillingskodeService.getStillingskodeResource(Links.get(arbeidsforhold.getStillingskode()));
     }
 
     public UketimetallResource getTimerPerUke(ArbeidsforholdResource arbeidsforhold) {
-        return uketimetallService.getUketimetallResource(Links.get(arbeidsforhold, "timerPerUke"));
+        return uketimetallService.getUketimetallResource(Links.get(arbeidsforhold.getTimerPerUke()));
     }
 
     public OrganisasjonselementResource getArbeidssted(ArbeidsforholdResource arbeidsforhold) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(arbeidsforhold, "arbeidssted"));
+        return organisasjonselementService.getOrganisasjonselementResource(Links.get(arbeidsforhold.getArbeidssted()));
     }
 
     public PersonalressursResource getPersonalleder(ArbeidsforholdResource arbeidsforhold) {
-        return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold, "personalleder"));
+        return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold.getPersonalleder()));
     }
 
     public FravarResource getFravar(ArbeidsforholdResource arbeidsforhold) {
-        return fravarService.getFravarResource(Links.get(arbeidsforhold, "fravar"));
+        return fravarService.getFravarResource(Links.get(arbeidsforhold.getFravar()));
     }
 
     public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold) {
-        return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold, "personalressurs"));
+        return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold.getPersonalressurs()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(arbeidsforhold, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(arbeidsforhold.getUndervisningsforhold()));
     }
 
 }

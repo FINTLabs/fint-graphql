@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.undervisningsgruppe;
 
@@ -54,27 +54,27 @@ public class UndervisningsgruppeResolver implements GraphQLResolver<Undervisning
 
 
     public FagResource getFag(UndervisningsgruppeResource undervisningsgruppe) {
-        return fagService.getFagResource(Links.get(undervisningsgruppe, "fag"));
+        return fagService.getFagResource(Links.get(undervisningsgruppe.getFag()));
     }
 
     public SkoleResource getSkole(UndervisningsgruppeResource undervisningsgruppe) {
-        return skoleService.getSkoleResource(Links.get(undervisningsgruppe, "skole"));
+        return skoleService.getSkoleResource(Links.get(undervisningsgruppe.getSkole()));
     }
 
     public ElevforholdResource getElevforhold(UndervisningsgruppeResource undervisningsgruppe) {
-        return elevforholdService.getElevforholdResource(Links.get(undervisningsgruppe, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(undervisningsgruppe.getElevforhold()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(UndervisningsgruppeResource undervisningsgruppe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(undervisningsgruppe, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(undervisningsgruppe.getUndervisningsforhold()));
     }
 
     public TimeResource getTime(UndervisningsgruppeResource undervisningsgruppe) {
-        return timeService.getTimeResource(Links.get(undervisningsgruppe, "time"));
+        return timeService.getTimeResource(Links.get(undervisningsgruppe.getTime()));
     }
 
     public MedlemskapResource getMedlemskap(UndervisningsgruppeResource undervisningsgruppe) {
-        return medlemskapService.getMedlemskapResource(Links.get(undervisningsgruppe, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(undervisningsgruppe.getMedlemskap()));
     }
 
 }

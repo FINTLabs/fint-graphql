@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.ansvar;
 
@@ -39,19 +39,19 @@ public class AnsvarResolver implements GraphQLResolver<AnsvarResource> {
 
 
     public AnsvarResource getOverordnet(AnsvarResource ansvar) {
-        return ansvarService.getAnsvarResource(Links.get(ansvar, "overordnet"));
+        return ansvarService.getAnsvarResource(Links.get(ansvar.getOverordnet()));
     }
 
     public AnsvarResource getUnderordnet(AnsvarResource ansvar) {
-        return ansvarService.getAnsvarResource(Links.get(ansvar, "underordnet"));
+        return ansvarService.getAnsvarResource(Links.get(ansvar.getUnderordnet()));
     }
 
     public OrganisasjonselementResource getOrganisasjonselement(AnsvarResource ansvar) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(ansvar, "organisasjonselement"));
+        return organisasjonselementService.getOrganisasjonselementResource(Links.get(ansvar.getOrganisasjonselement()));
     }
 
     public FullmaktResource getFullmakt(AnsvarResource ansvar) {
-        return fullmaktService.getFullmaktResource(Links.get(ansvar, "fullmakt"));
+        return fullmaktService.getFullmaktResource(Links.get(ansvar.getFullmakt()));
     }
 
 }

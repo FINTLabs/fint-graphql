@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.felles.kontaktperson;
 
@@ -29,11 +29,11 @@ public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResou
 
 
     public PersonResource getKontaktperson(KontaktpersonResource kontaktperson) {
-        return personService.getPersonResource(Links.get(kontaktperson, "kontaktperson"));
+        return personService.getPersonResource(Links.get(kontaktperson.getKontaktperson()));
     }
 
     public PersonResource getPerson(KontaktpersonResource kontaktperson) {
-        return personService.getPersonResource(Links.get(kontaktperson, "person"));
+        return personService.getPersonResource(Links.get(kontaktperson.getPerson()));
     }
 
 }

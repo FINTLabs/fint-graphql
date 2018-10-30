@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.fastlonn;
 
@@ -39,23 +39,23 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
 
 
     public LonnsartResource getLonnsart(FastlonnResource fastlonn) {
-        return lonnsartService.getLonnsartResource(Links.get(fastlonn, "lonnsart"));
+        return lonnsartService.getLonnsartResource(Links.get(fastlonn.getLonnsart()));
     }
 
     public PersonalressursResource getAnviser(FastlonnResource fastlonn) {
-        return personalressursService.getPersonalressursResource(Links.get(fastlonn, "anviser"));
+        return personalressursService.getPersonalressursResource(Links.get(fastlonn.getAnviser()));
     }
 
     public PersonalressursResource getKonterer(FastlonnResource fastlonn) {
-        return personalressursService.getPersonalressursResource(Links.get(fastlonn, "konterer"));
+        return personalressursService.getPersonalressursResource(Links.get(fastlonn.getKonterer()));
     }
 
     public PersonalressursResource getAttestant(FastlonnResource fastlonn) {
-        return personalressursService.getPersonalressursResource(Links.get(fastlonn, "attestant"));
+        return personalressursService.getPersonalressursResource(Links.get(fastlonn.getAttestant()));
     }
 
     public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fastlonn, "arbeidsforhold"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fastlonn.getArbeidsforhold()));
     }
 
 }

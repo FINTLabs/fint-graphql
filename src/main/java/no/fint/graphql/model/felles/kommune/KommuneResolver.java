@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.felles.kommune;
 
@@ -29,7 +29,7 @@ public class KommuneResolver implements GraphQLResolver<KommuneResource> {
 
 
     public FylkeResource getFylke(KommuneResource kommune) {
-        return fylkeService.getFylkeResource(Links.get(kommune, "fylke"));
+        return fylkeService.getFylkeResource(Links.get(kommune.getFylke()));
     }
 
 }

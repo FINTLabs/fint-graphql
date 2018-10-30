@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.medlemskap;
 
@@ -34,15 +34,15 @@ public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
 
 
     public VurderingResource getFortlopendeVurdering(MedlemskapResource medlemskap) {
-        return vurderingService.getVurderingResource(Links.get(medlemskap, "fortlopendeVurdering"));
+        return vurderingService.getVurderingResource(Links.get(medlemskap.getFortlopendeVurdering()));
     }
 
     public VurderingResource getEndeligVurdering(MedlemskapResource medlemskap) {
-        return vurderingService.getVurderingResource(Links.get(medlemskap, "endeligVurdering"));
+        return vurderingService.getVurderingResource(Links.get(medlemskap.getEndeligVurdering()));
     }
 
     public FravarResource getFravar(MedlemskapResource medlemskap) {
-        return fravarService.getFravarResource(Links.get(medlemskap, "fravar"));
+        return fravarService.getFravarResource(Links.get(medlemskap.getFravar()));
     }
 
 }

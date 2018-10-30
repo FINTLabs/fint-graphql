@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.funksjon;
 
@@ -34,15 +34,15 @@ public class FunksjonResolver implements GraphQLResolver<FunksjonResource> {
 
 
     public FunksjonResource getOverordnet(FunksjonResource funksjon) {
-        return funksjonService.getFunksjonResource(Links.get(funksjon, "overordnet"));
+        return funksjonService.getFunksjonResource(Links.get(funksjon.getOverordnet()));
     }
 
     public FunksjonResource getUnderordnet(FunksjonResource funksjon) {
-        return funksjonService.getFunksjonResource(Links.get(funksjon, "underordnet"));
+        return funksjonService.getFunksjonResource(Links.get(funksjon.getUnderordnet()));
     }
 
     public FullmaktResource getFullmakt(FunksjonResource funksjon) {
-        return fullmaktService.getFullmaktResource(Links.get(funksjon, "fullmakt"));
+        return fullmaktService.getFullmaktResource(Links.get(funksjon.getFullmakt()));
     }
 
 }

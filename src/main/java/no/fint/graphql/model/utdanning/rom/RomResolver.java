@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.rom;
 
@@ -29,7 +29,7 @@ public class RomResolver implements GraphQLResolver<RomResource> {
 
 
     public TimeResource getTime(RomResource rom) {
-        return timeService.getTimeResource(Links.get(rom, "time"));
+        return timeService.getTimeResource(Links.get(rom.getTime()));
     }
 
 }

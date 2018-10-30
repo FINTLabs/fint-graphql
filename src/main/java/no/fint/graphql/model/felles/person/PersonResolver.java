@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.felles.person;
 
@@ -54,31 +54,31 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
 
 
     public LandkodeResource getStatsborgerskap(PersonResource person) {
-        return landkodeService.getLandkodeResource(Links.get(person, "statsborgerskap"));
+        return landkodeService.getLandkodeResource(Links.get(person.getStatsborgerskap()));
     }
 
     public KjonnResource getKjonn(PersonResource person) {
-        return kjonnService.getKjonnResource(Links.get(person, "kjonn"));
+        return kjonnService.getKjonnResource(Links.get(person.getKjonn()));
     }
 
     public SprakResource getMalform(PersonResource person) {
-        return sprakService.getSprakResource(Links.get(person, "malform"));
+        return sprakService.getSprakResource(Links.get(person.getMalform()));
     }
 
     public PersonalressursResource getPersonalressurs(PersonResource person) {
-        return personalressursService.getPersonalressursResource(Links.get(person, "personalressurs"));
+        return personalressursService.getPersonalressursResource(Links.get(person.getPersonalressurs()));
     }
 
     public SprakResource getMorsmal(PersonResource person) {
-        return sprakService.getSprakResource(Links.get(person, "morsmal"));
+        return sprakService.getSprakResource(Links.get(person.getMorsmal()));
     }
 
     public KontaktpersonResource getParorende(PersonResource person) {
-        return kontaktpersonService.getKontaktpersonResource(Links.get(person, "parorende"));
+        return kontaktpersonService.getKontaktpersonResource(Links.get(person.getParorende()));
     }
 
     public ElevResource getElev(PersonResource person) {
-        return elevService.getElevResource(Links.get(person, "elev"));
+        return elevService.getElevResource(Links.get(person.getElev()));
     }
 
 }

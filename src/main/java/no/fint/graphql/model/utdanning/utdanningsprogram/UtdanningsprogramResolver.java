@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.utdanningsprogram;
 
@@ -39,15 +39,15 @@ public class UtdanningsprogramResolver implements GraphQLResolver<Utdanningsprog
 
 
     public SkoleResource getSkole(UtdanningsprogramResource utdanningsprogram) {
-        return skoleService.getSkoleResource(Links.get(utdanningsprogram, "skole"));
+        return skoleService.getSkoleResource(Links.get(utdanningsprogram.getSkole()));
     }
 
     public ProgramomradeResource getProgramomrade(UtdanningsprogramResource utdanningsprogram) {
-        return programomradeService.getProgramomradeResource(Links.get(utdanningsprogram, "programomrade"));
+        return programomradeService.getProgramomradeResource(Links.get(utdanningsprogram.getProgramomrade()));
     }
 
     public MedlemskapResource getMedlemskap(UtdanningsprogramResource utdanningsprogram) {
-        return medlemskapService.getMedlemskapResource(Links.get(utdanningsprogram, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(utdanningsprogram.getMedlemskap()));
     }
 
 }

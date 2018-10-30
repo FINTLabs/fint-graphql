@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.undervisningsforhold;
 
@@ -69,39 +69,39 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
 
 
     public ArbeidsforholdResource getArbeidsforhold(UndervisningsforholdResource undervisningsforhold) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(undervisningsforhold, "arbeidsforhold"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(undervisningsforhold.getArbeidsforhold()));
     }
 
     public BasisgruppeResource getBasisgruppe(UndervisningsforholdResource undervisningsforhold) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(undervisningsforhold, "basisgruppe"));
+        return basisgruppeService.getBasisgruppeResource(Links.get(undervisningsforhold.getBasisgruppe()));
     }
 
     public KontaktlarergruppeResource getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(undervisningsforhold, "kontaktlarergruppe"));
+        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(undervisningsforhold.getKontaktlarergruppe()));
     }
 
     public UndervisningsgruppeResource getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(undervisningsforhold, "undervisningsgruppe"));
+        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(undervisningsforhold.getUndervisningsgruppe()));
     }
 
     public EksamensgruppeResource getEksamensgruppe(UndervisningsforholdResource undervisningsforhold) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(undervisningsforhold, "eksamensgruppe"));
+        return eksamensgruppeService.getEksamensgruppeResource(Links.get(undervisningsforhold.getEksamensgruppe()));
     }
 
     public TimeResource getTime(UndervisningsforholdResource undervisningsforhold) {
-        return timeService.getTimeResource(Links.get(undervisningsforhold, "time"));
+        return timeService.getTimeResource(Links.get(undervisningsforhold.getTime()));
     }
 
     public SkoleResource getSkole(UndervisningsforholdResource undervisningsforhold) {
-        return skoleService.getSkoleResource(Links.get(undervisningsforhold, "skole"));
+        return skoleService.getSkoleResource(Links.get(undervisningsforhold.getSkole()));
     }
 
     public SkoleressursResource getSkoleressurs(UndervisningsforholdResource undervisningsforhold) {
-        return skoleressursService.getSkoleressursResource(Links.get(undervisningsforhold, "skoleressurs"));
+        return skoleressursService.getSkoleressursResource(Links.get(undervisningsforhold.getSkoleressurs()));
     }
 
     public MedlemskapResource getMedlemskap(UndervisningsforholdResource undervisningsforhold) {
-        return medlemskapService.getMedlemskapResource(Links.get(undervisningsforhold, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(undervisningsforhold.getMedlemskap()));
     }
 
 }

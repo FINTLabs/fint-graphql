@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.skoleressurs;
 
@@ -39,15 +39,15 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
 
 
     public PersonalressursResource getPersonalressurs(SkoleressursResource skoleressurs) {
-        return personalressursService.getPersonalressursResource(Links.get(skoleressurs, "personalressurs"));
+        return personalressursService.getPersonalressursResource(Links.get(skoleressurs.getPersonalressurs()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(SkoleressursResource skoleressurs) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(skoleressurs, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(skoleressurs.getUndervisningsforhold()));
     }
 
     public SkoleResource getSkole(SkoleressursResource skoleressurs) {
-        return skoleService.getSkoleResource(Links.get(skoleressurs, "skole"));
+        return skoleService.getSkoleResource(Links.get(skoleressurs.getSkole()));
     }
 
 }

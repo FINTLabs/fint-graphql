@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.rolle;
 
@@ -29,7 +29,7 @@ public class RolleResolver implements GraphQLResolver<RolleResource> {
 
 
     public FullmaktResource getFullmakt(RolleResource rolle) {
-        return fullmaktService.getFullmaktResource(Links.get(rolle, "fullmakt"));
+        return fullmaktService.getFullmaktResource(Links.get(rolle.getFullmakt()));
     }
 
 }

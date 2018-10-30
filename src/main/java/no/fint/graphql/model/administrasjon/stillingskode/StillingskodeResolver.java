@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.stillingskode;
 
@@ -29,7 +29,7 @@ public class StillingskodeResolver implements GraphQLResolver<StillingskodeResou
 
 
     public StillingskodeResource getForelder(StillingskodeResource stillingskode) {
-        return stillingskodeService.getStillingskodeResource(Links.get(stillingskode, "forelder"));
+        return stillingskodeService.getStillingskodeResource(Links.get(stillingskode.getForelder()));
     }
 
 }

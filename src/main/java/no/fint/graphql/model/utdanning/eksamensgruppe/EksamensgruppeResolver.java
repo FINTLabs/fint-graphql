@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.eksamensgruppe;
 
@@ -49,23 +49,23 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
 
 
     public FagResource getFag(EksamensgruppeResource eksamensgruppe) {
-        return fagService.getFagResource(Links.get(eksamensgruppe, "fag"));
+        return fagService.getFagResource(Links.get(eksamensgruppe.getFag()));
     }
 
     public SkoleResource getSkole(EksamensgruppeResource eksamensgruppe) {
-        return skoleService.getSkoleResource(Links.get(eksamensgruppe, "skole"));
+        return skoleService.getSkoleResource(Links.get(eksamensgruppe.getSkole()));
     }
 
     public ElevforholdResource getElevforhold(EksamensgruppeResource eksamensgruppe) {
-        return elevforholdService.getElevforholdResource(Links.get(eksamensgruppe, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(eksamensgruppe.getElevforhold()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(EksamensgruppeResource eksamensgruppe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(eksamensgruppe, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(eksamensgruppe.getUndervisningsforhold()));
     }
 
     public MedlemskapResource getMedlemskap(EksamensgruppeResource eksamensgruppe) {
-        return medlemskapService.getMedlemskapResource(Links.get(eksamensgruppe, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(eksamensgruppe.getMedlemskap()));
     }
 
 }

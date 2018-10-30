@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.personalressurs;
 
@@ -54,35 +54,35 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
 
 
     public PersonalressurskategoriResource getPersonalressurskategori(PersonalressursResource personalressurs) {
-        return personalressurskategoriService.getPersonalressurskategoriResource(Links.get(personalressurs, "personalressurskategori"));
+        return personalressurskategoriService.getPersonalressurskategoriResource(Links.get(personalressurs.getPersonalressurskategori()));
     }
 
     public ArbeidsforholdResource getArbeidsforhold(PersonalressursResource personalressurs) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs, "arbeidsforhold"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getArbeidsforhold()));
     }
 
     public PersonResource getPerson(PersonalressursResource personalressurs) {
-        return personService.getPersonResource(Links.get(personalressurs, "person"));
+        return personService.getPersonResource(Links.get(personalressurs.getPerson()));
     }
 
     public FullmaktResource getStedfortreder(PersonalressursResource personalressurs) {
-        return fullmaktService.getFullmaktResource(Links.get(personalressurs, "stedfortreder"));
+        return fullmaktService.getFullmaktResource(Links.get(personalressurs.getStedfortreder()));
     }
 
     public FullmaktResource getFullmakt(PersonalressursResource personalressurs) {
-        return fullmaktService.getFullmaktResource(Links.get(personalressurs, "fullmakt"));
+        return fullmaktService.getFullmaktResource(Links.get(personalressurs.getFullmakt()));
     }
 
     public OrganisasjonselementResource getLeder(PersonalressursResource personalressurs) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(personalressurs, "leder"));
+        return organisasjonselementService.getOrganisasjonselementResource(Links.get(personalressurs.getLeder()));
     }
 
     public ArbeidsforholdResource getPersonalansvar(PersonalressursResource personalressurs) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs, "personalansvar"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getPersonalansvar()));
     }
 
     public SkoleressursResource getSkoleressurs(PersonalressursResource personalressurs) {
-        return skoleressursService.getSkoleressursResource(Links.get(personalressurs, "skoleressurs"));
+        return skoleressursService.getSkoleressursResource(Links.get(personalressurs.getSkoleressurs()));
     }
 
 }

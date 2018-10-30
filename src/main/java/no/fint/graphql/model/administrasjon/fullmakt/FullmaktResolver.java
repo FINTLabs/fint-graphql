@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.fullmakt;
 
@@ -34,15 +34,15 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
 
 
     public PersonalressursResource getStedfortreder(FullmaktResource fullmakt) {
-        return personalressursService.getPersonalressursResource(Links.get(fullmakt, "stedfortreder"));
+        return personalressursService.getPersonalressursResource(Links.get(fullmakt.getStedfortreder()));
     }
 
     public PersonalressursResource getFullmektig(FullmaktResource fullmakt) {
-        return personalressursService.getPersonalressursResource(Links.get(fullmakt, "fullmektig"));
+        return personalressursService.getPersonalressursResource(Links.get(fullmakt.getFullmektig()));
     }
 
     public RolleResource getRolle(FullmaktResource fullmakt) {
-        return rolleService.getRolleResource(Links.get(fullmakt, "rolle"));
+        return rolleService.getRolleResource(Links.get(fullmakt.getRolle()));
     }
 
 }

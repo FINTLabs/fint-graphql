@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.arbeidsforholdstype;
 
@@ -29,7 +29,7 @@ public class ArbeidsforholdstypeResolver implements GraphQLResolver<Arbeidsforho
 
 
     public ArbeidsforholdstypeResource getForelder(ArbeidsforholdstypeResource arbeidsforholdstype) {
-        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforholdstype, "forelder"));
+        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforholdstype.getForelder()));
     }
 
 }

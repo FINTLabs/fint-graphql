@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.time;
 
@@ -39,15 +39,15 @@ public class TimeResolver implements GraphQLResolver<TimeResource> {
 
 
     public UndervisningsgruppeResource getUndervisningsgruppe(TimeResource time) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(time, "undervisningsgruppe"));
+        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(time.getUndervisningsgruppe()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(TimeResource time) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(time, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(time.getUndervisningsforhold()));
     }
 
     public RomResource getRom(TimeResource time) {
-        return romService.getRomResource(Links.get(time, "rom"));
+        return romService.getRomResource(Links.get(time.getRom()));
     }
 
 }

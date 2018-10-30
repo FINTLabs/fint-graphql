@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.programomrade;
 
@@ -44,19 +44,19 @@ public class ProgramomradeResolver implements GraphQLResolver<ProgramomradeResou
 
 
     public UtdanningsprogramResource getUtdanningsprogram(ProgramomradeResource programomrade) {
-        return utdanningsprogramService.getUtdanningsprogramResource(Links.get(programomrade, "utdanningsprogram"));
+        return utdanningsprogramService.getUtdanningsprogramResource(Links.get(programomrade.getUtdanningsprogram()));
     }
 
     public FagResource getFag(ProgramomradeResource programomrade) {
-        return fagService.getFagResource(Links.get(programomrade, "fag"));
+        return fagService.getFagResource(Links.get(programomrade.getFag()));
     }
 
     public ArstrinnResource getTrinn(ProgramomradeResource programomrade) {
-        return arstrinnService.getArstrinnResource(Links.get(programomrade, "trinn"));
+        return arstrinnService.getArstrinnResource(Links.get(programomrade.getTrinn()));
     }
 
     public MedlemskapResource getMedlemskap(ProgramomradeResource programomrade) {
-        return medlemskapService.getMedlemskapResource(Links.get(programomrade, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(programomrade.getMedlemskap()));
     }
 
 }

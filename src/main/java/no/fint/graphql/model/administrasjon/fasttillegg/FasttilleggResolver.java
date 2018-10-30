@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.fasttillegg;
 
@@ -39,23 +39,23 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
 
 
     public LonnsartResource getLonnsart(FasttilleggResource fasttillegg) {
-        return lonnsartService.getLonnsartResource(Links.get(fasttillegg, "lonnsart"));
+        return lonnsartService.getLonnsartResource(Links.get(fasttillegg.getLonnsart()));
     }
 
     public PersonalressursResource getAnviser(FasttilleggResource fasttillegg) {
-        return personalressursService.getPersonalressursResource(Links.get(fasttillegg, "anviser"));
+        return personalressursService.getPersonalressursResource(Links.get(fasttillegg.getAnviser()));
     }
 
     public PersonalressursResource getKonterer(FasttilleggResource fasttillegg) {
-        return personalressursService.getPersonalressursResource(Links.get(fasttillegg, "konterer"));
+        return personalressursService.getPersonalressursResource(Links.get(fasttillegg.getKonterer()));
     }
 
     public PersonalressursResource getAttestant(FasttilleggResource fasttillegg) {
-        return personalressursService.getPersonalressursResource(Links.get(fasttillegg, "attestant"));
+        return personalressursService.getPersonalressursResource(Links.get(fasttillegg.getAttestant()));
     }
 
     public ArbeidsforholdResource getArbeidsforhold(FasttilleggResource fasttillegg) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fasttillegg, "arbeidsforhold"));
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fasttillegg.getArbeidsforhold()));
     }
 
 }

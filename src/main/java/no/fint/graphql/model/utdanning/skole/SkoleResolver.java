@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.skole;
 
@@ -79,47 +79,47 @@ public class SkoleResolver implements GraphQLResolver<SkoleResource> {
 
 
     public OrganisasjonselementResource getOrganisasjon(SkoleResource skole) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(skole, "organisasjon"));
+        return organisasjonselementService.getOrganisasjonselementResource(Links.get(skole.getOrganisasjon()));
     }
 
     public FagResource getFag(SkoleResource skole) {
-        return fagService.getFagResource(Links.get(skole, "fag"));
+        return fagService.getFagResource(Links.get(skole.getFag()));
     }
 
     public SkoleeiertypeResource getSkoleeierType(SkoleResource skole) {
-        return skoleeiertypeService.getSkoleeiertypeResource(Links.get(skole, "skoleeierType"));
+        return skoleeiertypeService.getSkoleeiertypeResource(Links.get(skole.getSkoleeierType()));
     }
 
     public BasisgruppeResource getBasisgruppe(SkoleResource skole) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(skole, "basisgruppe"));
+        return basisgruppeService.getBasisgruppeResource(Links.get(skole.getBasisgruppe()));
     }
 
     public ElevforholdResource getElevforhold(SkoleResource skole) {
-        return elevforholdService.getElevforholdResource(Links.get(skole, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(skole.getElevforhold()));
     }
 
     public KontaktlarergruppeResource getKontaktlarergruppe(SkoleResource skole) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(skole, "kontaktlarergruppe"));
+        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(skole.getKontaktlarergruppe()));
     }
 
     public SkoleressursResource getSkoleressurs(SkoleResource skole) {
-        return skoleressursService.getSkoleressursResource(Links.get(skole, "skoleressurs"));
+        return skoleressursService.getSkoleressursResource(Links.get(skole.getSkoleressurs()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(SkoleResource skole) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(skole, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(skole.getUndervisningsforhold()));
     }
 
     public UndervisningsgruppeResource getUndervisningsgruppe(SkoleResource skole) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(skole, "undervisningsgruppe"));
+        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(skole.getUndervisningsgruppe()));
     }
 
     public EksamensgruppeResource getEksamensgruppe(SkoleResource skole) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(skole, "eksamensgruppe"));
+        return eksamensgruppeService.getEksamensgruppeResource(Links.get(skole.getEksamensgruppe()));
     }
 
     public UtdanningsprogramResource getUtdanningsprogram(SkoleResource skole) {
-        return utdanningsprogramService.getUtdanningsprogramResource(Links.get(skole, "utdanningsprogram"));
+        return utdanningsprogramService.getUtdanningsprogramResource(Links.get(skole.getUtdanningsprogram()));
     }
 
 }

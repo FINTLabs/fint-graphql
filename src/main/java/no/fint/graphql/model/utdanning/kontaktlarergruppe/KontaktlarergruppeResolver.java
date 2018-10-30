@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.utdanning.kontaktlarergruppe;
 
@@ -49,23 +49,23 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
 
 
     public BasisgruppeResource getBasisgruppe(KontaktlarergruppeResource kontaktlarergruppe) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(kontaktlarergruppe, "basisgruppe"));
+        return basisgruppeService.getBasisgruppeResource(Links.get(kontaktlarergruppe.getBasisgruppe()));
     }
 
     public SkoleResource getSkole(KontaktlarergruppeResource kontaktlarergruppe) {
-        return skoleService.getSkoleResource(Links.get(kontaktlarergruppe, "skole"));
+        return skoleService.getSkoleResource(Links.get(kontaktlarergruppe.getSkole()));
     }
 
     public ElevforholdResource getElevforhold(KontaktlarergruppeResource kontaktlarergruppe) {
-        return elevforholdService.getElevforholdResource(Links.get(kontaktlarergruppe, "elevforhold"));
+        return elevforholdService.getElevforholdResource(Links.get(kontaktlarergruppe.getElevforhold()));
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(KontaktlarergruppeResource kontaktlarergruppe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(kontaktlarergruppe, "undervisningsforhold"));
+        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(kontaktlarergruppe.getUndervisningsforhold()));
     }
 
     public MedlemskapResource getMedlemskap(KontaktlarergruppeResource kontaktlarergruppe) {
-        return medlemskapService.getMedlemskapResource(Links.get(kontaktlarergruppe, "medlemskap"));
+        return medlemskapService.getMedlemskapResource(Links.get(kontaktlarergruppe.getMedlemskap()));
     }
 
 }

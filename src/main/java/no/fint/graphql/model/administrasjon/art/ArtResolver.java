@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag master
 
 package no.fint.graphql.model.administrasjon.art;
 
@@ -29,7 +29,7 @@ public class ArtResolver implements GraphQLResolver<ArtResource> {
 
 
     public FullmaktResource getFullmakt(ArtResource art) {
-        return fullmaktService.getFullmaktResource(Links.get(art, "fullmakt"));
+        return fullmaktService.getFullmaktResource(Links.get(art.getFullmakt()));
     }
 
 }
