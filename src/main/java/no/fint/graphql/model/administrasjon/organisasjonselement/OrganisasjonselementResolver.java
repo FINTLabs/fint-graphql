@@ -1,4 +1,4 @@
-// Built from tag master
+// Built from tag v3.1.0
 
 package no.fint.graphql.model.administrasjon.organisasjonselement;
 

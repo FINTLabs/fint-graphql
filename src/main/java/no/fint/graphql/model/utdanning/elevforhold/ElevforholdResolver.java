@@ -1,4 +1,4 @@
-// Built from tag master
+// Built from tag v3.1.0
 
 package no.fint.graphql.model.utdanning.elevforhold;
 
@@ -16,7 +16,6 @@ import no.fint.graphql.model.utdanning.eksamensgruppe.EksamensgruppeService;
 import no.fint.graphql.model.utdanning.kontaktlarergruppe.KontaktlarergruppeService;
 import no.fint.graphql.model.utdanning.undervisningsgruppe.UndervisningsgruppeService;
 import no.fint.graphql.model.utdanning.vurdering.VurderingService;
-import no.fint.graphql.model.utdanning.fravar.FravarService;
 import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
 
 
@@ -31,7 +30,6 @@ import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
 import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
 import no.fint.model.resource.utdanning.vurdering.VurderingResource;
-import no.fint.model.resource.utdanning.vurdering.FravarResource;
 import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 
@@ -67,9 +65,6 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
     private VurderingService vurderingService;
 
     @Autowired
-    private FravarService fravarService;
-
-    @Autowired
     private MedlemskapService medlemskapService;
 
 
@@ -103,10 +98,6 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
 
     public VurderingResource getVurdering(ElevforholdResource elevforhold) {
         return vurderingService.getVurderingResource(Links.get(elevforhold.getVurdering()));
-    }
-
-    public FravarResource getFravar(ElevforholdResource elevforhold) {
-        return fravarService.getFravarResource(Links.get(elevforhold.getFravar()));
     }
 
     public MedlemskapResource getMedlemskap(ElevforholdResource elevforhold) {

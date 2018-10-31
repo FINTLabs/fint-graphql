@@ -1,4 +1,4 @@
-# Built from tag master
+# Built from tag v3.1.0
 
 type Arbeidsforhold {
 	# Attributes
@@ -21,7 +21,6 @@ type Arbeidsforhold {
     timerPerUke: Uketimetall
     arbeidssted: Organisasjonselement
     personalleder: Personalressurs
-    fravar: Fravar
     lonn: String
     personalressurs: Personalressurs
     undervisningsforhold: Undervisningsforhold

@@ -1,4 +1,4 @@
-# Built from tag master
+# Built from tag v3.1.0
 
 type Elevforhold {
 	# Attributes
@@ -15,6 +15,5 @@ type Elevforhold {
     kontaktlarergruppe: Kontaktlarergruppe
     undervisningsgruppe: Undervisningsgruppe
     vurdering: Vurdering
-    fravar: Fravar
     medlemskap: Medlemskap
 }

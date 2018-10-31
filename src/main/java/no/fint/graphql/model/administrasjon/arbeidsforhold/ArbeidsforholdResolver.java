@@ -1,4 +1,4 @@
-// Built from tag master
+// Built from tag v3.1.0
 
 package no.fint.graphql.model.administrasjon.arbeidsforhold;
 
@@ -15,7 +15,6 @@ import no.fint.graphql.model.administrasjon.stillingskode.StillingskodeService;
 import no.fint.graphql.model.administrasjon.uketimetall.UketimetallService;
 import no.fint.graphql.model.administrasjon.organisasjonselement.OrganisasjonselementService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
-import no.fint.graphql.model.administrasjon.fravar.FravarService;
 import no.fint.graphql.model.utdanning.undervisningsforhold.UndervisningsforholdService;
 
 
@@ -29,7 +28,6 @@ import no.fint.model.resource.administrasjon.kodeverk.StillingskodeResource;
 import no.fint.model.resource.administrasjon.kodeverk.UketimetallResource;
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.fint.model.resource.administrasjon.personal.FravarResource;
 import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
 
 
@@ -62,9 +60,6 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
     private PersonalressursService personalressursService;
 
     @Autowired
-    private FravarService fravarService;
-
-    @Autowired
     private UndervisningsforholdService undervisningsforholdService;
 
 
@@ -94,10 +89,6 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
 
     public PersonalressursResource getPersonalleder(ArbeidsforholdResource arbeidsforhold) {
         return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold.getPersonalleder()));
-    }
-
-    public FravarResource getFravar(ArbeidsforholdResource arbeidsforhold) {
-        return fravarService.getFravarResource(Links.get(arbeidsforhold.getFravar()));
     }
 
     public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold) {
