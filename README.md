@@ -57,3 +57,32 @@ Some queries to get you going:
   }
 }
 ```
+
+### Students with names, schools, and group memberships
+
+```graphql
+{
+  elev {
+    person {
+      navn {
+        fornavn
+      }
+    }
+    elevforhold {
+      beskrivelse
+      skole {
+        navn
+      }
+      basisgruppe {
+        navn
+      }
+      kontaktlarergruppe {
+        navn
+      }
+      undervisningsgruppe {
+        navn
+      }
+    }
+  }
+}
+```
