@@ -44,14 +44,43 @@ Some queries to get you going:
 
 ```graphql
 {
-  personalressurs {
-    person {
-      navn {
-        fornavn
+  person {
+    navn {
+      fornavn
+    }
+    fodselsdato
+    kontaktinformasjon {
+      mobiltelefonnummer
+    }
+  }
+}
+```
+
+### Personnel, with name of department managers
+
+```graphql
+{
+  person {
+    navn {
+      etternavn
+      fornavn
+    }
+    personalressurs {
+      ansattnummer {
+        identifikatorverdi
       }
-      fodselsdato
-      kontaktinformasjon {
-        mobiltelefonnummer
+      arbeidsforhold {
+        stillingstittel
+        arbeidssted {
+          leder {
+            person {
+              navn {
+                etternavn
+                fornavn
+              }
+            }
+          }
+        }
       }
     }
   }
