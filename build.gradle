@@ -1,9 +1,9 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.6.RELEASE'
+        springBootVersion = '2.1.0.RELEASE'
     }
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -21,7 +21,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'no.fint'
 version = "${version}-${apiVersion}"
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 
 repositories {
     mavenLocal()
@@ -32,18 +32,23 @@ repositories {
 }
 
 
-apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/v1.4.0/dependencies.gradle'
+apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/master/dependencies.gradle'
+
+cglibVersion = '3.2.9'
+lombokVersion = '1.18.4'
+spockSpringVersion = '1.2-RC3-groovy-2.5'
+
 dependencies {
     compile("no.fint:fint-utdanning-resource-model-java:${apiVersion}")
     compile("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
 
-    compile('com.graphql-java-kickstart:graphql-spring-boot-starter:5.0.5')
-    compile('com.graphql-java-kickstart:graphiql-spring-boot-starter:5.0.5')
-    compile('com.graphql-java-kickstart:graphql-java-tools:5.3.4')
+    compile('com.graphql-java-kickstart:graphql-spring-boot-starter:5.0.6')
+    compile('com.graphql-java-kickstart:graphiql-spring-boot-starter:5.0.6')
+    compile('com.graphql-java-kickstart:graphql-java-tools:5.3.5')
 
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter')
-    compileOnly('org.projectlombok:lombok:1.18.2')
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
 
     testCompile("cglib:cglib-nodep:${cglibVersion}")
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
