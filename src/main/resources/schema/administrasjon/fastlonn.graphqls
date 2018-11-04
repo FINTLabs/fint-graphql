@@ -2,10 +2,10 @@
 
 type Fastlonn {
 	# Attributes
-    anvist: String
-    attestert: String
+    anvist: Date
+    attestert: Date
     beskrivelse: String!
-    kontert: String
+    kontert: Date
     kontostreng: Kontostreng!
     opptjent: Periode
     periode: Periode!

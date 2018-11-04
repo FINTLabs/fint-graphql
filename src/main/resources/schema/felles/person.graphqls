@@ -6,7 +6,7 @@ type Person {
     postadresse: Adresse
     bilde: String
     bostedsadresse: Adresse
-    fodselsdato: String
+    fodselsdato: Date
     fodselsnummer: Identifikator!
     navn: Personnavn!
 

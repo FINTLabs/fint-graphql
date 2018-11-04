@@ -1,8 +1,11 @@
- type Query {
-     personalressurs(sinceTimeStamp: String): [Personalressurs]
-     arbeidsforhold(sinceTimeStamp: String): [Arbeidsforhold]
-     person(sinceTimeStamp: String): [Person]
-     organisasjonselement(sinceTimeStamp: String): [Organisasjonselement]
+# java.util.Date implementation
+scalar Date
 
-     elev(sinceTimeStamp: String): [Elev]
- }
+type Query {
+    personalressurs(sinceTimeStamp: String): [Personalressurs]
+    arbeidsforhold(sinceTimeStamp: String): [Arbeidsforhold]
+    person(sinceTimeStamp: String): [Person]
+    organisasjonselement(sinceTimeStamp: String): [Organisasjonselement]
+
+    elev(sinceTimeStamp: String): [Elev]
+}

@@ -3,7 +3,7 @@
 type Periode {
 	# Attributes
     beskrivelse: String
-    slutt: String
-    start: String!
+    slutt: Date
+    start: Date!
 
 }
