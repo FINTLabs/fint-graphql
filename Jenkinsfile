@@ -1,21 +1,30 @@
 pipeline {
-    agent {
-        docker {
-            label 'docker'
-            image 'gradle:4.10-jdk11'
-        }
-    }
+    agent { label 'docker' }
     stages {
         stage('Build') {
             steps {
-                sh 'gradle --no-daemon clean build'
-                archiveArtifacts 'build/libs/*.jar'
+                sh "docker build --tag ${GIT_COMMIT} ."
             }
         }
-        stage('Deploy') {
-            environment {
-                BINTRAY = credentials('fint-bintray')
+        stage('Publish') {
+            when { branch 'master' }
+            steps {
+                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
+                    sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/graphql:build.${BUILD_NUMBER}"
+                    sh "docker push fintlabs.azurecr.io/graphql:build.${BUILD_NUMBER}"
+                }
             }
+        }
+        stage('Publish PR') {
+            when { changeRequest() }
+            steps {
+                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
+                    sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/graphql:${BRANCH_NAME}.${BUILD_NUMBER}"
+                    sh "docker push fintlabs.azurecr.io/graphql:${BRANCH_NAME}.${BUILD_NUMBER}"
+                }
+            }
+        }
+        stage('Publish Version') {
             when {
                 tag pattern: "v\\d+\\.\\d+\\.\\d+(-\\w+-\\d+)?", comparator: "REGEXP"
             }
@@ -23,8 +32,10 @@ pipeline {
                 script {
                     VERSION = TAG_NAME[1..-1]
                 }
-                sh "echo Version is ${VERSION}"
-                sh "gradle --no-daemon -Pversion=${VERSION} -PbintrayUser=${BINTRAY_USR} -PbintrayKey=${BINTRAY_PSW} bintrayUpload"
+                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/graphql:${VERSION}"
+                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
+                    sh "docker push fintlabs.azurecr.io/graphql:${VERSION}"
+                }
             }
         }
     }

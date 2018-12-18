@@ -21,7 +21,7 @@ apply plugin: 'io.spring.dependency-management'
 
 group = 'no.fint'
 version = "${version}-${apiVersion}"
-sourceCompatibility = 11
+sourceCompatibility = 1.8
 
 repositories {
     mavenLocal()
@@ -51,8 +51,42 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter')
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
 
+    runtime('org.springframework.boot:spring-boot-starter-actuator')
+
     testCompile("cglib:cglib-nodep:${cglibVersion}")
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
     testCompile("org.spockframework:spock-core:${spockSpringVersion}")
     testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+task copyExternalDependencies(type: Copy) {
+    from configurations.runtime
+    into "$buildDir/deps/external"
+    exclude '**/fint-*.jar'
+}
+
+task copyFintDependencies(type: Copy) {
+    from configurations.runtime
+    into "$buildDir/deps/fint"
+    include '**/fint-*.jar'
+}
+
+build.dependsOn(copyExternalDependencies)
+build.dependsOn(copyFintDependencies)
+
+jar {
+    enabled = true
+    manifest {
+        attributes(
+                "Manifest-Version": "1.0",
+                "Main-Class": "no.fint.graphql.Application",
+                "Specification-Version": "${apiVersion}",
+                "Implementation-Version": "${version}",
+                "Class-Path": configurations.runtime.collect { it.getName() }.join(' ')
+        )
+    }
+}
+
+bootJar {
+    enabled = false
 }
