@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: graphql
-          image: fintlabs.azurecr.io/graphql:build.4
+          image: fintlabs.azurecr.io/graphql:build.5
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -43,3 +43,5 @@ spec:
               value: -Xmx1G
             - name: server.servlet.context-path
               value: "/graphql"
+            - name: graphiql.endpoint.graphql
+              value: "/graphql/graphql"
