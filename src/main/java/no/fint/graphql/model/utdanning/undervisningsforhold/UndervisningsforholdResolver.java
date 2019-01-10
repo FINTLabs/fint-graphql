@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.undervisningsforhold;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -68,8 +69,8 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
     private MedlemskapService medlemskapService;
 
 
-    public ArbeidsforholdResource getArbeidsforhold(UndervisningsforholdResource undervisningsforhold) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(undervisningsforhold.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(undervisningsforhold.getArbeidsforhold()), dfe);
     }
 
     public BasisgruppeResource getBasisgruppe(UndervisningsforholdResource undervisningsforhold) {

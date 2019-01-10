@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.personalressurs;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -57,8 +58,8 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
         return personalressurskategoriService.getPersonalressurskategoriResource(Links.get(personalressurs.getPersonalressurskategori()));
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(PersonalressursResource personalressurs) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getArbeidsforhold()), dfe);
     }
 
     public PersonResource getPerson(PersonalressursResource personalressurs) {
@@ -77,8 +78,8 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
         return organisasjonselementService.getOrganisasjonselementResource(Links.get(personalressurs.getLeder()));
     }
 
-    public ArbeidsforholdResource getPersonalansvar(PersonalressursResource personalressurs) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getPersonalansvar()));
+    public ArbeidsforholdResource getPersonalansvar(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getPersonalansvar()), dfe);
     }
 
     public SkoleressursResource getSkoleressurs(PersonalressursResource personalressurs) {

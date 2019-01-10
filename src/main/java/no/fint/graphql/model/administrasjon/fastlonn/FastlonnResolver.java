@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.fastlonn;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -54,8 +55,8 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
         return personalressursService.getPersonalressursResource(Links.get(fastlonn.getAttestant()));
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fastlonn.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fastlonn.getArbeidsforhold()), dfe);
     }
 
 }

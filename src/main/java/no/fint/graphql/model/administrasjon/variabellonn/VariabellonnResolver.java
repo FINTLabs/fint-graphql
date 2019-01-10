@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.variabellonn;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -54,8 +55,8 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
         return personalressursService.getPersonalressursResource(Links.get(variabellonn.getAttestant()));
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(variabellonn.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(Links.get(variabellonn.getArbeidsforhold()), dfe);
     }
 
 }
