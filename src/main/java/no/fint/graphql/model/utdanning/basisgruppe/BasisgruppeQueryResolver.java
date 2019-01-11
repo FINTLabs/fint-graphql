@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.basisgruppe;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
 import no.fint.model.resource.utdanning.elev.BasisgruppeResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class BasisgruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private BasisgruppeService service;
 
-    public List<BasisgruppeResource> getBasisgruppe(String sinceTimeStamp) {
-        BasisgruppeResources resources = service.getBasisgruppeResources(sinceTimeStamp);
+    public List<BasisgruppeResource> getBasisgruppe(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        BasisgruppeResources resources = service.getBasisgruppeResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.felles.landkode;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
 import no.fint.model.resource.felles.kodeverk.iso.LandkodeResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class LandkodeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private LandkodeService service;
 
-    public List<LandkodeResource> getLandkode(String sinceTimeStamp) {
-        LandkodeResources resources = service.getLandkodeResources(sinceTimeStamp);
+    public List<LandkodeResource> getLandkode(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        LandkodeResources resources = service.getLandkodeResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.fastlonn;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.administrasjon.personal.FastlonnResource;
 import no.fint.model.resource.administrasjon.personal.FastlonnResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class FastlonnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FastlonnService service;
 
-    public List<FastlonnResource> getFastlonn(String sinceTimeStamp) {
-        FastlonnResources resources = service.getFastlonnResources(sinceTimeStamp);
+    public List<FastlonnResource> getFastlonn(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        FastlonnResources resources = service.getFastlonnResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

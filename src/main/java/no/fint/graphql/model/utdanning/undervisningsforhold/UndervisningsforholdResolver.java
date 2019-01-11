@@ -70,39 +70,57 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
 
 
     public ArbeidsforholdResource getArbeidsforhold(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(undervisningsforhold.getArbeidsforhold()), dfe);
+        return arbeidsforholdService.getArbeidsforholdResource(
+            Links.get(undervisningsforhold.getArbeidsforhold()),
+            dfe);
     }
 
-    public BasisgruppeResource getBasisgruppe(UndervisningsforholdResource undervisningsforhold) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(undervisningsforhold.getBasisgruppe()));
+    public BasisgruppeResource getBasisgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return basisgruppeService.getBasisgruppeResource(
+            Links.get(undervisningsforhold.getBasisgruppe()),
+            dfe);
     }
 
-    public KontaktlarergruppeResource getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(undervisningsforhold.getKontaktlarergruppe()));
+    public KontaktlarergruppeResource getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return kontaktlarergruppeService.getKontaktlarergruppeResource(
+            Links.get(undervisningsforhold.getKontaktlarergruppe()),
+            dfe);
     }
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(undervisningsforhold.getUndervisningsgruppe()));
+    public UndervisningsgruppeResource getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsgruppeService.getUndervisningsgruppeResource(
+            Links.get(undervisningsforhold.getUndervisningsgruppe()),
+            dfe);
     }
 
-    public EksamensgruppeResource getEksamensgruppe(UndervisningsforholdResource undervisningsforhold) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(undervisningsforhold.getEksamensgruppe()));
+    public EksamensgruppeResource getEksamensgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return eksamensgruppeService.getEksamensgruppeResource(
+            Links.get(undervisningsforhold.getEksamensgruppe()),
+            dfe);
     }
 
-    public TimeResource getTime(UndervisningsforholdResource undervisningsforhold) {
-        return timeService.getTimeResource(Links.get(undervisningsforhold.getTime()));
+    public TimeResource getTime(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return timeService.getTimeResource(
+            Links.get(undervisningsforhold.getTime()),
+            dfe);
     }
 
-    public SkoleResource getSkole(UndervisningsforholdResource undervisningsforhold) {
-        return skoleService.getSkoleResource(Links.get(undervisningsforhold.getSkole()));
+    public SkoleResource getSkole(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(undervisningsforhold.getSkole()),
+            dfe);
     }
 
-    public SkoleressursResource getSkoleressurs(UndervisningsforholdResource undervisningsforhold) {
-        return skoleressursService.getSkoleressursResource(Links.get(undervisningsforhold.getSkoleressurs()));
+    public SkoleressursResource getSkoleressurs(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return skoleressursService.getSkoleressursResource(
+            Links.get(undervisningsforhold.getSkoleressurs()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(UndervisningsforholdResource undervisningsforhold) {
-        return medlemskapService.getMedlemskapResource(Links.get(undervisningsforhold.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(undervisningsforhold.getMedlemskap()),
+            dfe);
     }
 
 }

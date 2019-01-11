@@ -3,6 +3,7 @@
 package no.fint.graphql.model.felles.kontaktperson;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.felles.KontaktpersonResource;
 import no.fint.model.resource.felles.KontaktpersonResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class KontaktpersonQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KontaktpersonService service;
 
-    public List<KontaktpersonResource> getKontaktperson(String sinceTimeStamp) {
-        KontaktpersonResources resources = service.getKontaktpersonResources(sinceTimeStamp);
+    public List<KontaktpersonResource> getKontaktperson(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        KontaktpersonResources resources = service.getKontaktpersonResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

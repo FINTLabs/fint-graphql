@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.elev;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -33,12 +34,16 @@ public class ElevResolver implements GraphQLResolver<ElevResource> {
     private ElevforholdService elevforholdService;
 
 
-    public PersonResource getPerson(ElevResource elev) {
-        return personService.getPersonResource(Links.get(elev.getPerson()));
+    public PersonResource getPerson(ElevResource elev, DataFetchingEnvironment dfe) {
+        return personService.getPersonResource(
+            Links.get(elev.getPerson()),
+            dfe);
     }
 
-    public ElevforholdResource getElevforhold(ElevResource elev) {
-        return elevforholdService.getElevforholdResource(Links.get(elev.getElevforhold()));
+    public ElevforholdResource getElevforhold(ElevResource elev, DataFetchingEnvironment dfe) {
+        return elevforholdService.getElevforholdResource(
+            Links.get(elev.getElevforhold()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.fullmakt;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -33,16 +34,22 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
     private RolleService rolleService;
 
 
-    public PersonalressursResource getStedfortreder(FullmaktResource fullmakt) {
-        return personalressursService.getPersonalressursResource(Links.get(fullmakt.getStedfortreder()));
+    public PersonalressursResource getStedfortreder(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fullmakt.getStedfortreder()),
+            dfe);
     }
 
-    public PersonalressursResource getFullmektig(FullmaktResource fullmakt) {
-        return personalressursService.getPersonalressursResource(Links.get(fullmakt.getFullmektig()));
+    public PersonalressursResource getFullmektig(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fullmakt.getFullmektig()),
+            dfe);
     }
 
-    public RolleResource getRolle(FullmaktResource fullmakt) {
-        return rolleService.getRolleResource(Links.get(fullmakt.getRolle()));
+    public RolleResource getRolle(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
+        return rolleService.getRolleResource(
+            Links.get(fullmakt.getRolle()),
+            dfe);
     }
 
 }

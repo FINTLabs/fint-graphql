@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.stillingskode;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class StillingskodeResolver implements GraphQLResolver<StillingskodeResou
     private StillingskodeService stillingskodeService;
 
 
-    public StillingskodeResource getForelder(StillingskodeResource stillingskode) {
-        return stillingskodeService.getStillingskodeResource(Links.get(stillingskode.getForelder()));
+    public StillingskodeResource getForelder(StillingskodeResource stillingskode, DataFetchingEnvironment dfe) {
+        return stillingskodeService.getStillingskodeResource(
+            Links.get(stillingskode.getForelder()),
+            dfe);
     }
 
 }

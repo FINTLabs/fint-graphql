@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.undervisningsgruppe;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -53,28 +54,40 @@ public class UndervisningsgruppeResolver implements GraphQLResolver<Undervisning
     private MedlemskapService medlemskapService;
 
 
-    public FagResource getFag(UndervisningsgruppeResource undervisningsgruppe) {
-        return fagService.getFagResource(Links.get(undervisningsgruppe.getFag()));
+    public FagResource getFag(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
+        return fagService.getFagResource(
+            Links.get(undervisningsgruppe.getFag()),
+            dfe);
     }
 
-    public SkoleResource getSkole(UndervisningsgruppeResource undervisningsgruppe) {
-        return skoleService.getSkoleResource(Links.get(undervisningsgruppe.getSkole()));
+    public SkoleResource getSkole(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(undervisningsgruppe.getSkole()),
+            dfe);
     }
 
-    public ElevforholdResource getElevforhold(UndervisningsgruppeResource undervisningsgruppe) {
-        return elevforholdService.getElevforholdResource(Links.get(undervisningsgruppe.getElevforhold()));
+    public ElevforholdResource getElevforhold(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
+        return elevforholdService.getElevforholdResource(
+            Links.get(undervisningsgruppe.getElevforhold()),
+            dfe);
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(UndervisningsgruppeResource undervisningsgruppe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(undervisningsgruppe.getUndervisningsforhold()));
+    public UndervisningsforholdResource getUndervisningsforhold(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
+        return undervisningsforholdService.getUndervisningsforholdResource(
+            Links.get(undervisningsgruppe.getUndervisningsforhold()),
+            dfe);
     }
 
-    public TimeResource getTime(UndervisningsgruppeResource undervisningsgruppe) {
-        return timeService.getTimeResource(Links.get(undervisningsgruppe.getTime()));
+    public TimeResource getTime(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
+        return timeService.getTimeResource(
+            Links.get(undervisningsgruppe.getTime()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(UndervisningsgruppeResource undervisningsgruppe) {
-        return medlemskapService.getMedlemskapResource(Links.get(undervisningsgruppe.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(undervisningsgruppe.getMedlemskap()),
+            dfe);
     }
 
 }

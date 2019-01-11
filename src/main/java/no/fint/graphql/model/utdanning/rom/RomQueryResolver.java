@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.rom;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.timeplan.RomResource;
 import no.fint.model.resource.utdanning.timeplan.RomResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class RomQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private RomService service;
 
-    public List<RomResource> getRom(String sinceTimeStamp) {
-        RomResources resources = service.getRomResources(sinceTimeStamp);
+    public List<RomResource> getRom(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        RomResources resources = service.getRomResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

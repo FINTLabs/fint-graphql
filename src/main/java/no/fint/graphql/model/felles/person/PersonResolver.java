@@ -3,6 +3,7 @@
 package no.fint.graphql.model.felles.person;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -53,32 +54,46 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
     private ElevService elevService;
 
 
-    public LandkodeResource getStatsborgerskap(PersonResource person) {
-        return landkodeService.getLandkodeResource(Links.get(person.getStatsborgerskap()));
+    public LandkodeResource getStatsborgerskap(PersonResource person, DataFetchingEnvironment dfe) {
+        return landkodeService.getLandkodeResource(
+            Links.get(person.getStatsborgerskap()),
+            dfe);
     }
 
-    public KjonnResource getKjonn(PersonResource person) {
-        return kjonnService.getKjonnResource(Links.get(person.getKjonn()));
+    public KjonnResource getKjonn(PersonResource person, DataFetchingEnvironment dfe) {
+        return kjonnService.getKjonnResource(
+            Links.get(person.getKjonn()),
+            dfe);
     }
 
-    public SprakResource getMalform(PersonResource person) {
-        return sprakService.getSprakResource(Links.get(person.getMalform()));
+    public SprakResource getMalform(PersonResource person, DataFetchingEnvironment dfe) {
+        return sprakService.getSprakResource(
+            Links.get(person.getMalform()),
+            dfe);
     }
 
-    public PersonalressursResource getPersonalressurs(PersonResource person) {
-        return personalressursService.getPersonalressursResource(Links.get(person.getPersonalressurs()));
+    public PersonalressursResource getPersonalressurs(PersonResource person, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(person.getPersonalressurs()),
+            dfe);
     }
 
-    public SprakResource getMorsmal(PersonResource person) {
-        return sprakService.getSprakResource(Links.get(person.getMorsmal()));
+    public SprakResource getMorsmal(PersonResource person, DataFetchingEnvironment dfe) {
+        return sprakService.getSprakResource(
+            Links.get(person.getMorsmal()),
+            dfe);
     }
 
-    public KontaktpersonResource getParorende(PersonResource person) {
-        return kontaktpersonService.getKontaktpersonResource(Links.get(person.getParorende()));
+    public KontaktpersonResource getParorende(PersonResource person, DataFetchingEnvironment dfe) {
+        return kontaktpersonService.getKontaktpersonResource(
+            Links.get(person.getParorende()),
+            dfe);
     }
 
-    public ElevResource getElev(PersonResource person) {
-        return elevService.getElevResource(Links.get(person.getElev()));
+    public ElevResource getElev(PersonResource person, DataFetchingEnvironment dfe) {
+        return elevService.getElevResource(
+            Links.get(person.getElev()),
+            dfe);
     }
 
 }

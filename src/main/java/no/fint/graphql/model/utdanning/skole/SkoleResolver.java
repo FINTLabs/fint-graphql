@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.skole;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -78,48 +79,70 @@ public class SkoleResolver implements GraphQLResolver<SkoleResource> {
     private UtdanningsprogramService utdanningsprogramService;
 
 
-    public OrganisasjonselementResource getOrganisasjon(SkoleResource skole) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(skole.getOrganisasjon()));
+    public OrganisasjonselementResource getOrganisasjon(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return organisasjonselementService.getOrganisasjonselementResource(
+            Links.get(skole.getOrganisasjon()),
+            dfe);
     }
 
-    public FagResource getFag(SkoleResource skole) {
-        return fagService.getFagResource(Links.get(skole.getFag()));
+    public FagResource getFag(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return fagService.getFagResource(
+            Links.get(skole.getFag()),
+            dfe);
     }
 
-    public SkoleeiertypeResource getSkoleeierType(SkoleResource skole) {
-        return skoleeiertypeService.getSkoleeiertypeResource(Links.get(skole.getSkoleeierType()));
+    public SkoleeiertypeResource getSkoleeierType(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return skoleeiertypeService.getSkoleeiertypeResource(
+            Links.get(skole.getSkoleeierType()),
+            dfe);
     }
 
-    public BasisgruppeResource getBasisgruppe(SkoleResource skole) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(skole.getBasisgruppe()));
+    public BasisgruppeResource getBasisgruppe(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return basisgruppeService.getBasisgruppeResource(
+            Links.get(skole.getBasisgruppe()),
+            dfe);
     }
 
-    public ElevforholdResource getElevforhold(SkoleResource skole) {
-        return elevforholdService.getElevforholdResource(Links.get(skole.getElevforhold()));
+    public ElevforholdResource getElevforhold(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return elevforholdService.getElevforholdResource(
+            Links.get(skole.getElevforhold()),
+            dfe);
     }
 
-    public KontaktlarergruppeResource getKontaktlarergruppe(SkoleResource skole) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(skole.getKontaktlarergruppe()));
+    public KontaktlarergruppeResource getKontaktlarergruppe(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return kontaktlarergruppeService.getKontaktlarergruppeResource(
+            Links.get(skole.getKontaktlarergruppe()),
+            dfe);
     }
 
-    public SkoleressursResource getSkoleressurs(SkoleResource skole) {
-        return skoleressursService.getSkoleressursResource(Links.get(skole.getSkoleressurs()));
+    public SkoleressursResource getSkoleressurs(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return skoleressursService.getSkoleressursResource(
+            Links.get(skole.getSkoleressurs()),
+            dfe);
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(SkoleResource skole) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(skole.getUndervisningsforhold()));
+    public UndervisningsforholdResource getUndervisningsforhold(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return undervisningsforholdService.getUndervisningsforholdResource(
+            Links.get(skole.getUndervisningsforhold()),
+            dfe);
     }
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(SkoleResource skole) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(skole.getUndervisningsgruppe()));
+    public UndervisningsgruppeResource getUndervisningsgruppe(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return undervisningsgruppeService.getUndervisningsgruppeResource(
+            Links.get(skole.getUndervisningsgruppe()),
+            dfe);
     }
 
-    public EksamensgruppeResource getEksamensgruppe(SkoleResource skole) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(skole.getEksamensgruppe()));
+    public EksamensgruppeResource getEksamensgruppe(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return eksamensgruppeService.getEksamensgruppeResource(
+            Links.get(skole.getEksamensgruppe()),
+            dfe);
     }
 
-    public UtdanningsprogramResource getUtdanningsprogram(SkoleResource skole) {
-        return utdanningsprogramService.getUtdanningsprogramResource(Links.get(skole.getUtdanningsprogram()));
+    public UtdanningsprogramResource getUtdanningsprogram(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return utdanningsprogramService.getUtdanningsprogramResource(
+            Links.get(skole.getUtdanningsprogram()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.arstrinn;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class ArstrinnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ArstrinnService service;
 
-    public List<ArstrinnResource> getArstrinn(String sinceTimeStamp) {
-        ArstrinnResources resources = service.getArstrinnResources(sinceTimeStamp);
+    public List<ArstrinnResource> getArstrinn(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        ArstrinnResources resources = service.getArstrinnResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

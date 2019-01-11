@@ -2,39 +2,35 @@
 
 package no.fint.graphql.model.felles.person;
 
-import no.fint.graphql.model.Endpoints;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.ResourceUrlBuilder;
+import no.fint.graphql.WebClientRequest;
+import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.PersonResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service("fellesPersonService")
 public class PersonService {
 
     @Autowired
-    private WebClient webClient;
+    private WebClientRequest webClientRequest;
 
     @Autowired
     private Endpoints endpoints;
 
-    public PersonResources getPersonResources(String sinceTimeStamp) {
-
-
-        return webClient.get()
-                .uri(ResourceUrlBuilder.urlWithQueryParams(endpoints.getFelles() + "/person", sinceTimeStamp))
-                .retrieve()
-                .bodyToMono(PersonResources.class)
-                .block();
+    public PersonResources getPersonResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        return webClientRequest.get(
+                ResourceUrlBuilder.urlWithQueryParams(
+                    endpoints.getFelles() + "/person",
+                    sinceTimeStamp),
+                PersonResources.class,
+                dfe);
     }
 
-    public PersonResource getPersonResource(String url) {
-        return webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(PersonResource.class)
-                .block();
+    public PersonResource getPersonResource(String url, DataFetchingEnvironment dfe) {
+        return webClientRequest.get(url, PersonResource.class, dfe);
     }
 }
 

@@ -5,15 +5,27 @@ package no.fint.graphql.model.administrasjon.organisasjonselement;
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
+
+
+
+
 import no.fint.graphql.model.administrasjon.ansvar.AnsvarService;
-import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
+import no.fint.graphql.model.administrasjon.organisasjonselement.OrganisasjonselementService;
 import no.fint.graphql.model.utdanning.skole.SkoleService;
-import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
+import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService;
+
+
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
-import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+
+
+import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,28 +49,40 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
     private ArbeidsforholdService arbeidsforholdService;
 
 
-    public AnsvarResource getAnsvar(OrganisasjonselementResource organisasjonselement) {
-        return ansvarService.getAnsvarResource(Links.get(organisasjonselement.getAnsvar()));
+    public AnsvarResource getAnsvar(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return ansvarService.getAnsvarResource(
+            Links.get(organisasjonselement.getAnsvar()),
+            dfe);
     }
 
-    public PersonalressursResource getLeder(OrganisasjonselementResource organisasjonselement) {
-        return personalressursService.getPersonalressursResource(Links.get(organisasjonselement.getLeder()));
+    public PersonalressursResource getLeder(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(organisasjonselement.getLeder()),
+            dfe);
     }
 
-    public OrganisasjonselementResource getOverordnet(OrganisasjonselementResource organisasjonselement) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement.getOverordnet()));
+    public OrganisasjonselementResource getOverordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return organisasjonselementService.getOrganisasjonselementResource(
+            Links.get(organisasjonselement.getOverordnet()),
+            dfe);
     }
 
-    public OrganisasjonselementResource getUnderordnet(OrganisasjonselementResource organisasjonselement) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(organisasjonselement.getUnderordnet()));
+    public OrganisasjonselementResource getUnderordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return organisasjonselementService.getOrganisasjonselementResource(
+            Links.get(organisasjonselement.getUnderordnet()),
+            dfe);
     }
 
-    public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement) {
-        return skoleService.getSkoleResource(Links.get(organisasjonselement.getSkole()));
+    public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(organisasjonselement.getSkole()),
+            dfe);
     }
 
     public ArbeidsforholdResource getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(organisasjonselement.getArbeidsforhold()), dfe);
+        return arbeidsforholdService.getArbeidsforholdResource(
+            Links.get(organisasjonselement.getArbeidsforhold()),
+            dfe);
     }
 
 }

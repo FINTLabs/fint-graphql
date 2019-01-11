@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.kontostreng;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -43,20 +44,28 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
     private ProsjektService prosjektService;
 
 
-    public AnsvarResource getAnsvar(KontostrengResource kontostreng) {
-        return ansvarService.getAnsvarResource(Links.get(kontostreng.getAnsvar()));
+    public AnsvarResource getAnsvar(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
+        return ansvarService.getAnsvarResource(
+            Links.get(kontostreng.getAnsvar()),
+            dfe);
     }
 
-    public ArtResource getArt(KontostrengResource kontostreng) {
-        return artService.getArtResource(Links.get(kontostreng.getArt()));
+    public ArtResource getArt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
+        return artService.getArtResource(
+            Links.get(kontostreng.getArt()),
+            dfe);
     }
 
-    public FunksjonResource getFunksjon(KontostrengResource kontostreng) {
-        return funksjonService.getFunksjonResource(Links.get(kontostreng.getFunksjon()));
+    public FunksjonResource getFunksjon(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
+        return funksjonService.getFunksjonResource(
+            Links.get(kontostreng.getFunksjon()),
+            dfe);
     }
 
-    public ProsjektResource getProsjekt(KontostrengResource kontostreng) {
-        return prosjektService.getProsjektResource(Links.get(kontostreng.getProsjekt()));
+    public ProsjektResource getProsjekt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
+        return prosjektService.getProsjektResource(
+            Links.get(kontostreng.getProsjekt()),
+            dfe);
     }
 
 }

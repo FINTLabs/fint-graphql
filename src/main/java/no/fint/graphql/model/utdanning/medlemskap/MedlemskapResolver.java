@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.medlemskap;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,12 +29,16 @@ public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
     private VurderingService vurderingService;
 
 
-    public VurderingResource getFortlopendeVurdering(MedlemskapResource medlemskap) {
-        return vurderingService.getVurderingResource(Links.get(medlemskap.getFortlopendeVurdering()));
+    public VurderingResource getFortlopendeVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
+        return vurderingService.getVurderingResource(
+            Links.get(medlemskap.getFortlopendeVurdering()),
+            dfe);
     }
 
-    public VurderingResource getEndeligVurdering(MedlemskapResource medlemskap) {
-        return vurderingService.getVurderingResource(Links.get(medlemskap.getEndeligVurdering()));
+    public VurderingResource getEndeligVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
+        return vurderingService.getVurderingResource(
+            Links.get(medlemskap.getEndeligVurdering()),
+            dfe);
     }
 
 }

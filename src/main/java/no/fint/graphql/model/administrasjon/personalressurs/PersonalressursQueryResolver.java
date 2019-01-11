@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.personalressurs;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class PersonalressursQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PersonalressursService service;
 
-    public List<PersonalressursResource> getPersonalressurs(String sinceTimeStamp) {
-        PersonalressursResources resources = service.getPersonalressursResources(sinceTimeStamp);
+    public List<PersonalressursResource> getPersonalressurs(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        PersonalressursResources resources = service.getPersonalressursResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

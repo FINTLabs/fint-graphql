@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.arstrinn;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,16 +39,22 @@ public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
     private MedlemskapService medlemskapService;
 
 
-    public ProgramomradeResource getProgramomrade(ArstrinnResource arstrinn) {
-        return programomradeService.getProgramomradeResource(Links.get(arstrinn.getProgramomrade()));
+    public ProgramomradeResource getProgramomrade(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
+        return programomradeService.getProgramomradeResource(
+            Links.get(arstrinn.getProgramomrade()),
+            dfe);
     }
 
-    public BasisgruppeResource getBasisgruppe(ArstrinnResource arstrinn) {
-        return basisgruppeService.getBasisgruppeResource(Links.get(arstrinn.getBasisgruppe()));
+    public BasisgruppeResource getBasisgruppe(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
+        return basisgruppeService.getBasisgruppeResource(
+            Links.get(arstrinn.getBasisgruppe()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(ArstrinnResource arstrinn) {
-        return medlemskapService.getMedlemskapResource(Links.get(arstrinn.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(arstrinn.getMedlemskap()),
+            dfe);
     }
 
 }

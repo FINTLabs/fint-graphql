@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.elevkategori;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.kodeverk.ElevkategoriResource;
 import no.fint.model.resource.utdanning.kodeverk.ElevkategoriResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class ElevkategoriQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevkategoriService service;
 
-    public List<ElevkategoriResource> getElevkategori(String sinceTimeStamp) {
-        ElevkategoriResources resources = service.getElevkategoriResources(sinceTimeStamp);
+    public List<ElevkategoriResource> getElevkategori(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        ElevkategoriResources resources = service.getElevkategoriResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

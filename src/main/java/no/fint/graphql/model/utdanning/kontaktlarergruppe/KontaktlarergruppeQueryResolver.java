@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.kontaktlarergruppe;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class KontaktlarergruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KontaktlarergruppeService service;
 
-    public List<KontaktlarergruppeResource> getKontaktlarergruppe(String sinceTimeStamp) {
-        KontaktlarergruppeResources resources = service.getKontaktlarergruppeResources(sinceTimeStamp);
+    public List<KontaktlarergruppeResource> getKontaktlarergruppe(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        KontaktlarergruppeResources resources = service.getKontaktlarergruppeResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

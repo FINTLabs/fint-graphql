@@ -22,7 +22,9 @@ public class ArbeidsforholdService {
 
     public ArbeidsforholdResources getArbeidsforholdResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
         return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(endpoints.getAdministrasjonPersonal() + "/arbeidsforhold", sinceTimeStamp),
+                ResourceUrlBuilder.urlWithQueryParams(
+                    endpoints.getAdministrasjonPersonal() + "/arbeidsforhold",
+                    sinceTimeStamp),
                 ArbeidsforholdResources.class,
                 dfe);
     }

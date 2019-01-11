@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.skoleressurs;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,16 +39,22 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
     private SkoleService skoleService;
 
 
-    public PersonalressursResource getPersonalressurs(SkoleressursResource skoleressurs) {
-        return personalressursService.getPersonalressursResource(Links.get(skoleressurs.getPersonalressurs()));
+    public PersonalressursResource getPersonalressurs(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(skoleressurs.getPersonalressurs()),
+            dfe);
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(SkoleressursResource skoleressurs) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(skoleressurs.getUndervisningsforhold()));
+    public UndervisningsforholdResource getUndervisningsforhold(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
+        return undervisningsforholdService.getUndervisningsforholdResource(
+            Links.get(skoleressurs.getUndervisningsforhold()),
+            dfe);
     }
 
-    public SkoleResource getSkole(SkoleressursResource skoleressurs) {
-        return skoleService.getSkoleResource(Links.get(skoleressurs.getSkole()));
+    public SkoleResource getSkole(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(skoleressurs.getSkole()),
+            dfe);
     }
 
 }

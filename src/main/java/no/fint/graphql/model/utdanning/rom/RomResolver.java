@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.rom;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class RomResolver implements GraphQLResolver<RomResource> {
     private TimeService timeService;
 
 
-    public TimeResource getTime(RomResource rom) {
-        return timeService.getTimeResource(Links.get(rom.getTime()));
+    public TimeResource getTime(RomResource rom, DataFetchingEnvironment dfe) {
+        return timeService.getTimeResource(
+            Links.get(rom.getTime()),
+            dfe);
     }
 
 }

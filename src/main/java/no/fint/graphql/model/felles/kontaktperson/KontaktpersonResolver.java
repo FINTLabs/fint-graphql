@@ -3,6 +3,7 @@
 package no.fint.graphql.model.felles.kontaktperson;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,12 +29,16 @@ public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResou
     private PersonService personService;
 
 
-    public PersonResource getKontaktperson(KontaktpersonResource kontaktperson) {
-        return personService.getPersonResource(Links.get(kontaktperson.getKontaktperson()));
+    public PersonResource getKontaktperson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
+        return personService.getPersonResource(
+            Links.get(kontaktperson.getKontaktperson()),
+            dfe);
     }
 
-    public PersonResource getPerson(KontaktpersonResource kontaktperson) {
-        return personService.getPersonResource(Links.get(kontaktperson.getPerson()));
+    public PersonResource getPerson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
+        return personService.getPersonResource(
+            Links.get(kontaktperson.getPerson()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.skoleeiertype;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResource;
 import no.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class SkoleeiertypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SkoleeiertypeService service;
 
-    public List<SkoleeiertypeResource> getSkoleeiertype(String sinceTimeStamp) {
-        SkoleeiertypeResources resources = service.getSkoleeiertypeResources(sinceTimeStamp);
+    public List<SkoleeiertypeResource> getSkoleeiertype(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        SkoleeiertypeResources resources = service.getSkoleeiertypeResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

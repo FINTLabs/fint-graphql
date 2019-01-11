@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.arbeidsforhold;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -63,40 +64,58 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
     private UndervisningsforholdService undervisningsforholdService;
 
 
-    public AnsvarResource getAnsvar(ArbeidsforholdResource arbeidsforhold) {
-        return ansvarService.getAnsvarResource(Links.get(arbeidsforhold.getAnsvar()));
+    public AnsvarResource getAnsvar(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return ansvarService.getAnsvarResource(
+            Links.get(arbeidsforhold.getAnsvar()),
+            dfe);
     }
 
-    public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold) {
-        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforhold.getArbeidsforholdstype()));
+    public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(
+            Links.get(arbeidsforhold.getArbeidsforholdstype()),
+            dfe);
     }
 
-    public FunksjonResource getFunksjon(ArbeidsforholdResource arbeidsforhold) {
-        return funksjonService.getFunksjonResource(Links.get(arbeidsforhold.getFunksjon()));
+    public FunksjonResource getFunksjon(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return funksjonService.getFunksjonResource(
+            Links.get(arbeidsforhold.getFunksjon()),
+            dfe);
     }
 
-    public StillingskodeResource getStillingskode(ArbeidsforholdResource arbeidsforhold) {
-        return stillingskodeService.getStillingskodeResource(Links.get(arbeidsforhold.getStillingskode()));
+    public StillingskodeResource getStillingskode(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return stillingskodeService.getStillingskodeResource(
+            Links.get(arbeidsforhold.getStillingskode()),
+            dfe);
     }
 
-    public UketimetallResource getTimerPerUke(ArbeidsforholdResource arbeidsforhold) {
-        return uketimetallService.getUketimetallResource(Links.get(arbeidsforhold.getTimerPerUke()));
+    public UketimetallResource getTimerPerUke(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return uketimetallService.getUketimetallResource(
+            Links.get(arbeidsforhold.getTimerPerUke()),
+            dfe);
     }
 
-    public OrganisasjonselementResource getArbeidssted(ArbeidsforholdResource arbeidsforhold) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(arbeidsforhold.getArbeidssted()));
+    public OrganisasjonselementResource getArbeidssted(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return organisasjonselementService.getOrganisasjonselementResource(
+            Links.get(arbeidsforhold.getArbeidssted()),
+            dfe);
     }
 
-    public PersonalressursResource getPersonalleder(ArbeidsforholdResource arbeidsforhold) {
-        return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold.getPersonalleder()));
+    public PersonalressursResource getPersonalleder(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(arbeidsforhold.getPersonalleder()),
+            dfe);
     }
 
-    public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold) {
-        return personalressursService.getPersonalressursResource(Links.get(arbeidsforhold.getPersonalressurs()));
+    public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(arbeidsforhold.getPersonalressurs()),
+            dfe);
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(arbeidsforhold.getUndervisningsforhold()));
+    public UndervisningsforholdResource getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsforholdService.getUndervisningsforholdResource(
+            Links.get(arbeidsforhold.getUndervisningsforhold()),
+            dfe);
     }
 
 }

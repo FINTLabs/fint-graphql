@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.medlemskap;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 import no.fint.model.resource.utdanning.elev.MedlemskapResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class MedlemskapQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private MedlemskapService service;
 
-    public List<MedlemskapResource> getMedlemskap(String sinceTimeStamp) {
-        MedlemskapResources resources = service.getMedlemskapResources(sinceTimeStamp);
+    public List<MedlemskapResource> getMedlemskap(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        MedlemskapResources resources = service.getMedlemskapResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }
