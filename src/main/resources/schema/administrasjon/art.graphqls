@@ -10,5 +10,5 @@ type Art {
 
 
 	# Relations
-    fullmakt: Fullmakt
+    fullmakt: [Fullmakt]
 }

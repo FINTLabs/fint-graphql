@@ -7,5 +7,5 @@ type Rom {
 
 
 	# Relations
-    time: Time
+    time: [Time]
 }

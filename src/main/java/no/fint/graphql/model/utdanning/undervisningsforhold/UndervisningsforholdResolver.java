@@ -4,10 +4,6 @@ package no.fint.graphql.model.utdanning.undervisningsforhold;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.Links;
-
-
-
 
 import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.utdanning.basisgruppe.BasisgruppeService;
@@ -20,9 +16,8 @@ import no.fint.graphql.model.utdanning.skoleressurs.SkoleressursService;
 import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
 
 
+import no.fint.model.resource.Link;
 import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-
-
 import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
@@ -33,13 +28,14 @@ import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.fint.model.resource.utdanning.elev.SkoleressursResource;
 import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component("utdanningUndervisningsforholdResolver")
 public class UndervisningsforholdResolver implements GraphQLResolver<UndervisningsforholdResource> {
-
 
     @Autowired
     private ArbeidsforholdService arbeidsforholdService;
@@ -70,57 +66,75 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
 
 
     public ArbeidsforholdResource getArbeidsforhold(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforholdService.getArbeidsforholdResource(
-            Links.get(undervisningsforhold.getArbeidsforhold()),
-            dfe);
+        return undervisningsforhold.getArbeidsforhold()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
+            .findFirst().orElse(null);
     }
 
-    public BasisgruppeResource getBasisgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return basisgruppeService.getBasisgruppeResource(
-            Links.get(undervisningsforhold.getBasisgruppe()),
-            dfe);
+    public List<BasisgruppeResource> getBasisgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsforhold.getBasisgruppe()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> basisgruppeService.getBasisgruppeResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
-    public KontaktlarergruppeResource getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(
-            Links.get(undervisningsforhold.getKontaktlarergruppe()),
-            dfe);
+    public List<KontaktlarergruppeResource> getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsforhold.getKontaktlarergruppe()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> kontaktlarergruppeService.getKontaktlarergruppeResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(
-            Links.get(undervisningsforhold.getUndervisningsgruppe()),
-            dfe);
+    public List<UndervisningsgruppeResource> getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsforhold.getUndervisningsgruppe()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
-    public EksamensgruppeResource getEksamensgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return eksamensgruppeService.getEksamensgruppeResource(
-            Links.get(undervisningsforhold.getEksamensgruppe()),
-            dfe);
+    public List<EksamensgruppeResource> getEksamensgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsforhold.getEksamensgruppe()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> eksamensgruppeService.getEksamensgruppeResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
-    public TimeResource getTime(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return timeService.getTimeResource(
-            Links.get(undervisningsforhold.getTime()),
-            dfe);
+    public List<TimeResource> getTime(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsforhold.getTime()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> timeService.getTimeResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
     public SkoleResource getSkole(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return skoleService.getSkoleResource(
-            Links.get(undervisningsforhold.getSkole()),
-            dfe);
+        return undervisningsforhold.getSkole()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> skoleService.getSkoleResource(l, dfe))
+            .findFirst().orElse(null);
     }
 
     public SkoleressursResource getSkoleressurs(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return skoleressursService.getSkoleressursResource(
-            Links.get(undervisningsforhold.getSkoleressurs()),
-            dfe);
+        return undervisningsforhold.getSkoleressurs()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> skoleressursService.getSkoleressursResource(l, dfe))
+            .findFirst().orElse(null);
     }
 
-    public MedlemskapResource getMedlemskap(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return medlemskapService.getMedlemskapResource(
-            Links.get(undervisningsforhold.getMedlemskap()),
-            dfe);
+    public List<MedlemskapResource> getMedlemskap(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return undervisningsforhold.getMedlemskap()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
 }

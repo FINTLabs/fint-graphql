@@ -11,7 +11,7 @@ type Ansvar {
 
 	# Relations
     overordnet: Ansvar
-    underordnet: Ansvar
-    organisasjonselement: Organisasjonselement
-    fullmakt: Fullmakt
+    underordnet: [Ansvar]
+    organisasjonselement: [Organisasjonselement]
+    fullmakt: [Fullmakt]
 }

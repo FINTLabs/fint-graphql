@@ -3,11 +3,9 @@
 package no.fint.graphql.model.administrasjon.art;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.kodeverk.ArtResource;
-import no.fint.model.resource.administrasjon.kodeverk.ArtResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class ArtService {
     @Autowired
     private Endpoints endpoints;
 
-    public ArtResources getArtResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getAdministrasjonKodeverk() + "/art",
-                    sinceTimeStamp),
-                ArtResources.class,
-                dfe);
+    public ArtResource getArtResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getArtResource(
+            endpoints.getAdministrasjonKodeverk() 
+                + "/art/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public ArtResource getArtResource(String url, DataFetchingEnvironment dfe) {

@@ -5,11 +5,9 @@ package no.fint.graphql.model.administrasjon.personalressurskategori;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriResource;
-import no.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("administrasjonPersonalressurskategoriQueryResolver")
 public class PersonalressurskategoriQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class PersonalressurskategoriQueryResolver implements GraphQLQueryResolve
     @Autowired
     private PersonalressurskategoriService service;
 
-    public List<PersonalressurskategoriResource> getPersonalressurskategori(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        PersonalressurskategoriResources resources = service.getPersonalressurskategoriResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public PersonalressurskategoriResource getPersonalressurskategori(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getPersonalressurskategoriResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

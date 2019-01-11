@@ -3,11 +3,9 @@
 package no.fint.graphql.model.felles.kontaktperson;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.KontaktpersonResource;
-import no.fint.model.resource.felles.KontaktpersonResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class KontaktpersonService {
     @Autowired
     private Endpoints endpoints;
 
-    public KontaktpersonResources getKontaktpersonResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getFelles() + "/kontaktperson",
-                    sinceTimeStamp),
-                KontaktpersonResources.class,
-                dfe);
+    public KontaktpersonResource getKontaktpersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getKontaktpersonResource(
+            endpoints.getFelles() 
+                + "/kontaktperson/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public KontaktpersonResource getKontaktpersonResource(String url, DataFetchingEnvironment dfe) {

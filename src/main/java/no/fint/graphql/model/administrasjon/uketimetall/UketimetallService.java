@@ -3,11 +3,9 @@
 package no.fint.graphql.model.administrasjon.uketimetall;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.kodeverk.UketimetallResource;
-import no.fint.model.resource.administrasjon.kodeverk.UketimetallResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class UketimetallService {
     @Autowired
     private Endpoints endpoints;
 
-    public UketimetallResources getUketimetallResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getAdministrasjonKodeverk() + "/uketimetall",
-                    sinceTimeStamp),
-                UketimetallResources.class,
-                dfe);
+    public UketimetallResource getUketimetallResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getUketimetallResource(
+            endpoints.getAdministrasjonKodeverk() 
+                + "/uketimetall/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public UketimetallResource getUketimetallResource(String url, DataFetchingEnvironment dfe) {

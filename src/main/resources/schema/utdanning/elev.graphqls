@@ -10,6 +10,6 @@ type Elev {
 
 
 	# Relations
-    person: Person
-    elevforhold: Elevforhold
+    person: Person!
+    elevforhold: [Elevforhold]
 }

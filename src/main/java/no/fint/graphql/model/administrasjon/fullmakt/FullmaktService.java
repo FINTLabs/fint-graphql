@@ -3,11 +3,9 @@
 package no.fint.graphql.model.administrasjon.fullmakt;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
-import no.fint.model.resource.administrasjon.fullmakt.FullmaktResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class FullmaktService {
     @Autowired
     private Endpoints endpoints;
 
-    public FullmaktResources getFullmaktResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getAdministrasjonFullmakt() + "/fullmakt",
-                    sinceTimeStamp),
-                FullmaktResources.class,
-                dfe);
+    public FullmaktResource getFullmaktResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getFullmaktResource(
+            endpoints.getAdministrasjonFullmakt() 
+                + "/fullmakt/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public FullmaktResource getFullmaktResource(String url, DataFetchingEnvironment dfe) {

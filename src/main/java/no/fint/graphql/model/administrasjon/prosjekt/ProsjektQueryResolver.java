@@ -5,11 +5,9 @@ package no.fint.graphql.model.administrasjon.prosjekt;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.administrasjon.kodeverk.ProsjektResource;
-import no.fint.model.resource.administrasjon.kodeverk.ProsjektResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("administrasjonProsjektQueryResolver")
 public class ProsjektQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class ProsjektQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ProsjektService service;
 
-    public List<ProsjektResource> getProsjekt(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        ProsjektResources resources = service.getProsjektResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public ProsjektResource getProsjekt(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getProsjektResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

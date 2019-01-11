@@ -9,9 +9,9 @@ type Arstrinn {
 
 
 	# Relations
-    programomrade: Programomrade
-    basisgruppe: Basisgruppe
+    programomrade: [Programomrade]
+    basisgruppe: [Basisgruppe]
     grepreferanse: String
     vigoreferanse: String
-    medlemskap: Medlemskap
+    medlemskap: [Medlemskap]
 }

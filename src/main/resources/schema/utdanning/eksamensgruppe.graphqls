@@ -9,11 +9,11 @@ type Eksamensgruppe {
 
 
 	# Relations
-    fag: Fag
-    skole: Skole
-    elevforhold: Elevforhold
-    undervisningsforhold: Undervisningsforhold
+    fag: Fag!
+    skole: Skole!
+    elevforhold: [Elevforhold]
+    undervisningsforhold: [Undervisningsforhold]
     grepreferanse: String
     vigoreferanse: String
-    medlemskap: Medlemskap
+    medlemskap: [Medlemskap]
 }

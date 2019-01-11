@@ -9,12 +9,12 @@ type Undervisningsgruppe {
 
 
 	# Relations
-    fag: Fag
-    skole: Skole
-    elevforhold: Elevforhold
-    undervisningsforhold: Undervisningsforhold
-    time: Time
+    fag: [Fag]!
+    skole: Skole!
+    elevforhold: [Elevforhold]
+    undervisningsforhold: [Undervisningsforhold]
+    time: [Time]
     grepreferanse: String
     vigoreferanse: String
-    medlemskap: Medlemskap
+    medlemskap: [Medlemskap]
 }

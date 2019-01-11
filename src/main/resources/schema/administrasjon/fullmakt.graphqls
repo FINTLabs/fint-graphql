@@ -10,5 +10,5 @@ type Fullmakt {
     myndighet: String
     stedfortreder: Personalressurs
     fullmektig: Personalressurs
-    rolle: Rolle
+    rolle: Rolle!
 }

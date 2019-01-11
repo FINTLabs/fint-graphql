@@ -19,9 +19,9 @@ type Arbeidsforhold {
     funksjon: Funksjon
     stillingskode: Stillingskode
     timerPerUke: Uketimetall
-    arbeidssted: Organisasjonselement
+    arbeidssted: Organisasjonselement!
     personalleder: Personalressurs
     lonn: String
-    personalressurs: Personalressurs
+    personalressurs: Personalressurs!
     undervisningsforhold: Undervisningsforhold
 }

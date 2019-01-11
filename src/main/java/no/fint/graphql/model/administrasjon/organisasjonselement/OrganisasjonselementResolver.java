@@ -4,10 +4,6 @@ package no.fint.graphql.model.administrasjon.organisasjonselement;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.Links;
-
-
-
 
 import no.fint.graphql.model.administrasjon.ansvar.AnsvarService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
@@ -16,22 +12,22 @@ import no.fint.graphql.model.utdanning.skole.SkoleService;
 import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService;
 
 
+import no.fint.model.resource.Link;
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
-
-
 import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component("administrasjonOrganisasjonselementResolver")
 public class OrganisasjonselementResolver implements GraphQLResolver<OrganisasjonselementResource> {
-
 
     @Autowired
     private AnsvarService ansvarService;
@@ -49,40 +45,52 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
     private ArbeidsforholdService arbeidsforholdService;
 
 
-    public AnsvarResource getAnsvar(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return ansvarService.getAnsvarResource(
-            Links.get(organisasjonselement.getAnsvar()),
-            dfe);
+    public List<AnsvarResource> getAnsvar(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return organisasjonselement.getAnsvar()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> ansvarService.getAnsvarResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
     public PersonalressursResource getLeder(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return personalressursService.getPersonalressursResource(
-            Links.get(organisasjonselement.getLeder()),
-            dfe);
+        return organisasjonselement.getLeder()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+            .findFirst().orElse(null);
     }
 
     public OrganisasjonselementResource getOverordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselementService.getOrganisasjonselementResource(
-            Links.get(organisasjonselement.getOverordnet()),
-            dfe);
+        return organisasjonselement.getOverordnet()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
+            .findFirst().orElse(null);
     }
 
-    public OrganisasjonselementResource getUnderordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselementService.getOrganisasjonselementResource(
-            Links.get(organisasjonselement.getUnderordnet()),
-            dfe);
+    public List<OrganisasjonselementResource> getUnderordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return organisasjonselement.getUnderordnet()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
     public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return skoleService.getSkoleResource(
-            Links.get(organisasjonselement.getSkole()),
-            dfe);
+        return organisasjonselement.getSkole()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> skoleService.getSkoleResource(l, dfe))
+            .findFirst().orElse(null);
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return arbeidsforholdService.getArbeidsforholdResource(
-            Links.get(organisasjonselement.getArbeidsforhold()),
-            dfe);
+    public List<ArbeidsforholdResource> getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return organisasjonselement.getArbeidsforhold()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
 }

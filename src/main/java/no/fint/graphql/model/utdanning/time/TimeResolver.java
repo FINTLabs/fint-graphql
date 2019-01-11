@@ -4,30 +4,26 @@ package no.fint.graphql.model.utdanning.time;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.Links;
-
-
-
 
 import no.fint.graphql.model.utdanning.undervisningsgruppe.UndervisningsgruppeService;
 import no.fint.graphql.model.utdanning.undervisningsforhold.UndervisningsforholdService;
 import no.fint.graphql.model.utdanning.rom.RomService;
 
 
+import no.fint.model.resource.Link;
 import no.fint.model.resource.utdanning.timeplan.TimeResource;
-
-
 import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
 import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
 import no.fint.model.resource.utdanning.timeplan.RomResource;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component("utdanningTimeResolver")
 public class TimeResolver implements GraphQLResolver<TimeResource> {
-
 
     @Autowired
     private UndervisningsgruppeService undervisningsgruppeService;
@@ -39,22 +35,28 @@ public class TimeResolver implements GraphQLResolver<TimeResource> {
     private RomService romService;
 
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(TimeResource time, DataFetchingEnvironment dfe) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(
-            Links.get(time.getUndervisningsgruppe()),
-            dfe);
+    public List<UndervisningsgruppeResource> getUndervisningsgruppe(TimeResource time, DataFetchingEnvironment dfe) {
+        return time.getUndervisningsgruppe()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(TimeResource time, DataFetchingEnvironment dfe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(
-            Links.get(time.getUndervisningsforhold()),
-            dfe);
+    public List<UndervisningsforholdResource> getUndervisningsforhold(TimeResource time, DataFetchingEnvironment dfe) {
+        return time.getUndervisningsforhold()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
-    public RomResource getRom(TimeResource time, DataFetchingEnvironment dfe) {
-        return romService.getRomResource(
-            Links.get(time.getRom()),
-            dfe);
+    public List<RomResource> getRom(TimeResource time, DataFetchingEnvironment dfe) {
+        return time.getRom()
+            .stream()
+            .map(Link::getHref)
+            .map(l -> romService.getRomResource(l, dfe))
+            .collect(Collectors.toList());
     }
 
 }

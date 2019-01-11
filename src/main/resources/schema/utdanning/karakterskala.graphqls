@@ -11,5 +11,5 @@ type Karakterskala {
 
 	# Relations
     vigoreferanse: String
-    verdi: Karakterverdi
+    verdi: [Karakterverdi]
 }

@@ -5,11 +5,9 @@ package no.fint.graphql.model.utdanning.skoleeiertype;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResource;
-import no.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("utdanningSkoleeiertypeQueryResolver")
 public class SkoleeiertypeQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class SkoleeiertypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SkoleeiertypeService service;
 
-    public List<SkoleeiertypeResource> getSkoleeiertype(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        SkoleeiertypeResources resources = service.getSkoleeiertypeResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public SkoleeiertypeResource getSkoleeiertype(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getSkoleeiertypeResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

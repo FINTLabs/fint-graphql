@@ -9,11 +9,11 @@ type Kontaktlarergruppe {
 
 
 	# Relations
-    basisgruppe: Basisgruppe
-    skole: Skole
-    elevforhold: Elevforhold
-    undervisningsforhold: Undervisningsforhold
+    basisgruppe: [Basisgruppe]!
+    skole: Skole!
+    elevforhold: [Elevforhold]
+    undervisningsforhold: [Undervisningsforhold]
     grepreferanse: String
     vigoreferanse: String
-    medlemskap: Medlemskap
+    medlemskap: [Medlemskap]
 }

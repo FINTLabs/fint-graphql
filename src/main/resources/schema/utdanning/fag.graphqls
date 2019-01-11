@@ -9,11 +9,11 @@ type Fag {
 
 
 	# Relations
-    programomrade: Programomrade
-    skole: Skole
-    undervisningsgruppe: Undervisningsgruppe
-    eksamensgruppe: Eksamensgruppe
+    programomrade: [Programomrade]
+    skole: [Skole]
+    undervisningsgruppe: [Undervisningsgruppe]
+    eksamensgruppe: [Eksamensgruppe]
     grepreferanse: String
     vigoreferanse: String
-    medlemskap: Medlemskap
+    medlemskap: [Medlemskap]
 }

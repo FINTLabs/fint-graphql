@@ -2,10 +2,29 @@
 scalar Date
 
 type Query {
-    personalressurs(sinceTimeStamp: String): [Personalressurs]
-    arbeidsforhold(sinceTimeStamp: String): [Arbeidsforhold]
-    person(sinceTimeStamp: String): [Person]
-    organisasjonselement(sinceTimeStamp: String): [Organisasjonselement]
-
-    elev(sinceTimeStamp: String): [Elev]
+	arbeidsforhold(systemId: String): Arbeidsforhold
+	arstrinn(systemId: String): Arstrinn
+	basisgruppe(systemId: String): Basisgruppe
+	eksamensgruppe(systemId: String): Eksamensgruppe
+	elev(brukernavn: String, elevnummer: String, feidenavn: String, systemId: String): Elev
+	elevforhold(systemId: String): Elevforhold
+	fag(systemId: String): Fag
+	fullmakt(systemId: String): Fullmakt
+	karakterverdi(systemId: String): Karakterverdi
+	kontaktlarergruppe(systemId: String): Kontaktlarergruppe
+	kontaktperson(systemId: String): Kontaktperson
+	medlemskap(systemId: String): Medlemskap
+	organisasjonselement(organisasjonsId: String, organisasjonsKode: String, organisasjonsnummer: String): Organisasjonselement
+	person(fodselsnummer: String): Person
+	personalressurs(ansattnummer: String, brukernavn: String, systemId: String): Personalressurs
+	programomrade(systemId: String): Programomrade
+	rolle(navn: String): Rolle
+	rom(systemId: String): Rom
+	skole(skolenummer: String, systemId: String, organisasjonsnummer: String): Skole
+	skoleressurs(feidenavn: String, systemId: String): Skoleressurs
+	time(systemId: String): Time
+	undervisningsforhold(systemId: String): Undervisningsforhold
+	undervisningsgruppe(systemId: String): Undervisningsgruppe
+	utdanningsprogram(systemId: String): Utdanningsprogram
+	vurdering(systemId: String): Vurdering
 }
