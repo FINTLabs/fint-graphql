@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonRolleResolver")
@@ -27,10 +28,11 @@ public class RolleResolver implements GraphQLResolver<RolleResource> {
 
     public List<FullmaktResource> getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
         return rolle.getFullmakt()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> fullmaktService.getFullmaktResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> fullmaktService.getFullmaktResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

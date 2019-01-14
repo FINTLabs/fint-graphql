@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("utdanningTimeResolver")
@@ -37,26 +38,29 @@ public class TimeResolver implements GraphQLResolver<TimeResource> {
 
     public List<UndervisningsgruppeResource> getUndervisningsgruppe(TimeResource time, DataFetchingEnvironment dfe) {
         return time.getUndervisningsgruppe()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<UndervisningsforholdResource> getUndervisningsforhold(TimeResource time, DataFetchingEnvironment dfe) {
         return time.getUndervisningsforhold()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<RomResource> getRom(TimeResource time, DataFetchingEnvironment dfe) {
         return time.getRom()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> romService.getRomResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> romService.getRomResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

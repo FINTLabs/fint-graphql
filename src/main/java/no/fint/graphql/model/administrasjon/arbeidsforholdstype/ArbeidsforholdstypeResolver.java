@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonArbeidsforholdstypeResolver")
@@ -27,10 +28,11 @@ public class ArbeidsforholdstypeResolver implements GraphQLResolver<Arbeidsforho
 
     public ArbeidsforholdstypeResource getForelder(ArbeidsforholdstypeResource arbeidsforholdstype, DataFetchingEnvironment dfe) {
         return arbeidsforholdstype.getForelder()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("utdanningRomResolver")
@@ -27,10 +28,11 @@ public class RomResolver implements GraphQLResolver<RomResource> {
 
     public List<TimeResource> getTime(RomResource rom, DataFetchingEnvironment dfe) {
         return rom.getTime()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> timeService.getTimeResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> timeService.getTimeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

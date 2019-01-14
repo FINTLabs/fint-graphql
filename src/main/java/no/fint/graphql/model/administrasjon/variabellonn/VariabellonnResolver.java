@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonVariabellonnResolver")
@@ -37,42 +38,47 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
 
     public LonnsartResource getLonnsart(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return variabellonn.getLonnsart()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> lonnsartService.getLonnsartResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> lonnsartService.getLonnsartResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getAnviser(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return variabellonn.getAnviser()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getKonterer(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return variabellonn.getKonterer()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getAttestant(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return variabellonn.getAttestant()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return variabellonn.getArbeidsforhold()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

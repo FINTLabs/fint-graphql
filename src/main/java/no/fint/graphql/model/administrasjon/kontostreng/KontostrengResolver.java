@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonKontostrengResolver")
@@ -42,34 +43,38 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
 
     public AnsvarResource getAnsvar(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return kontostreng.getAnsvar()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> ansvarService.getAnsvarResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> ansvarService.getAnsvarResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public ArtResource getArt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return kontostreng.getArt()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> artService.getArtResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> artService.getArtResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public FunksjonResource getFunksjon(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return kontostreng.getFunksjon()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> funksjonService.getFunksjonResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> funksjonService.getFunksjonResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public ProsjektResource getProsjekt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return kontostreng.getProsjekt()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> prosjektService.getProsjektResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> prosjektService.getProsjektResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

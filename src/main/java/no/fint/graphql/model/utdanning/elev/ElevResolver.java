@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("utdanningElevResolver")
@@ -32,18 +33,20 @@ public class ElevResolver implements GraphQLResolver<ElevResource> {
 
     public PersonResource getPerson(ElevResource elev, DataFetchingEnvironment dfe) {
         return elev.getPerson()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personService.getPersonResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personService.getPersonResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public List<ElevforholdResource> getElevforhold(ElevResource elev, DataFetchingEnvironment dfe) {
         return elev.getElevforhold()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> elevforholdService.getElevforholdResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

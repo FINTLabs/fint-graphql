@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonProsjektResolver")
@@ -27,10 +28,11 @@ public class ProsjektResolver implements GraphQLResolver<ProsjektResource> {
 
     public List<FullmaktResource> getFullmakt(ProsjektResource prosjekt, DataFetchingEnvironment dfe) {
         return prosjekt.getFullmakt()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> fullmaktService.getFullmaktResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> fullmaktService.getFullmaktResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

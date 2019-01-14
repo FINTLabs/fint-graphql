@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("utdanningSkoleressursResolver")
@@ -37,26 +38,29 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
 
     public PersonalressursResource getPersonalressurs(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         return skoleressurs.getPersonalressurs()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public List<UndervisningsforholdResource> getUndervisningsforhold(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         return skoleressurs.getUndervisningsforhold()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public SkoleResource getSkole(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         return skoleressurs.getSkole()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> skoleService.getSkoleResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> skoleService.getSkoleResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

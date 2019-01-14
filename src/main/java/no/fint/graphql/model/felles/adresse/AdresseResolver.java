@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("fellesAdresseResolver")
@@ -27,10 +28,11 @@ public class AdresseResolver implements GraphQLResolver<AdresseResource> {
 
     public LandkodeResource getLand(AdresseResource adresse, DataFetchingEnvironment dfe) {
         return adresse.getLand()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> landkodeService.getLandkodeResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> landkodeService.getLandkodeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

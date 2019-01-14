@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("fellesFylkeResolver")
@@ -27,10 +28,11 @@ public class FylkeResolver implements GraphQLResolver<FylkeResource> {
 
     public List<KommuneResource> getKommune(FylkeResource fylke, DataFetchingEnvironment dfe) {
         return fylke.getKommune()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> kommuneService.getKommuneResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> kommuneService.getKommuneResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

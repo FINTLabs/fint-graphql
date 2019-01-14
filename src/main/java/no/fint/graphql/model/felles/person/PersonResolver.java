@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("fellesPersonResolver")
@@ -52,58 +53,65 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
 
     public List<LandkodeResource> getStatsborgerskap(PersonResource person, DataFetchingEnvironment dfe) {
         return person.getStatsborgerskap()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> landkodeService.getLandkodeResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> landkodeService.getLandkodeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public KjonnResource getKjonn(PersonResource person, DataFetchingEnvironment dfe) {
         return person.getKjonn()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> kjonnService.getKjonnResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> kjonnService.getKjonnResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public SprakResource getMalform(PersonResource person, DataFetchingEnvironment dfe) {
         return person.getMalform()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> sprakService.getSprakResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> sprakService.getSprakResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getPersonalressurs(PersonResource person, DataFetchingEnvironment dfe) {
         return person.getPersonalressurs()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public SprakResource getMorsmal(PersonResource person, DataFetchingEnvironment dfe) {
         return person.getMorsmal()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> sprakService.getSprakResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> sprakService.getSprakResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public List<KontaktpersonResource> getParorende(PersonResource person, DataFetchingEnvironment dfe) {
         return person.getParorende()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> kontaktpersonService.getKontaktpersonResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> kontaktpersonService.getKontaktpersonResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public ElevResource getElev(PersonResource person, DataFetchingEnvironment dfe) {
         return person.getElev()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> elevService.getElevResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> elevService.getElevResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

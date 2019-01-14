@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonArbeidsforholdResolver")
@@ -62,74 +63,83 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
 
     public AnsvarResource getAnsvar(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getAnsvar()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> ansvarService.getAnsvarResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> ansvarService.getAnsvarResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getArbeidsforholdstype()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public FunksjonResource getFunksjon(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getFunksjon()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> funksjonService.getFunksjonResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> funksjonService.getFunksjonResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public StillingskodeResource getStillingskode(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getStillingskode()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> stillingskodeService.getStillingskodeResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> stillingskodeService.getStillingskodeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public UketimetallResource getTimerPerUke(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getTimerPerUke()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> uketimetallService.getUketimetallResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> uketimetallService.getUketimetallResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public OrganisasjonselementResource getArbeidssted(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getArbeidssted()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getPersonalleder(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getPersonalleder()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getPersonalressurs()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public UndervisningsforholdResource getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return arbeidsforhold.getUndervisningsforhold()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonAnsvarResolver")
@@ -37,34 +38,38 @@ public class AnsvarResolver implements GraphQLResolver<AnsvarResource> {
 
     public AnsvarResource getOverordnet(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
         return ansvar.getOverordnet()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> ansvarService.getAnsvarResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> ansvarService.getAnsvarResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public List<AnsvarResource> getUnderordnet(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
         return ansvar.getUnderordnet()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> ansvarService.getAnsvarResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> ansvarService.getAnsvarResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<OrganisasjonselementResource> getOrganisasjonselement(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
         return ansvar.getOrganisasjonselement()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<FullmaktResource> getFullmakt(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
         return ansvar.getFullmakt()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> fullmaktService.getFullmaktResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> fullmaktService.getFullmaktResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

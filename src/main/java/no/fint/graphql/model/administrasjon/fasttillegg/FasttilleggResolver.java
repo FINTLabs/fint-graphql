@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonFasttilleggResolver")
@@ -37,42 +38,47 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
 
     public LonnsartResource getLonnsart(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return fasttillegg.getLonnsart()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> lonnsartService.getLonnsartResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> lonnsartService.getLonnsartResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getAnviser(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return fasttillegg.getAnviser()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getKonterer(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return fasttillegg.getKonterer()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getAttestant(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return fasttillegg.getAttestant()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public ArbeidsforholdResource getArbeidsforhold(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return fasttillegg.getArbeidsforhold()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

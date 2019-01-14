@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("utdanningArstrinnResolver")
@@ -37,26 +38,29 @@ public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
 
     public List<ProgramomradeResource> getProgramomrade(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
         return arstrinn.getProgramomrade()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> programomradeService.getProgramomradeResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> programomradeService.getProgramomradeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<BasisgruppeResource> getBasisgruppe(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
         return arstrinn.getBasisgruppe()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> basisgruppeService.getBasisgruppeResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> basisgruppeService.getBasisgruppeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<MedlemskapResource> getMedlemskap(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
         return arstrinn.getMedlemskap()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

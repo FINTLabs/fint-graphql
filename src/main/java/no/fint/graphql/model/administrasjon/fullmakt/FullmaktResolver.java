@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonFullmaktResolver")
@@ -32,26 +33,29 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
 
     public PersonalressursResource getStedfortreder(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return fullmakt.getStedfortreder()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public PersonalressursResource getFullmektig(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return fullmakt.getFullmektig()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public RolleResource getRolle(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return fullmakt.getRolle()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> rolleService.getRolleResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> rolleService.getRolleResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

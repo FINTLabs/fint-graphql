@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("utdanningMedlemskapResolver")
@@ -27,18 +28,20 @@ public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
 
     public List<VurderingResource> getFortlopendeVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
         return medlemskap.getFortlopendeVurdering()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> vurderingService.getVurderingResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> vurderingService.getVurderingResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public VurderingResource getEndeligVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
         return medlemskap.getEndeligVurdering()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> vurderingService.getVurderingResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> vurderingService.getVurderingResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }

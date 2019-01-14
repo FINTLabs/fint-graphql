@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("utdanningKarakterskalaResolver")
@@ -27,10 +28,11 @@ public class KarakterskalaResolver implements GraphQLResolver<KarakterskalaResou
 
     public List<KarakterverdiResource> getVerdi(KarakterskalaResource karakterskala, DataFetchingEnvironment dfe) {
         return karakterskala.getVerdi()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> karakterverdiService.getKarakterverdiResource(l, dfe))
-            .collect(Collectors.toList());
+                .stream()
+                .map(Link::getHref)
+                .map(l -> karakterverdiService.getKarakterverdiResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }

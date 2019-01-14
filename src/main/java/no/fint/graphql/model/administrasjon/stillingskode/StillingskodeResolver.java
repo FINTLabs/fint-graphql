@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component("administrasjonStillingskodeResolver")
@@ -27,10 +28,11 @@ public class StillingskodeResolver implements GraphQLResolver<StillingskodeResou
 
     public StillingskodeResource getForelder(StillingskodeResource stillingskode, DataFetchingEnvironment dfe) {
         return stillingskode.getForelder()
-            .stream()
-            .map(Link::getHref)
-            .map(l -> stillingskodeService.getStillingskodeResource(l, dfe))
-            .findFirst().orElse(null);
+                .stream()
+                .map(Link::getHref)
+                .map(l -> stillingskodeService.getStillingskodeResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
 }
