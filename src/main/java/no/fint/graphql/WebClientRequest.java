@@ -4,9 +4,11 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.servlet.GraphQLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.function.Function;
@@ -33,6 +35,7 @@ public class WebClientRequest {
             request.header(HttpHeaders.AUTHORIZATION, token);
         }
         return request.retrieve()
+                .onStatus(HttpStatus::is4xxClientError, r -> Mono.empty())
                 .bodyToMono(type)
                 .block();
     }
