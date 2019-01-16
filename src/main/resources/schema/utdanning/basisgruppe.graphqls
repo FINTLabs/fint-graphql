@@ -14,7 +14,7 @@ type Basisgruppe {
     undervisningsforhold: [Undervisningsforhold]
     elevforhold: [Elevforhold]
     kontaktlarergruppe: [Kontaktlarergruppe]
-    grepreferanse: String
-    vigoreferanse: String
+    grepreferanse: [String]
+    vigoreferanse: [String]
     medlemskap: [Medlemskap]
 }

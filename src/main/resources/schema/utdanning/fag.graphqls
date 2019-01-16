@@ -13,7 +13,7 @@ type Fag {
     skole: [Skole]
     undervisningsgruppe: [Undervisningsgruppe]
     eksamensgruppe: [Eksamensgruppe]
-    grepreferanse: String
-    vigoreferanse: String
+    grepreferanse: [String]
+    vigoreferanse: [String]
     medlemskap: [Medlemskap]
 }

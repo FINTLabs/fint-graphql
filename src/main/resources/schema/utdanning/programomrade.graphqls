@@ -12,7 +12,7 @@ type Programomrade {
     utdanningsprogram: Utdanningsprogram!
     fag: [Fag]
     trinn: [Arstrinn]
-    grepreferanse: String
-    vigoreferanse: String
+    grepreferanse: [String]
+    vigoreferanse: [String]
     medlemskap: [Medlemskap]
 }

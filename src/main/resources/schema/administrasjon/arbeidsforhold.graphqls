@@ -21,7 +21,7 @@ type Arbeidsforhold {
     timerPerUke: Uketimetall
     arbeidssted: Organisasjonselement!
     personalleder: Personalressurs
-    lonn: String
+    lonn: [String]
     personalressurs: Personalressurs!
     undervisningsforhold: Undervisningsforhold
 }

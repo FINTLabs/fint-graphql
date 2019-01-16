@@ -6,8 +6,8 @@ type Medlemskap {
 
 
 	# Relations
-    medlem: String
+    medlem: [String]
     fortlopendeVurdering: [Vurdering]
-    gruppe: String
+    gruppe: [String]
     endeligVurdering: Vurdering
 }

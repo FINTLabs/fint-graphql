@@ -7,7 +7,7 @@ type Fullmakt {
 
 
 	# Relations
-    myndighet: String
+    myndighet: [String]
     stedfortreder: Personalressurs
     fullmektig: Personalressurs
     rolle: Rolle!

@@ -18,7 +18,7 @@ type Skole {
     organisasjon: Organisasjonselement
     fag: [Fag]
     skoleeierType: Skoleeiertype
-    vigoreferanse: String
+    vigoreferanse: [String]
     basisgruppe: [Basisgruppe]
     elevforhold: [Elevforhold]
     kontaktlarergruppe: [Kontaktlarergruppe]

@@ -14,7 +14,7 @@ type Undervisningsgruppe {
     elevforhold: [Elevforhold]
     undervisningsforhold: [Undervisningsforhold]
     time: [Time]
-    grepreferanse: String
-    vigoreferanse: String
+    grepreferanse: [String]
+    vigoreferanse: [String]
     medlemskap: [Medlemskap]
 }

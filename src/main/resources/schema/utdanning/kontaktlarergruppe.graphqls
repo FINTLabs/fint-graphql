@@ -13,7 +13,7 @@ type Kontaktlarergruppe {
     skole: Skole!
     elevforhold: [Elevforhold]
     undervisningsforhold: [Undervisningsforhold]
-    grepreferanse: String
-    vigoreferanse: String
+    grepreferanse: [String]
+    vigoreferanse: [String]
     medlemskap: [Medlemskap]
 }
