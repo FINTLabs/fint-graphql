@@ -31,6 +31,7 @@ public class WebClientRequest {
 
     private <T> T get(WebClient.RequestHeadersSpec<?> request, Class<T> type, DataFetchingEnvironment dfe) {
         String token = getToken(dfe);
+        System.out.println("Token: " + token);
         if (token != null) {
             request.header(HttpHeaders.AUTHORIZATION, token);
         }

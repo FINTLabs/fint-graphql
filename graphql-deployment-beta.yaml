@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: graphql-beta
+  name: graphql-beta
+spec:
+  replicas: 1
+  minReadySeconds: 30
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      io.kompose.service: graphql-beta
+  template:
+    metadata:
+      labels:
+        io.kompose.service: graphql-beta
+    spec:
+      containers:
+        - name: graphql-beta
+          image: fintlabs.azurecr.io/graphql:build.7
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            httpGet:
+              port: 8080
+              path: /graphql/actuator/health
+          resources:
+            limits:
+              memory: "1.5Gi"
+              cpu: "500m"
+          env:
+            - name: TZ
+              value: Europe/Oslo
+            - name: JAVA_OPTS
+              value: -Xmx1G
+            - name: server.servlet.context-path
+              value: "/graphql"
+            - name: graphiql.endpoint.graphql
+              value: "/graphql/graphql"
+            - name: fint.endpoint.root
+              value: "https://beta.felleskomponent.no"
