@@ -5,11 +5,9 @@ package no.fint.graphql.model.utdanning.undervisningsgruppe;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
-import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("utdanningUndervisningsgruppeQueryResolver")
 public class UndervisningsgruppeQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class UndervisningsgruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private UndervisningsgruppeService service;
 
-    public List<UndervisningsgruppeResource> getUndervisningsgruppe(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        UndervisningsgruppeResources resources = service.getUndervisningsgruppeResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public UndervisningsgruppeResource getUndervisningsgruppe(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getUndervisningsgruppeResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

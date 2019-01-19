@@ -9,5 +9,5 @@ type Kontaktperson {
 
 	# Relations
     kontaktperson: Person
-    person: Person
+    person: Person!
 }

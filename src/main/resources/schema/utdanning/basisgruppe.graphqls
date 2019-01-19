@@ -9,12 +9,12 @@ type Basisgruppe {
 
 
 	# Relations
-    trinn: Arstrinn
-    skole: Skole
-    undervisningsforhold: Undervisningsforhold
-    elevforhold: Elevforhold
-    kontaktlarergruppe: Kontaktlarergruppe
-    grepreferanse: String
-    vigoreferanse: String
-    medlemskap: Medlemskap
+    trinn: Arstrinn!
+    skole: Skole!
+    undervisningsforhold: [Undervisningsforhold]
+    elevforhold: [Elevforhold]
+    kontaktlarergruppe: [Kontaktlarergruppe]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
 }

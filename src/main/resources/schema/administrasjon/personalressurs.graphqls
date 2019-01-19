@@ -11,12 +11,12 @@ type Personalressurs {
 
 
 	# Relations
-    personalressurskategori: Personalressurskategori
-    arbeidsforhold: Arbeidsforhold
-    person: Person
-    stedfortreder: Fullmakt
-    fullmakt: Fullmakt
-    leder: Organisasjonselement
-    personalansvar: Arbeidsforhold
+    personalressurskategori: Personalressurskategori!
+    arbeidsforhold: [Arbeidsforhold]
+    person: Person!
+    stedfortreder: [Fullmakt]
+    fullmakt: [Fullmakt]
+    leder: [Organisasjonselement]
+    personalansvar: [Arbeidsforhold]
     skoleressurs: Skoleressurs
 }

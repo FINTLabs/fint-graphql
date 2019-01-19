@@ -3,11 +3,9 @@
 package no.fint.graphql.model.administrasjon.personalressurs;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.fint.model.resource.administrasjon.personal.PersonalressursResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class PersonalressursService {
     @Autowired
     private Endpoints endpoints;
 
-    public PersonalressursResources getPersonalressursResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getAdministrasjonPersonal() + "/personalressurs",
-                    sinceTimeStamp),
-                PersonalressursResources.class,
-                dfe);
+    public PersonalressursResource getPersonalressursResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getPersonalressursResource(
+            endpoints.getAdministrasjonPersonal() 
+                + "/personalressurs/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public PersonalressursResource getPersonalressursResource(String url, DataFetchingEnvironment dfe) {

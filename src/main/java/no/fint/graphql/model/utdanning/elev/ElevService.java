@@ -3,11 +3,9 @@
 package no.fint.graphql.model.utdanning.elev;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.ElevResource;
-import no.fint.model.resource.utdanning.elev.ElevResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class ElevService {
     @Autowired
     private Endpoints endpoints;
 
-    public ElevResources getElevResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getUtdanningElev() + "/elev",
-                    sinceTimeStamp),
-                ElevResources.class,
-                dfe);
+    public ElevResource getElevResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getElevResource(
+            endpoints.getUtdanningElev() 
+                + "/elev/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public ElevResource getElevResource(String url, DataFetchingEnvironment dfe) {

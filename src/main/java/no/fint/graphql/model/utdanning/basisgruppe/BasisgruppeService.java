@@ -3,11 +3,9 @@
 package no.fint.graphql.model.utdanning.basisgruppe;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
-import no.fint.model.resource.utdanning.elev.BasisgruppeResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class BasisgruppeService {
     @Autowired
     private Endpoints endpoints;
 
-    public BasisgruppeResources getBasisgruppeResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getUtdanningElev() + "/basisgruppe",
-                    sinceTimeStamp),
-                BasisgruppeResources.class,
-                dfe);
+    public BasisgruppeResource getBasisgruppeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getBasisgruppeResource(
+            endpoints.getUtdanningElev() 
+                + "/basisgruppe/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public BasisgruppeResource getBasisgruppeResource(String url, DataFetchingEnvironment dfe) {

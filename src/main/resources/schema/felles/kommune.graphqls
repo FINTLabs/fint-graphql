@@ -10,5 +10,5 @@ type Kommune {
 
 
 	# Relations
-    fylke: Fylke
+    fylke: Fylke!
 }

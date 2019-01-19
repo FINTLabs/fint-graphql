@@ -15,10 +15,10 @@ type Organisasjonselement {
 
 
 	# Relations
-    ansvar: Ansvar
+    ansvar: [Ansvar]
     leder: Personalressurs
-    overordnet: Organisasjonselement
-    underordnet: Organisasjonselement
+    overordnet: Organisasjonselement!
+    underordnet: [Organisasjonselement]
     skole: Skole
-    arbeidsforhold: Arbeidsforhold
+    arbeidsforhold: [Arbeidsforhold]
 }

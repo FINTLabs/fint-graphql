@@ -12,11 +12,11 @@ type Person {
 
 
 	# Relations
-    statsborgerskap: Landkode
+    statsborgerskap: [Landkode]
     kjonn: Kjonn
     malform: Sprak
     personalressurs: Personalressurs
     morsmal: Sprak
-    parorende: Kontaktperson
+    parorende: [Kontaktperson]
     elev: Elev
 }

@@ -10,5 +10,5 @@ type Karakterverdi {
 
 
 	# Relations
-    skala: Karakterskala
+    skala: Karakterskala!
 }

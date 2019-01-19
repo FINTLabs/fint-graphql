@@ -10,5 +10,5 @@ type Fylke {
 
 
 	# Relations
-    kommune: Kommune
+    kommune: [Kommune]
 }

@@ -3,11 +3,9 @@
 package no.fint.graphql.model.utdanning.arstrinn;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
-import no.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class ArstrinnService {
     @Autowired
     private Endpoints endpoints;
 
-    public ArstrinnResources getArstrinnResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getUtdanningUtdanningsprogram() + "/arstrinn",
-                    sinceTimeStamp),
-                ArstrinnResources.class,
-                dfe);
+    public ArstrinnResource getArstrinnResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getArstrinnResource(
+            endpoints.getUtdanningUtdanningsprogram() 
+                + "/arstrinn/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public ArstrinnResource getArstrinnResource(String url, DataFetchingEnvironment dfe) {

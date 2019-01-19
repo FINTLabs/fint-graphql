@@ -10,6 +10,6 @@ type Karakterskala {
 
 
 	# Relations
-    vigoreferanse: String
-    verdi: Karakterverdi
+    vigoreferanse: [String]
+    verdi: [Karakterverdi]
 }

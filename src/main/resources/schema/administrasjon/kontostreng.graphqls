@@ -4,8 +4,8 @@ type Kontostreng {
 
 
 	# Relations
-    ansvar: Ansvar
-    art: Art
-    funksjon: Funksjon
+    ansvar: Ansvar!
+    art: Art!
+    funksjon: Funksjon!
     prosjekt: Prosjekt
 }

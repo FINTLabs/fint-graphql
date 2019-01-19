@@ -3,11 +3,9 @@
 package no.fint.graphql.model.utdanning.elevforhold;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.fint.model.resource.utdanning.elev.ElevforholdResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class ElevforholdService {
     @Autowired
     private Endpoints endpoints;
 
-    public ElevforholdResources getElevforholdResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getUtdanningElev() + "/elevforhold",
-                    sinceTimeStamp),
-                ElevforholdResources.class,
-                dfe);
+    public ElevforholdResource getElevforholdResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getElevforholdResource(
+            endpoints.getUtdanningElev() 
+                + "/elevforhold/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public ElevforholdResource getElevforholdResource(String url, DataFetchingEnvironment dfe) {

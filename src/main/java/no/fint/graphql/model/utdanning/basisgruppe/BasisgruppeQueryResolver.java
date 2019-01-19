@@ -5,11 +5,9 @@ package no.fint.graphql.model.utdanning.basisgruppe;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
-import no.fint.model.resource.utdanning.elev.BasisgruppeResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("utdanningBasisgruppeQueryResolver")
 public class BasisgruppeQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class BasisgruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private BasisgruppeService service;
 
-    public List<BasisgruppeResource> getBasisgruppe(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        BasisgruppeResources resources = service.getBasisgruppeResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public BasisgruppeResource getBasisgruppe(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getBasisgruppeResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }
