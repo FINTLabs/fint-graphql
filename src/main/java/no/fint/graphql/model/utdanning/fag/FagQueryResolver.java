@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.fag;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.timeplan.FagResource;
 import no.fint.model.resource.utdanning.timeplan.FagResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class FagQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FagService service;
 
-    public List<FagResource> getFag(String sinceTimeStamp) {
-        FagResources resources = service.getFagResources(sinceTimeStamp);
+    public List<FagResource> getFag(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        FagResources resources = service.getFagResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

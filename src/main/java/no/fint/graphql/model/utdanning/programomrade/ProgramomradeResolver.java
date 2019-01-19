@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.programomrade;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -43,20 +44,28 @@ public class ProgramomradeResolver implements GraphQLResolver<ProgramomradeResou
     private MedlemskapService medlemskapService;
 
 
-    public UtdanningsprogramResource getUtdanningsprogram(ProgramomradeResource programomrade) {
-        return utdanningsprogramService.getUtdanningsprogramResource(Links.get(programomrade.getUtdanningsprogram()));
+    public UtdanningsprogramResource getUtdanningsprogram(ProgramomradeResource programomrade, DataFetchingEnvironment dfe) {
+        return utdanningsprogramService.getUtdanningsprogramResource(
+            Links.get(programomrade.getUtdanningsprogram()),
+            dfe);
     }
 
-    public FagResource getFag(ProgramomradeResource programomrade) {
-        return fagService.getFagResource(Links.get(programomrade.getFag()));
+    public FagResource getFag(ProgramomradeResource programomrade, DataFetchingEnvironment dfe) {
+        return fagService.getFagResource(
+            Links.get(programomrade.getFag()),
+            dfe);
     }
 
-    public ArstrinnResource getTrinn(ProgramomradeResource programomrade) {
-        return arstrinnService.getArstrinnResource(Links.get(programomrade.getTrinn()));
+    public ArstrinnResource getTrinn(ProgramomradeResource programomrade, DataFetchingEnvironment dfe) {
+        return arstrinnService.getArstrinnResource(
+            Links.get(programomrade.getTrinn()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(ProgramomradeResource programomrade) {
-        return medlemskapService.getMedlemskapResource(Links.get(programomrade.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(ProgramomradeResource programomrade, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(programomrade.getMedlemskap()),
+            dfe);
     }
 
 }

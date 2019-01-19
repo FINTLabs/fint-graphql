@@ -3,6 +3,7 @@
 package no.fint.graphql.model.felles.adresse;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class AdresseResolver implements GraphQLResolver<AdresseResource> {
     private LandkodeService landkodeService;
 
 
-    public LandkodeResource getLand(AdresseResource adresse) {
-        return landkodeService.getLandkodeResource(Links.get(adresse.getLand()));
+    public LandkodeResource getLand(AdresseResource adresse, DataFetchingEnvironment dfe) {
+        return landkodeService.getLandkodeResource(
+            Links.get(adresse.getLand()),
+            dfe);
     }
 
 }

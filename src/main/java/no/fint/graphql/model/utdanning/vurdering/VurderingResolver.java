@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.vurdering;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -43,20 +44,28 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
     private KarakterverdiService karakterverdiService;
 
 
-    public ElevforholdResource getElevforhold(VurderingResource vurdering) {
-        return elevforholdService.getElevforholdResource(Links.get(vurdering.getElevforhold()));
+    public ElevforholdResource getElevforhold(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return elevforholdService.getElevforholdResource(
+            Links.get(vurdering.getElevforhold()),
+            dfe);
     }
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(VurderingResource vurdering) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(vurdering.getUndervisningsgruppe()));
+    public UndervisningsgruppeResource getUndervisningsgruppe(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return undervisningsgruppeService.getUndervisningsgruppeResource(
+            Links.get(vurdering.getUndervisningsgruppe()),
+            dfe);
     }
 
-    public EksamensgruppeResource getEksamensgruppe(VurderingResource vurdering) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(vurdering.getEksamensgruppe()));
+    public EksamensgruppeResource getEksamensgruppe(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return eksamensgruppeService.getEksamensgruppeResource(
+            Links.get(vurdering.getEksamensgruppe()),
+            dfe);
     }
 
-    public KarakterverdiResource getKarakter(VurderingResource vurdering) {
-        return karakterverdiService.getKarakterverdiResource(Links.get(vurdering.getKarakter()));
+    public KarakterverdiResource getKarakter(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return karakterverdiService.getKarakterverdiResource(
+            Links.get(vurdering.getKarakter()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.ansvar;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
 import no.fint.model.resource.administrasjon.kodeverk.AnsvarResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class AnsvarQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AnsvarService service;
 
-    public List<AnsvarResource> getAnsvar(String sinceTimeStamp) {
-        AnsvarResources resources = service.getAnsvarResources(sinceTimeStamp);
+    public List<AnsvarResource> getAnsvar(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        AnsvarResources resources = service.getAnsvarResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

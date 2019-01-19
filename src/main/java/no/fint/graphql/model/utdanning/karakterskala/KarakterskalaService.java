@@ -2,39 +2,35 @@
 
 package no.fint.graphql.model.utdanning.karakterskala;
 
-import no.fint.graphql.model.Endpoints;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.ResourceUrlBuilder;
+import no.fint.graphql.WebClientRequest;
+import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.kodeverk.KarakterskalaResource;
 import no.fint.model.resource.utdanning.kodeverk.KarakterskalaResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service("utdanningKarakterskalaService")
 public class KarakterskalaService {
 
     @Autowired
-    private WebClient webClient;
+    private WebClientRequest webClientRequest;
 
     @Autowired
     private Endpoints endpoints;
 
-    public KarakterskalaResources getKarakterskalaResources(String sinceTimeStamp) {
-
-
-        return webClient.get()
-                .uri(ResourceUrlBuilder.urlWithQueryParams(endpoints.getUtdanningKodeverk() + "/karakterskala", sinceTimeStamp))
-                .retrieve()
-                .bodyToMono(KarakterskalaResources.class)
-                .block();
+    public KarakterskalaResources getKarakterskalaResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        return webClientRequest.get(
+                ResourceUrlBuilder.urlWithQueryParams(
+                    endpoints.getUtdanningKodeverk() + "/karakterskala",
+                    sinceTimeStamp),
+                KarakterskalaResources.class,
+                dfe);
     }
 
-    public KarakterskalaResource getKarakterskalaResource(String url) {
-        return webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(KarakterskalaResource.class)
-                .block();
+    public KarakterskalaResource getKarakterskalaResource(String url, DataFetchingEnvironment dfe) {
+        return webClientRequest.get(url, KarakterskalaResource.class, dfe);
     }
 }
 

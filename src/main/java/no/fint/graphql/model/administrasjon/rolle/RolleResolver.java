@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.rolle;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class RolleResolver implements GraphQLResolver<RolleResource> {
     private FullmaktService fullmaktService;
 
 
-    public FullmaktResource getFullmakt(RolleResource rolle) {
-        return fullmaktService.getFullmaktResource(Links.get(rolle.getFullmakt()));
+    public FullmaktResource getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
+        return fullmaktService.getFullmaktResource(
+            Links.get(rolle.getFullmakt()),
+            dfe);
     }
 
 }

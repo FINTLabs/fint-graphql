@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.skoleressurs;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.elev.SkoleressursResource;
 import no.fint.model.resource.utdanning.elev.SkoleressursResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class SkoleressursQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SkoleressursService service;
 
-    public List<SkoleressursResource> getSkoleressurs(String sinceTimeStamp) {
-        SkoleressursResources resources = service.getSkoleressursResources(sinceTimeStamp);
+    public List<SkoleressursResource> getSkoleressurs(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        SkoleressursResources resources = service.getSkoleressursResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

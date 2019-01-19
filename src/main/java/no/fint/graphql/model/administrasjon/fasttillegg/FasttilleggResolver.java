@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.fasttillegg;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,24 +39,34 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
     private ArbeidsforholdService arbeidsforholdService;
 
 
-    public LonnsartResource getLonnsart(FasttilleggResource fasttillegg) {
-        return lonnsartService.getLonnsartResource(Links.get(fasttillegg.getLonnsart()));
+    public LonnsartResource getLonnsart(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
+        return lonnsartService.getLonnsartResource(
+            Links.get(fasttillegg.getLonnsart()),
+            dfe);
     }
 
-    public PersonalressursResource getAnviser(FasttilleggResource fasttillegg) {
-        return personalressursService.getPersonalressursResource(Links.get(fasttillegg.getAnviser()));
+    public PersonalressursResource getAnviser(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fasttillegg.getAnviser()),
+            dfe);
     }
 
-    public PersonalressursResource getKonterer(FasttilleggResource fasttillegg) {
-        return personalressursService.getPersonalressursResource(Links.get(fasttillegg.getKonterer()));
+    public PersonalressursResource getKonterer(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fasttillegg.getKonterer()),
+            dfe);
     }
 
-    public PersonalressursResource getAttestant(FasttilleggResource fasttillegg) {
-        return personalressursService.getPersonalressursResource(Links.get(fasttillegg.getAttestant()));
+    public PersonalressursResource getAttestant(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fasttillegg.getAttestant()),
+            dfe);
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(FasttilleggResource fasttillegg) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fasttillegg.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(
+            Links.get(fasttillegg.getArbeidsforhold()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.variabellonn;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,24 +39,34 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
     private ArbeidsforholdService arbeidsforholdService;
 
 
-    public LonnsartResource getLonnsart(VariabellonnResource variabellonn) {
-        return lonnsartService.getLonnsartResource(Links.get(variabellonn.getLonnsart()));
+    public LonnsartResource getLonnsart(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return lonnsartService.getLonnsartResource(
+            Links.get(variabellonn.getLonnsart()),
+            dfe);
     }
 
-    public PersonalressursResource getAnviser(VariabellonnResource variabellonn) {
-        return personalressursService.getPersonalressursResource(Links.get(variabellonn.getAnviser()));
+    public PersonalressursResource getAnviser(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(variabellonn.getAnviser()),
+            dfe);
     }
 
-    public PersonalressursResource getKonterer(VariabellonnResource variabellonn) {
-        return personalressursService.getPersonalressursResource(Links.get(variabellonn.getKonterer()));
+    public PersonalressursResource getKonterer(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(variabellonn.getKonterer()),
+            dfe);
     }
 
-    public PersonalressursResource getAttestant(VariabellonnResource variabellonn) {
-        return personalressursService.getPersonalressursResource(Links.get(variabellonn.getAttestant()));
+    public PersonalressursResource getAttestant(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(variabellonn.getAttestant()),
+            dfe);
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(variabellonn.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(
+            Links.get(variabellonn.getArbeidsforhold()),
+            dfe);
     }
 
 }

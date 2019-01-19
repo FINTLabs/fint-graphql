@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.time;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,16 +39,22 @@ public class TimeResolver implements GraphQLResolver<TimeResource> {
     private RomService romService;
 
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(TimeResource time) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(time.getUndervisningsgruppe()));
+    public UndervisningsgruppeResource getUndervisningsgruppe(TimeResource time, DataFetchingEnvironment dfe) {
+        return undervisningsgruppeService.getUndervisningsgruppeResource(
+            Links.get(time.getUndervisningsgruppe()),
+            dfe);
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(TimeResource time) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(time.getUndervisningsforhold()));
+    public UndervisningsforholdResource getUndervisningsforhold(TimeResource time, DataFetchingEnvironment dfe) {
+        return undervisningsforholdService.getUndervisningsforholdResource(
+            Links.get(time.getUndervisningsforhold()),
+            dfe);
     }
 
-    public RomResource getRom(TimeResource time) {
-        return romService.getRomResource(Links.get(time.getRom()));
+    public RomResource getRom(TimeResource time, DataFetchingEnvironment dfe) {
+        return romService.getRomResource(
+            Links.get(time.getRom()),
+            dfe);
     }
 
 }

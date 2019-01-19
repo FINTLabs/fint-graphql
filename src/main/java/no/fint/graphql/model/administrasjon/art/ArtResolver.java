@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.art;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class ArtResolver implements GraphQLResolver<ArtResource> {
     private FullmaktService fullmaktService;
 
 
-    public FullmaktResource getFullmakt(ArtResource art) {
-        return fullmaktService.getFullmaktResource(Links.get(art.getFullmakt()));
+    public FullmaktResource getFullmakt(ArtResource art, DataFetchingEnvironment dfe) {
+        return fullmaktService.getFullmaktResource(
+            Links.get(art.getFullmakt()),
+            dfe);
     }
 
 }

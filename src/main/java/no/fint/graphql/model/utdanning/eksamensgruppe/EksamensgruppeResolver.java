@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.eksamensgruppe;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -48,24 +49,34 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
     private MedlemskapService medlemskapService;
 
 
-    public FagResource getFag(EksamensgruppeResource eksamensgruppe) {
-        return fagService.getFagResource(Links.get(eksamensgruppe.getFag()));
+    public FagResource getFag(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return fagService.getFagResource(
+            Links.get(eksamensgruppe.getFag()),
+            dfe);
     }
 
-    public SkoleResource getSkole(EksamensgruppeResource eksamensgruppe) {
-        return skoleService.getSkoleResource(Links.get(eksamensgruppe.getSkole()));
+    public SkoleResource getSkole(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(eksamensgruppe.getSkole()),
+            dfe);
     }
 
-    public ElevforholdResource getElevforhold(EksamensgruppeResource eksamensgruppe) {
-        return elevforholdService.getElevforholdResource(Links.get(eksamensgruppe.getElevforhold()));
+    public ElevforholdResource getElevforhold(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return elevforholdService.getElevforholdResource(
+            Links.get(eksamensgruppe.getElevforhold()),
+            dfe);
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(EksamensgruppeResource eksamensgruppe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(eksamensgruppe.getUndervisningsforhold()));
+    public UndervisningsforholdResource getUndervisningsforhold(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return undervisningsforholdService.getUndervisningsforholdResource(
+            Links.get(eksamensgruppe.getUndervisningsforhold()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(EksamensgruppeResource eksamensgruppe) {
-        return medlemskapService.getMedlemskapResource(Links.get(eksamensgruppe.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(eksamensgruppe.getMedlemskap()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.funksjon;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -33,16 +34,22 @@ public class FunksjonResolver implements GraphQLResolver<FunksjonResource> {
     private FullmaktService fullmaktService;
 
 
-    public FunksjonResource getOverordnet(FunksjonResource funksjon) {
-        return funksjonService.getFunksjonResource(Links.get(funksjon.getOverordnet()));
+    public FunksjonResource getOverordnet(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
+        return funksjonService.getFunksjonResource(
+            Links.get(funksjon.getOverordnet()),
+            dfe);
     }
 
-    public FunksjonResource getUnderordnet(FunksjonResource funksjon) {
-        return funksjonService.getFunksjonResource(Links.get(funksjon.getUnderordnet()));
+    public FunksjonResource getUnderordnet(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
+        return funksjonService.getFunksjonResource(
+            Links.get(funksjon.getUnderordnet()),
+            dfe);
     }
 
-    public FullmaktResource getFullmakt(FunksjonResource funksjon) {
-        return fullmaktService.getFullmaktResource(Links.get(funksjon.getFullmakt()));
+    public FullmaktResource getFullmakt(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
+        return fullmaktService.getFullmaktResource(
+            Links.get(funksjon.getFullmakt()),
+            dfe);
     }
 
 }

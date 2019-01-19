@@ -2,39 +2,35 @@
 
 package no.fint.graphql.model.utdanning.kontaktlarergruppe;
 
-import no.fint.graphql.model.Endpoints;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.ResourceUrlBuilder;
+import no.fint.graphql.WebClientRequest;
+import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service("utdanningKontaktlarergruppeService")
 public class KontaktlarergruppeService {
 
     @Autowired
-    private WebClient webClient;
+    private WebClientRequest webClientRequest;
 
     @Autowired
     private Endpoints endpoints;
 
-    public KontaktlarergruppeResources getKontaktlarergruppeResources(String sinceTimeStamp) {
-
-
-        return webClient.get()
-                .uri(ResourceUrlBuilder.urlWithQueryParams(endpoints.getUtdanningElev() + "/kontaktlarergruppe", sinceTimeStamp))
-                .retrieve()
-                .bodyToMono(KontaktlarergruppeResources.class)
-                .block();
+    public KontaktlarergruppeResources getKontaktlarergruppeResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        return webClientRequest.get(
+                ResourceUrlBuilder.urlWithQueryParams(
+                    endpoints.getUtdanningElev() + "/kontaktlarergruppe",
+                    sinceTimeStamp),
+                KontaktlarergruppeResources.class,
+                dfe);
     }
 
-    public KontaktlarergruppeResource getKontaktlarergruppeResource(String url) {
-        return webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(KontaktlarergruppeResource.class)
-                .block();
+    public KontaktlarergruppeResource getKontaktlarergruppeResource(String url, DataFetchingEnvironment dfe) {
+        return webClientRequest.get(url, KontaktlarergruppeResource.class, dfe);
     }
 }
 

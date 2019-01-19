@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.basisgruppe;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -53,28 +54,40 @@ public class BasisgruppeResolver implements GraphQLResolver<BasisgruppeResource>
     private MedlemskapService medlemskapService;
 
 
-    public ArstrinnResource getTrinn(BasisgruppeResource basisgruppe) {
-        return arstrinnService.getArstrinnResource(Links.get(basisgruppe.getTrinn()));
+    public ArstrinnResource getTrinn(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return arstrinnService.getArstrinnResource(
+            Links.get(basisgruppe.getTrinn()),
+            dfe);
     }
 
-    public SkoleResource getSkole(BasisgruppeResource basisgruppe) {
-        return skoleService.getSkoleResource(Links.get(basisgruppe.getSkole()));
+    public SkoleResource getSkole(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(basisgruppe.getSkole()),
+            dfe);
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(BasisgruppeResource basisgruppe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(Links.get(basisgruppe.getUndervisningsforhold()));
+    public UndervisningsforholdResource getUndervisningsforhold(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return undervisningsforholdService.getUndervisningsforholdResource(
+            Links.get(basisgruppe.getUndervisningsforhold()),
+            dfe);
     }
 
-    public ElevforholdResource getElevforhold(BasisgruppeResource basisgruppe) {
-        return elevforholdService.getElevforholdResource(Links.get(basisgruppe.getElevforhold()));
+    public ElevforholdResource getElevforhold(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return elevforholdService.getElevforholdResource(
+            Links.get(basisgruppe.getElevforhold()),
+            dfe);
     }
 
-    public KontaktlarergruppeResource getKontaktlarergruppe(BasisgruppeResource basisgruppe) {
-        return kontaktlarergruppeService.getKontaktlarergruppeResource(Links.get(basisgruppe.getKontaktlarergruppe()));
+    public KontaktlarergruppeResource getKontaktlarergruppe(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return kontaktlarergruppeService.getKontaktlarergruppeResource(
+            Links.get(basisgruppe.getKontaktlarergruppe()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(BasisgruppeResource basisgruppe) {
-        return medlemskapService.getMedlemskapResource(Links.get(basisgruppe.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(basisgruppe.getMedlemskap()),
+            dfe);
     }
 
 }

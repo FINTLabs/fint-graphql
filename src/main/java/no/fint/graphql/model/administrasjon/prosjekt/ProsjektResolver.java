@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.prosjekt;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class ProsjektResolver implements GraphQLResolver<ProsjektResource> {
     private FullmaktService fullmaktService;
 
 
-    public FullmaktResource getFullmakt(ProsjektResource prosjekt) {
-        return fullmaktService.getFullmaktResource(Links.get(prosjekt.getFullmakt()));
+    public FullmaktResource getFullmakt(ProsjektResource prosjekt, DataFetchingEnvironment dfe) {
+        return fullmaktService.getFullmaktResource(
+            Links.get(prosjekt.getFullmakt()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.felles.fylke;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class FylkeResolver implements GraphQLResolver<FylkeResource> {
     private KommuneService kommuneService;
 
 
-    public KommuneResource getKommune(FylkeResource fylke) {
-        return kommuneService.getKommuneResource(Links.get(fylke.getKommune()));
+    public KommuneResource getKommune(FylkeResource fylke, DataFetchingEnvironment dfe) {
+        return kommuneService.getKommuneResource(
+            Links.get(fylke.getKommune()),
+            dfe);
     }
 
 }

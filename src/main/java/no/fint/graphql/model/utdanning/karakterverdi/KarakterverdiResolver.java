@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.karakterverdi;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class KarakterverdiResolver implements GraphQLResolver<KarakterverdiResou
     private KarakterskalaService karakterskalaService;
 
 
-    public KarakterskalaResource getSkala(KarakterverdiResource karakterverdi) {
-        return karakterskalaService.getKarakterskalaResource(Links.get(karakterverdi.getSkala()));
+    public KarakterskalaResource getSkala(KarakterverdiResource karakterverdi, DataFetchingEnvironment dfe) {
+        return karakterskalaService.getKarakterskalaResource(
+            Links.get(karakterverdi.getSkala()),
+            dfe);
     }
 
 }

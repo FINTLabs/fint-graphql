@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.fag;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -48,24 +49,34 @@ public class FagResolver implements GraphQLResolver<FagResource> {
     private MedlemskapService medlemskapService;
 
 
-    public ProgramomradeResource getProgramomrade(FagResource fag) {
-        return programomradeService.getProgramomradeResource(Links.get(fag.getProgramomrade()));
+    public ProgramomradeResource getProgramomrade(FagResource fag, DataFetchingEnvironment dfe) {
+        return programomradeService.getProgramomradeResource(
+            Links.get(fag.getProgramomrade()),
+            dfe);
     }
 
-    public SkoleResource getSkole(FagResource fag) {
-        return skoleService.getSkoleResource(Links.get(fag.getSkole()));
+    public SkoleResource getSkole(FagResource fag, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(fag.getSkole()),
+            dfe);
     }
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(FagResource fag) {
-        return undervisningsgruppeService.getUndervisningsgruppeResource(Links.get(fag.getUndervisningsgruppe()));
+    public UndervisningsgruppeResource getUndervisningsgruppe(FagResource fag, DataFetchingEnvironment dfe) {
+        return undervisningsgruppeService.getUndervisningsgruppeResource(
+            Links.get(fag.getUndervisningsgruppe()),
+            dfe);
     }
 
-    public EksamensgruppeResource getEksamensgruppe(FagResource fag) {
-        return eksamensgruppeService.getEksamensgruppeResource(Links.get(fag.getEksamensgruppe()));
+    public EksamensgruppeResource getEksamensgruppe(FagResource fag, DataFetchingEnvironment dfe) {
+        return eksamensgruppeService.getEksamensgruppeResource(
+            Links.get(fag.getEksamensgruppe()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(FagResource fag) {
-        return medlemskapService.getMedlemskapResource(Links.get(fag.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(FagResource fag, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(fag.getMedlemskap()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.personalressurs;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -53,36 +54,52 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
     private SkoleressursService skoleressursService;
 
 
-    public PersonalressurskategoriResource getPersonalressurskategori(PersonalressursResource personalressurs) {
-        return personalressurskategoriService.getPersonalressurskategoriResource(Links.get(personalressurs.getPersonalressurskategori()));
+    public PersonalressurskategoriResource getPersonalressurskategori(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return personalressurskategoriService.getPersonalressurskategoriResource(
+            Links.get(personalressurs.getPersonalressurskategori()),
+            dfe);
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(PersonalressursResource personalressurs) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(
+            Links.get(personalressurs.getArbeidsforhold()),
+            dfe);
     }
 
-    public PersonResource getPerson(PersonalressursResource personalressurs) {
-        return personService.getPersonResource(Links.get(personalressurs.getPerson()));
+    public PersonResource getPerson(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return personService.getPersonResource(
+            Links.get(personalressurs.getPerson()),
+            dfe);
     }
 
-    public FullmaktResource getStedfortreder(PersonalressursResource personalressurs) {
-        return fullmaktService.getFullmaktResource(Links.get(personalressurs.getStedfortreder()));
+    public FullmaktResource getStedfortreder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return fullmaktService.getFullmaktResource(
+            Links.get(personalressurs.getStedfortreder()),
+            dfe);
     }
 
-    public FullmaktResource getFullmakt(PersonalressursResource personalressurs) {
-        return fullmaktService.getFullmaktResource(Links.get(personalressurs.getFullmakt()));
+    public FullmaktResource getFullmakt(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return fullmaktService.getFullmaktResource(
+            Links.get(personalressurs.getFullmakt()),
+            dfe);
     }
 
-    public OrganisasjonselementResource getLeder(PersonalressursResource personalressurs) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(personalressurs.getLeder()));
+    public OrganisasjonselementResource getLeder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return organisasjonselementService.getOrganisasjonselementResource(
+            Links.get(personalressurs.getLeder()),
+            dfe);
     }
 
-    public ArbeidsforholdResource getPersonalansvar(PersonalressursResource personalressurs) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(personalressurs.getPersonalansvar()));
+    public ArbeidsforholdResource getPersonalansvar(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(
+            Links.get(personalressurs.getPersonalansvar()),
+            dfe);
     }
 
-    public SkoleressursResource getSkoleressurs(PersonalressursResource personalressurs) {
-        return skoleressursService.getSkoleressursResource(Links.get(personalressurs.getSkoleressurs()));
+    public SkoleressursResource getSkoleressurs(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return skoleressursService.getSkoleressursResource(
+            Links.get(personalressurs.getSkoleressurs()),
+            dfe);
     }
 
 }

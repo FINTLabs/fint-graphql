@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.eksamensgruppe;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class EksamensgruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private EksamensgruppeService service;
 
-    public List<EksamensgruppeResource> getEksamensgruppe(String sinceTimeStamp) {
-        EksamensgruppeResources resources = service.getEksamensgruppeResources(sinceTimeStamp);
+    public List<EksamensgruppeResource> getEksamensgruppe(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        EksamensgruppeResources resources = service.getEksamensgruppeResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

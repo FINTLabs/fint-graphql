@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.fastlonn;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,24 +39,34 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
     private ArbeidsforholdService arbeidsforholdService;
 
 
-    public LonnsartResource getLonnsart(FastlonnResource fastlonn) {
-        return lonnsartService.getLonnsartResource(Links.get(fastlonn.getLonnsart()));
+    public LonnsartResource getLonnsart(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return lonnsartService.getLonnsartResource(
+            Links.get(fastlonn.getLonnsart()),
+            dfe);
     }
 
-    public PersonalressursResource getAnviser(FastlonnResource fastlonn) {
-        return personalressursService.getPersonalressursResource(Links.get(fastlonn.getAnviser()));
+    public PersonalressursResource getAnviser(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fastlonn.getAnviser()),
+            dfe);
     }
 
-    public PersonalressursResource getKonterer(FastlonnResource fastlonn) {
-        return personalressursService.getPersonalressursResource(Links.get(fastlonn.getKonterer()));
+    public PersonalressursResource getKonterer(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fastlonn.getKonterer()),
+            dfe);
     }
 
-    public PersonalressursResource getAttestant(FastlonnResource fastlonn) {
-        return personalressursService.getPersonalressursResource(Links.get(fastlonn.getAttestant()));
+    public PersonalressursResource getAttestant(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return personalressursService.getPersonalressursResource(
+            Links.get(fastlonn.getAttestant()),
+            dfe);
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn) {
-        return arbeidsforholdService.getArbeidsforholdResource(Links.get(fastlonn.getArbeidsforhold()));
+    public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return arbeidsforholdService.getArbeidsforholdResource(
+            Links.get(fastlonn.getArbeidsforhold()),
+            dfe);
     }
 
 }

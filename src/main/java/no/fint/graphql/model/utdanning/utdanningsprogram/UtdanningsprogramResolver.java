@@ -3,6 +3,7 @@
 package no.fint.graphql.model.utdanning.utdanningsprogram;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,16 +39,22 @@ public class UtdanningsprogramResolver implements GraphQLResolver<Utdanningsprog
     private MedlemskapService medlemskapService;
 
 
-    public SkoleResource getSkole(UtdanningsprogramResource utdanningsprogram) {
-        return skoleService.getSkoleResource(Links.get(utdanningsprogram.getSkole()));
+    public SkoleResource getSkole(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
+        return skoleService.getSkoleResource(
+            Links.get(utdanningsprogram.getSkole()),
+            dfe);
     }
 
-    public ProgramomradeResource getProgramomrade(UtdanningsprogramResource utdanningsprogram) {
-        return programomradeService.getProgramomradeResource(Links.get(utdanningsprogram.getProgramomrade()));
+    public ProgramomradeResource getProgramomrade(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
+        return programomradeService.getProgramomradeResource(
+            Links.get(utdanningsprogram.getProgramomrade()),
+            dfe);
     }
 
-    public MedlemskapResource getMedlemskap(UtdanningsprogramResource utdanningsprogram) {
-        return medlemskapService.getMedlemskapResource(Links.get(utdanningsprogram.getMedlemskap()));
+    public MedlemskapResource getMedlemskap(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
+        return medlemskapService.getMedlemskapResource(
+            Links.get(utdanningsprogram.getMedlemskap()),
+            dfe);
     }
 
 }

@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.arbeidsforholdstype;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -28,8 +29,10 @@ public class ArbeidsforholdstypeResolver implements GraphQLResolver<Arbeidsforho
     private ArbeidsforholdstypeService arbeidsforholdstypeService;
 
 
-    public ArbeidsforholdstypeResource getForelder(ArbeidsforholdstypeResource arbeidsforholdstype) {
-        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(Links.get(arbeidsforholdstype.getForelder()));
+    public ArbeidsforholdstypeResource getForelder(ArbeidsforholdstypeResource arbeidsforholdstype, DataFetchingEnvironment dfe) {
+        return arbeidsforholdstypeService.getArbeidsforholdstypeResource(
+            Links.get(arbeidsforholdstype.getForelder()),
+            dfe);
     }
 
 }

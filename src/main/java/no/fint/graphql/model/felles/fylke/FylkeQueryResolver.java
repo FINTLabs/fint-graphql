@@ -3,6 +3,7 @@
 package no.fint.graphql.model.felles.fylke;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.felles.kodeverk.FylkeResource;
 import no.fint.model.resource.felles.kodeverk.FylkeResources;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class FylkeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FylkeService service;
 
-    public List<FylkeResource> getFylke(String sinceTimeStamp) {
-        FylkeResources resources = service.getFylkeResources(sinceTimeStamp);
+    public List<FylkeResource> getFylke(String sinceTimeStamp, DataFetchingEnvironment dfe) {
+        FylkeResources resources = service.getFylkeResources(sinceTimeStamp, dfe);
         return resources.getContent();
     }
 }

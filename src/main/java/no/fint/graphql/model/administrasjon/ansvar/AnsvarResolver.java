@@ -3,6 +3,7 @@
 package no.fint.graphql.model.administrasjon.ansvar;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.Links;
 
 
@@ -38,20 +39,28 @@ public class AnsvarResolver implements GraphQLResolver<AnsvarResource> {
     private FullmaktService fullmaktService;
 
 
-    public AnsvarResource getOverordnet(AnsvarResource ansvar) {
-        return ansvarService.getAnsvarResource(Links.get(ansvar.getOverordnet()));
+    public AnsvarResource getOverordnet(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
+        return ansvarService.getAnsvarResource(
+            Links.get(ansvar.getOverordnet()),
+            dfe);
     }
 
-    public AnsvarResource getUnderordnet(AnsvarResource ansvar) {
-        return ansvarService.getAnsvarResource(Links.get(ansvar.getUnderordnet()));
+    public AnsvarResource getUnderordnet(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
+        return ansvarService.getAnsvarResource(
+            Links.get(ansvar.getUnderordnet()),
+            dfe);
     }
 
-    public OrganisasjonselementResource getOrganisasjonselement(AnsvarResource ansvar) {
-        return organisasjonselementService.getOrganisasjonselementResource(Links.get(ansvar.getOrganisasjonselement()));
+    public OrganisasjonselementResource getOrganisasjonselement(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
+        return organisasjonselementService.getOrganisasjonselementResource(
+            Links.get(ansvar.getOrganisasjonselement()),
+            dfe);
     }
 
-    public FullmaktResource getFullmakt(AnsvarResource ansvar) {
-        return fullmaktService.getFullmaktResource(Links.get(ansvar.getFullmakt()));
+    public FullmaktResource getFullmakt(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
+        return fullmaktService.getFullmaktResource(
+            Links.get(ansvar.getFullmakt()),
+            dfe);
     }
 
 }
