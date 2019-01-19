@@ -9,10 +9,10 @@ type Programomrade {
 
 
 	# Relations
-    utdanningsprogram: Utdanningsprogram
-    fag: Fag
-    trinn: Arstrinn
-    grepreferanse: String
-    vigoreferanse: String
-    medlemskap: Medlemskap
+    utdanningsprogram: Utdanningsprogram!
+    fag: [Fag]
+    trinn: [Arstrinn]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
 }

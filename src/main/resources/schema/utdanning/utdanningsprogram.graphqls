@@ -9,9 +9,9 @@ type Utdanningsprogram {
 
 
 	# Relations
-    skole: Skole
-    programomrade: Programomrade
-    grepreferanse: String
-    vigoreferanse: String
-    medlemskap: Medlemskap
+    skole: [Skole]
+    programomrade: [Programomrade]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
 }

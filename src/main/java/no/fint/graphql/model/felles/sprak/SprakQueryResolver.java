@@ -5,11 +5,9 @@ package no.fint.graphql.model.felles.sprak;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.felles.kodeverk.iso.SprakResource;
-import no.fint.model.resource.felles.kodeverk.iso.SprakResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("fellesSprakQueryResolver")
 public class SprakQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class SprakQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SprakService service;
 
-    public List<SprakResource> getSprak(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        SprakResources resources = service.getSprakResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public SprakResource getSprak(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getSprakResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

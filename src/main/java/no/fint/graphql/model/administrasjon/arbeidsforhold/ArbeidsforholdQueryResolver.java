@@ -5,11 +5,9 @@ package no.fint.graphql.model.administrasjon.arbeidsforhold;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
-import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("administrasjonArbeidsforholdQueryResolver")
 public class ArbeidsforholdQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class ArbeidsforholdQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ArbeidsforholdService service;
 
-    public List<ArbeidsforholdResource> getArbeidsforhold(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        ArbeidsforholdResources resources = service.getArbeidsforholdResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public ArbeidsforholdResource getArbeidsforhold(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getArbeidsforholdResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

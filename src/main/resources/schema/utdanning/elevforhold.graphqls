@@ -7,13 +7,13 @@ type Elevforhold {
 
 
 	# Relations
-    basisgruppe: Basisgruppe
-    elev: Elev
+    basisgruppe: [Basisgruppe]
+    elev: Elev!
     kategori: Elevkategori
-    skole: Skole
-    eksamensgruppe: Eksamensgruppe
-    kontaktlarergruppe: Kontaktlarergruppe
-    undervisningsgruppe: Undervisningsgruppe
-    vurdering: Vurdering
-    medlemskap: Medlemskap
+    skole: Skole!
+    eksamensgruppe: [Eksamensgruppe]
+    kontaktlarergruppe: [Kontaktlarergruppe]
+    undervisningsgruppe: [Undervisningsgruppe]
+    vurdering: [Vurdering]
+    medlemskap: [Medlemskap]
 }

@@ -5,11 +5,9 @@ package no.fint.graphql.model.utdanning.karakterskala;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.utdanning.kodeverk.KarakterskalaResource;
-import no.fint.model.resource.utdanning.kodeverk.KarakterskalaResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("utdanningKarakterskalaQueryResolver")
 public class KarakterskalaQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class KarakterskalaQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KarakterskalaService service;
 
-    public List<KarakterskalaResource> getKarakterskala(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        KarakterskalaResources resources = service.getKarakterskalaResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public KarakterskalaResource getKarakterskala(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getKarakterskalaResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

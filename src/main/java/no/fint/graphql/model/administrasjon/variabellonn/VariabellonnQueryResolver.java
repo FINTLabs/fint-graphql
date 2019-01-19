@@ -5,11 +5,9 @@ package no.fint.graphql.model.administrasjon.variabellonn;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.administrasjon.personal.VariabellonnResource;
-import no.fint.model.resource.administrasjon.personal.VariabellonnResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("administrasjonVariabellonnQueryResolver")
 public class VariabellonnQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class VariabellonnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private VariabellonnService service;
 
-    public List<VariabellonnResource> getVariabellonn(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        VariabellonnResources resources = service.getVariabellonnResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public VariabellonnResource getVariabellonn(
+            String systemId,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(systemId)) {
+            return service.getVariabellonnResourceById("systemid", systemId, dfe);
+        }
+        return null;
     }
 }

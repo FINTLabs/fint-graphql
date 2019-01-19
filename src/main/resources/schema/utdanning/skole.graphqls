@@ -16,15 +16,15 @@ type Skole {
 
 	# Relations
     organisasjon: Organisasjonselement
-    fag: Fag
+    fag: [Fag]
     skoleeierType: Skoleeiertype
-    vigoreferanse: String
-    basisgruppe: Basisgruppe
-    elevforhold: Elevforhold
-    kontaktlarergruppe: Kontaktlarergruppe
-    skoleressurs: Skoleressurs
-    undervisningsforhold: Undervisningsforhold
-    undervisningsgruppe: Undervisningsgruppe
-    eksamensgruppe: Eksamensgruppe
-    utdanningsprogram: Utdanningsprogram
+    vigoreferanse: [String]
+    basisgruppe: [Basisgruppe]
+    elevforhold: [Elevforhold]
+    kontaktlarergruppe: [Kontaktlarergruppe]
+    skoleressurs: [Skoleressurs]
+    undervisningsforhold: [Undervisningsforhold]
+    undervisningsgruppe: [Undervisningsgruppe]
+    eksamensgruppe: [Eksamensgruppe]
+    utdanningsprogram: [Utdanningsprogram]
 }

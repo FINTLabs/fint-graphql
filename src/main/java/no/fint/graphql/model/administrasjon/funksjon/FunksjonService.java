@@ -3,11 +3,9 @@
 package no.fint.graphql.model.administrasjon.funksjon;
 
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.ResourceUrlBuilder;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.kodeverk.FunksjonResource;
-import no.fint.model.resource.administrasjon.kodeverk.FunksjonResources;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +18,14 @@ public class FunksjonService {
     @Autowired
     private Endpoints endpoints;
 
-    public FunksjonResources getFunksjonResources(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(
-                ResourceUrlBuilder.urlWithQueryParams(
-                    endpoints.getAdministrasjonKodeverk() + "/funksjon",
-                    sinceTimeStamp),
-                FunksjonResources.class,
-                dfe);
+    public FunksjonResource getFunksjonResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return getFunksjonResource(
+            endpoints.getAdministrasjonKodeverk() 
+                + "/funksjon/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public FunksjonResource getFunksjonResource(String url, DataFetchingEnvironment dfe) {

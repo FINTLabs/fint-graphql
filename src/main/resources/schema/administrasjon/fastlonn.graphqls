@@ -18,5 +18,5 @@ type Fastlonn {
     anviser: Personalressurs
     konterer: Personalressurs
     attestant: Personalressurs
-    arbeidsforhold: Arbeidsforhold
+    arbeidsforhold: Arbeidsforhold!
 }

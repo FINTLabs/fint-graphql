@@ -15,9 +15,9 @@ type Variabellonn {
 
 
 	# Relations
-    lonnsart: Lonnsart
+    lonnsart: Lonnsart!
     anviser: Personalressurs
     konterer: Personalressurs
     attestant: Personalressurs
-    arbeidsforhold: Arbeidsforhold
+    arbeidsforhold: Arbeidsforhold!
 }

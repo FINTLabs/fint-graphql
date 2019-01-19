@@ -9,7 +9,7 @@ type Time {
 
 
 	# Relations
-    undervisningsgruppe: Undervisningsgruppe
-    undervisningsforhold: Undervisningsforhold
-    rom: Rom
+    undervisningsgruppe: [Undervisningsgruppe]!
+    undervisningsforhold: [Undervisningsforhold]!
+    rom: [Rom]
 }

@@ -7,13 +7,13 @@ type Undervisningsforhold {
 
 
 	# Relations
-    arbeidsforhold: Arbeidsforhold
-    basisgruppe: Basisgruppe
-    kontaktlarergruppe: Kontaktlarergruppe
-    undervisningsgruppe: Undervisningsgruppe
-    eksamensgruppe: Eksamensgruppe
-    time: Time
-    skole: Skole
-    skoleressurs: Skoleressurs
-    medlemskap: Medlemskap
+    arbeidsforhold: Arbeidsforhold!
+    basisgruppe: [Basisgruppe]
+    kontaktlarergruppe: [Kontaktlarergruppe]
+    undervisningsgruppe: [Undervisningsgruppe]
+    eksamensgruppe: [Eksamensgruppe]
+    time: [Time]
+    skole: Skole!
+    skoleressurs: Skoleressurs!
+    medlemskap: [Medlemskap]
 }

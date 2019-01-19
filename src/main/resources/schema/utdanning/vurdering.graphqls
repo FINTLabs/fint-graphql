@@ -8,8 +8,8 @@ type Vurdering {
 
 
 	# Relations
-    elevforhold: Elevforhold
+    elevforhold: Elevforhold!
     undervisningsgruppe: Undervisningsgruppe
     eksamensgruppe: Eksamensgruppe
-    karakter: Karakterverdi
+    karakter: Karakterverdi!
 }

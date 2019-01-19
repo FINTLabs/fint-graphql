@@ -5,11 +5,9 @@ package no.fint.graphql.model.felles.person;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.model.resource.felles.PersonResource;
-import no.fint.model.resource.felles.PersonResources;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component("fellesPersonQueryResolver")
 public class PersonQueryResolver implements GraphQLQueryResolver {
@@ -17,8 +15,12 @@ public class PersonQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PersonService service;
 
-    public List<PersonResource> getPerson(String sinceTimeStamp, DataFetchingEnvironment dfe) {
-        PersonResources resources = service.getPersonResources(sinceTimeStamp, dfe);
-        return resources.getContent();
+    public PersonResource getPerson(
+            String fodselsnummer,
+            DataFetchingEnvironment dfe) {
+        if (StringUtils.isNotEmpty(fodselsnummer)) {
+            return service.getPersonResourceById("fodselsnummer", fodselsnummer, dfe);
+        }
+        return null;
     }
 }

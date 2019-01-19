@@ -4,10 +4,6 @@ package no.fint.graphql.model.utdanning.eksamensgruppe;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.Links;
-
-
-
 
 import no.fint.graphql.model.utdanning.fag.FagService;
 import no.fint.graphql.model.utdanning.skole.SkoleService;
@@ -16,22 +12,23 @@ import no.fint.graphql.model.utdanning.undervisningsforhold.Undervisningsforhold
 import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
 
 
+import no.fint.model.resource.Link;
 import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
-
-
 import no.fint.model.resource.utdanning.timeplan.FagResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
 import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @Component("utdanningEksamensgruppeResolver")
 public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeResource> {
-
 
     @Autowired
     private FagService fagService;
@@ -50,33 +47,48 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
 
 
     public FagResource getFag(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
-        return fagService.getFagResource(
-            Links.get(eksamensgruppe.getFag()),
-            dfe);
+        return eksamensgruppe.getFag()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> fagService.getFagResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public SkoleResource getSkole(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
-        return skoleService.getSkoleResource(
-            Links.get(eksamensgruppe.getSkole()),
-            dfe);
+        return eksamensgruppe.getSkole()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> skoleService.getSkoleResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
-    public ElevforholdResource getElevforhold(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
-        return elevforholdService.getElevforholdResource(
-            Links.get(eksamensgruppe.getElevforhold()),
-            dfe);
+    public List<ElevforholdResource> getElevforhold(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return eksamensgruppe.getElevforhold()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
-        return undervisningsforholdService.getUndervisningsforholdResource(
-            Links.get(eksamensgruppe.getUndervisningsforhold()),
-            dfe);
+    public List<UndervisningsforholdResource> getUndervisningsforhold(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return eksamensgruppe.getUndervisningsforhold()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
-    public MedlemskapResource getMedlemskap(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
-        return medlemskapService.getMedlemskapResource(
-            Links.get(eksamensgruppe.getMedlemskap()),
-            dfe);
+    public List<MedlemskapResource> getMedlemskap(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
+        return eksamensgruppe.getMedlemskap()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
 }
