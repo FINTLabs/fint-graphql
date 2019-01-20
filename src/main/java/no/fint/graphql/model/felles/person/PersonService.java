@@ -19,13 +19,25 @@ public class PersonService {
     private Endpoints endpoints;
 
     public PersonResource getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
-        return getPersonResource(
-            endpoints.getFelles() 
-                + "/person/" 
-                + id 
-                + "/" 
-                + value,
-            dfe);
+        PersonResource personResource = getPersonResource(
+                endpoints.getAdministrasjonPersonal()
+                        + "/person/"
+                        + id
+                        + "/"
+                        + value,
+                dfe);
+        if (personResource == null) {
+            personResource = getPersonResource(
+                    endpoints.getUtdanningElev()
+                            + "/person/"
+                            + id
+                            + "/"
+                            + value,
+                    dfe);
+        }
+
+        return personResource;
+
     }
 
     public PersonResource getPersonResource(String url, DataFetchingEnvironment dfe) {
