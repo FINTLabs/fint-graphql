@@ -15,15 +15,9 @@ public class ApplicationConfig {
     @Value("${fint.endpoint.root:https://play-with-fint.felleskomponent.no}")
     private String rootUri;
 
-    @Value("${fint.webclient.pool.size:10}")
-    private int poolSize;
-
-    @Value("${fint.webclient.pool.timeout:1500}")
-    private long poolTimeout;
-
     @Bean
     public WebClient webClient(WebClient.Builder builder, ReactorResourceFactory factory) {
-        factory.setConnectionProvider(ConnectionProvider.fixed("fint", poolSize, poolTimeout));
+        factory.setConnectionProvider(ConnectionProvider.newConnection());
         return builder
                 .clientConnector(new ReactorClientHttpConnector(factory, HttpClient::secure))
                 .baseUrl(rootUri)

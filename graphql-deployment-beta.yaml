@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: graphql-beta
-          image: fintlabs.azurecr.io/graphql:build.12
+          image: fintlabs.azurecr.io/graphql:build.13
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -49,5 +49,3 @@ spec:
               value: "https://beta.felleskomponent.no"
             - name: logging.level.org.springframework.web.reactive.function.client.ExchangeFunctions
               value: "DEBUG"
-            - name: reactor.netty.pool.acquireTimeout
-              value: "1500"
