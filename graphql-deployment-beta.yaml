@@ -47,3 +47,5 @@ spec:
               value: "/graphql/graphql"
             - name: fint.endpoint.root
               value: "https://beta.felleskomponent.no"
+            - name: logging.level.org.springframework.web.reactive.function.client.ExchangeFunctions
+              value: "DEBUG"

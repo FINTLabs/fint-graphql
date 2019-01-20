@@ -2,6 +2,7 @@ package no.fint.graphql;
 
 import graphql.schema.DataFetchingEnvironment;
 import graphql.servlet.GraphQLContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 public class WebClientRequest {
 
@@ -31,7 +33,7 @@ public class WebClientRequest {
 
     private <T> T get(WebClient.RequestHeadersSpec<?> request, Class<T> type, DataFetchingEnvironment dfe) {
         String token = getToken(dfe);
-        System.out.println("Token: " + token);
+        log.debug("Token: {}", token);
         if (token != null) {
             request.header(HttpHeaders.AUTHORIZATION, token);
         }

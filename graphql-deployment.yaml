@@ -45,3 +45,5 @@ spec:
               value: "/graphql"
             - name: graphiql.endpoint.graphql
               value: "/graphql/graphql"
+            - name: logging.level.org.springframework.web.reactive.function.client.ExchangeFunctions
+              value: "DEBUG"
