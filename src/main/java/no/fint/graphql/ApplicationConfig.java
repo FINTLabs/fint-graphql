@@ -15,18 +15,15 @@ public class ApplicationConfig {
     @Value("${fint.endpoint.root:https://play-with-fint.felleskomponent.no}")
     private String rootUri;
 
-    /**
-     * Build a WebClient using the Spring-supplied builder and ReactorResourceFactory.
-     * Overrides the ConnectionProvider using a fixed Connection pool.
-     * This pool can be configured with the properties {@link reactor.netty.ReactorNetty#POOL_ACQUIRE_TIMEOUT}
-     * and {@link reactor.netty.ReactorNetty#POOL_MAX_CONNECTIONS}.
-     * @param builder WebClient.Builder provided by Spring
-     * @param factory ReactorResourceFactory provided by Spring
-     * @return configured WebClient.
-     */
+    @Value("${fint.webclient.pool.size:10}")
+    private int poolSize;
+
+    @Value("${fint.webclient.pool.timeout:1500}")
+    private long poolTimeout;
+
     @Bean
     public WebClient webClient(WebClient.Builder builder, ReactorResourceFactory factory) {
-        factory.setConnectionProvider(ConnectionProvider.fixed("fint"));
+        factory.setConnectionProvider(ConnectionProvider.fixed("fint", poolSize, poolTimeout));
         return builder
                 .clientConnector(new ReactorClientHttpConnector(factory, HttpClient::secure))
                 .baseUrl(rootUri)
