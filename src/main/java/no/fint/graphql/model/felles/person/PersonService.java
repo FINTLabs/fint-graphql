@@ -20,7 +20,7 @@ public class PersonService {
 
     public PersonResource getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
         PersonResource personResource = getPersonResource(
-                endpoints.getAdministrasjonPersonal()
+                endpoints.getUtdanningElev()
                         + "/person/"
                         + id
                         + "/"
@@ -28,7 +28,7 @@ public class PersonService {
                 dfe);
         if (personResource == null) {
             personResource = getPersonResource(
-                    endpoints.getUtdanningElev()
+                    endpoints.getAdministrasjonPersonal()
                             + "/person/"
                             + id
                             + "/"
