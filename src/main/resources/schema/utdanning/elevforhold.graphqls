@@ -1,10 +1,10 @@
 # Built from tag release-3.2
 
 type Elevforhold {
-	# Attributes
-    beskrivelse: String!
-    systemId: Identifikator!
 
+	# Inherited Attributes
+    beskrivelse: String! # Utdanningsforhold
+    systemId: Identifikator! # Utdanningsforhold
 
 	# Relations
     basisgruppe: [Basisgruppe]

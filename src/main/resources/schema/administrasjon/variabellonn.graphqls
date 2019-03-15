@@ -1,18 +1,19 @@
 # Built from tag release-3.2
 
 type Variabellonn {
-	# Attributes
-    anvist: Date
-    attestert: Date
-    beskrivelse: String!
-    kontert: Date
-    kontostreng: Kontostreng!
-    opptjent: Periode
-    periode: Periode!
-    systemId: Identifikator
+	#  Attributes
     antall: Long!
     belop: Long
 
+	# Inherited Attributes
+    anvist: Date # Lonn
+    attestert: Date # Lonn
+    beskrivelse: String! # Lonn
+    kontert: Date # Lonn
+    kontostreng: Kontostreng! # Lonn
+    opptjent: Periode # Lonn
+    periode: Periode! # Lonn
+    systemId: Identifikator # Lonn
 
 	# Relations
     lonnsart: Lonnsart!

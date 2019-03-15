@@ -1,15 +1,16 @@
 # Built from tag release-3.2
 
 type Person {
-	# Attributes
-    kontaktinformasjon: Kontaktinformasjon
-    postadresse: Adresse
+	#  Attributes
     bilde: String
     bostedsadresse: Adresse
     fodselsdato: Date
     fodselsnummer: Identifikator!
     navn: Personnavn!
 
+	# Inherited Attributes
+    kontaktinformasjon: Kontaktinformasjon # Aktor
+    postadresse: Adresse # Aktor
 
 	# Relations
     statsborgerskap: [Landkode]

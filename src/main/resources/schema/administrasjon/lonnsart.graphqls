@@ -1,13 +1,15 @@
 # Built from tag release-3.2
 
 type Lonnsart {
-	# Attributes
-    gyldighetsperiode: Periode
-    kode: String!
-    navn: String!
-    passiv: Boolean
-    systemId: Identifikator!
+	#  Attributes
+    kategori: String
 
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Begrep
+    kode: String! # Begrep
+    navn: String! # Begrep
+    passiv: Boolean # Begrep
+    systemId: Identifikator! # Begrep
 
 	# Relations
     art: Art

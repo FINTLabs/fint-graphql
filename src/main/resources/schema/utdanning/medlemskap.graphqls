@@ -1,7 +1,7 @@
 # Built from tag release-3.2
 
 type Medlemskap {
-	# Attributes
+	#  Attributes
     systemId: Identifikator!
 
 

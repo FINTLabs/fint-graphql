@@ -1,7 +1,7 @@
 # Built from tag release-3.2
 
 type Arbeidsforhold {
-	# Attributes
+	#  Attributes
     ansettelsesprosent: Long!
     gyldighetsperiode: Periode!
     hovedstilling: Boolean!

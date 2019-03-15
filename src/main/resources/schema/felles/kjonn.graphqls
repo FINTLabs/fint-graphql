@@ -1,11 +1,11 @@
 # Built from tag release-3.2
 
 type Kjonn {
-	# Attributes
-    gyldighetsperiode: Periode
-    kode: String!
-    navn: String!
-    passiv: Boolean
-    systemId: Identifikator!
 
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Begrep
+    kode: String! # Begrep
+    navn: String! # Begrep
+    passiv: Boolean # Begrep
+    systemId: Identifikator! # Begrep
 }

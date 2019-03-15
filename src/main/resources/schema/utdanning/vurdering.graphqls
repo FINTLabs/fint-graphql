@@ -1,7 +1,7 @@
 # Built from tag release-3.2
 
 type Vurdering {
-	# Attributes
+	#  Attributes
     endelig: Boolean!
     kommentar: String!
     systemId: Identifikator!

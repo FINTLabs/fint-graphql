@@ -1,7 +1,7 @@
 # Built from tag release-3.2
 
 type Identifikator {
-	# Attributes
+	#  Attributes
     gyldighetsperiode: Periode
     identifikatorverdi: String!
 

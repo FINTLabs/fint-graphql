@@ -1,12 +1,12 @@
 # Built from tag release-3.2
 
 type Arstrinn {
-	# Attributes
-    beskrivelse: String!
-    navn: String!
-    periode: [Periode]!
-    systemId: Identifikator!
 
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
+    systemId: Identifikator! # Gruppe
 
 	# Relations
     programomrade: [Programomrade]

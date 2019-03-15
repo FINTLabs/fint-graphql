@@ -1,7 +1,7 @@
 # Built from tag release-3.2
 
 type Skoleressurs {
-	# Attributes
+	#  Attributes
     feidenavn: Identifikator
     systemId: Identifikator!
 

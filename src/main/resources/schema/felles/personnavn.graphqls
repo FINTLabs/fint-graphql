@@ -1,7 +1,7 @@
 # Built from tag release-3.2
 
 type Personnavn {
-	# Attributes
+	#  Attributes
     etternavn: String!
     fornavn: String!
     mellomnavn: String
