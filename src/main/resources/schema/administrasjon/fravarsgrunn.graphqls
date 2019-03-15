@@ -1,0 +1,11 @@
+# Built from tag release-3.2
+
+type Fravarsgrunn {
+	# Attributes
+    gyldighetsperiode: Periode
+    kode: String!
+    navn: String!
+    passiv: Boolean
+    systemId: Identifikator!
+
+}

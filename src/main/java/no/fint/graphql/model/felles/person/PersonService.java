@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag release-3.2
 
 package no.fint.graphql.model.felles.person;
 
@@ -19,25 +19,13 @@ public class PersonService {
     private Endpoints endpoints;
 
     public PersonResource getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
-        PersonResource personResource = getPersonResource(
-                endpoints.getUtdanningElev()
-                        + "/person/"
-                        + id
-                        + "/"
-                        + value,
-                dfe);
-        if (personResource == null) {
-            personResource = getPersonResource(
-                    endpoints.getAdministrasjonPersonal()
-                            + "/person/"
-                            + id
-                            + "/"
-                            + value,
-                    dfe);
-        }
-
-        return personResource;
-
+        return getPersonResource(
+            endpoints.getFelles() 
+                + "/person/" 
+                + id 
+                + "/" 
+                + value,
+            dfe);
     }
 
     public PersonResource getPersonResource(String url, DataFetchingEnvironment dfe) {

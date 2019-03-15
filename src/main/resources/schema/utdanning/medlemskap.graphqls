@@ -1,4 +1,4 @@
-# Built from tag v3.1.0
+# Built from tag release-3.2
 
 type Medlemskap {
 	# Attributes
@@ -10,4 +10,5 @@ type Medlemskap {
     fortlopendeVurdering: [Vurdering]
     gruppe: [String]
     endeligVurdering: Vurdering
+    fravar: [Fravar]
 }

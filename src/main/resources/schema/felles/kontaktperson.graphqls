@@ -1,13 +1,15 @@
-# Built from tag v3.1.0
+# Built from tag release-3.2
 
 type Kontaktperson {
 	# Attributes
     foreldreansvar: Boolean!
+    kontaktinformasjon: Kontaktinformasjon
+    navn: Personnavn
     systemId: Identifikator!
     type: String!
 
 
 	# Relations
-    kontaktperson: Person
-    person: Person!
+    kontaktperson: [Person]
+    person: Person
 }

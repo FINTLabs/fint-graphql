@@ -1,0 +1,17 @@
+# Built from tag release-3.2
+
+type Fravar {
+	# Attributes
+    dokumentert: Boolean!
+    foresPaVitnemal: Boolean!
+    gjelderPeriode: Periode!
+    kommentar: String!
+    systemId: Identifikator!
+
+
+	# Relations
+    elevforhold: Elevforhold!
+    undervisningsgruppe: Undervisningsgruppe
+    eksamensgruppe: Eksamensgruppe
+    fravarstype: Fravarstype!
+}

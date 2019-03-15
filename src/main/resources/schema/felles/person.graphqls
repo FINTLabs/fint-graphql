@@ -1,4 +1,4 @@
-# Built from tag v3.1.0
+# Built from tag release-3.2
 
 type Person {
 	# Attributes
@@ -14,9 +14,11 @@ type Person {
 	# Relations
     statsborgerskap: [Landkode]
     kjonn: Kjonn
+    foreldreansvar: [Person]
     malform: Sprak
     personalressurs: Personalressurs
     morsmal: Sprak
     parorende: [Kontaktperson]
+    foreldre: [Person]
     elev: Elev
 }

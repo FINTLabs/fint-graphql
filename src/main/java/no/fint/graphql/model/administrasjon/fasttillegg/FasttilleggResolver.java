@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag release-3.2
 
 package no.fint.graphql.model.administrasjon.fasttillegg;
 
@@ -6,15 +6,15 @@ import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 
 import no.fint.graphql.model.administrasjon.lonnsart.LonnsartService;
-import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
 import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService;
+import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
 
 
 import no.fint.model.resource.Link;
 import no.fint.model.resource.administrasjon.personal.FasttilleggResource;
 import no.fint.model.resource.administrasjon.kodeverk.LonnsartResource;
-import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,10 +30,10 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
     private LonnsartService lonnsartService;
 
     @Autowired
-    private PersonalressursService personalressursService;
+    private ArbeidsforholdService arbeidsforholdService;
 
     @Autowired
-    private ArbeidsforholdService arbeidsforholdService;
+    private PersonalressursService personalressursService;
 
 
     public LonnsartResource getLonnsart(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
@@ -41,6 +41,15 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
                 .stream()
                 .map(Link::getHref)
                 .map(l -> lonnsartService.getLonnsartResource(l, dfe))
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
+    }
+
+    public ArbeidsforholdResource getArbeidsforhold(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
+        return fasttillegg.getArbeidsforhold()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
     }
@@ -68,15 +77,6 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
                 .stream()
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
-    }
-
-    public ArbeidsforholdResource getArbeidsforhold(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
-        return fasttillegg.getArbeidsforhold()
-                .stream()
-                .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
     }

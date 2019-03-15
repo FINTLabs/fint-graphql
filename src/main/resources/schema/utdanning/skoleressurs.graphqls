@@ -1,4 +1,4 @@
-# Built from tag v3.1.0
+# Built from tag release-3.2
 
 type Skoleressurs {
 	# Attributes
@@ -9,5 +9,5 @@ type Skoleressurs {
 	# Relations
     personalressurs: Personalressurs!
     undervisningsforhold: [Undervisningsforhold]
-    skole: Skole!
+    skole: [Skole]!
 }

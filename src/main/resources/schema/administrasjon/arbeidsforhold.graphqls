@@ -1,4 +1,4 @@
-# Built from tag v3.1.0
+# Built from tag release-3.2
 
 type Arbeidsforhold {
 	# Attributes
@@ -16,12 +16,17 @@ type Arbeidsforhold {
 	# Relations
     ansvar: Ansvar
     arbeidsforholdstype: Arbeidsforholdstype
+    art: Art
     funksjon: Funksjon
     stillingskode: Stillingskode
     timerPerUke: Uketimetall
     arbeidssted: Organisasjonselement!
     personalleder: Personalressurs
+    fastlonn: [Fastlonn]
+    fasttillegg: [Fasttillegg]
+    fravar: [Fravar]
     lonn: [String]
+    variabellonn: [Variabellonn]
     personalressurs: Personalressurs!
     undervisningsforhold: Undervisningsforhold
 }

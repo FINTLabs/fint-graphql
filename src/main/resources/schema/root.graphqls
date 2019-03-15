@@ -9,6 +9,7 @@ type Query {
 	elev(brukernavn: String, elevnummer: String, feidenavn: String, systemId: String): Elev
 	elevforhold(systemId: String): Elevforhold
 	fag(systemId: String): Fag
+	fravar(systemId: String): Fravar
 	fullmakt(systemId: String): Fullmakt
 	karakterverdi(systemId: String): Karakterverdi
 	kontaktlarergruppe(systemId: String): Kontaktlarergruppe

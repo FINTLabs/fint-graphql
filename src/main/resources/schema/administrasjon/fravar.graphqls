@@ -1,0 +1,16 @@
+# Built from tag release-3.2
+
+type Fravar {
+	# Attributes
+    periode: Periode!
+    prosent: Long!
+    systemId: Identifikator
+
+
+	# Relations
+    fravarsgrunn: Fravarsgrunn
+    fravarstype: Fravarstype!
+    arbeidsforhold: [Arbeidsforhold]!
+    fortsettelse: Fravar
+    fortsetter: Fravar
+}

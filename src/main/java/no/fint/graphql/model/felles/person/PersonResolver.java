@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag release-3.2
 
 package no.fint.graphql.model.felles.person;
 
@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import no.fint.graphql.model.felles.landkode.LandkodeService;
 import no.fint.graphql.model.felles.kjonn.KjonnService;
+import no.fint.graphql.model.felles.person.PersonService;
 import no.fint.graphql.model.felles.sprak.SprakService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
 import no.fint.graphql.model.felles.kontaktperson.KontaktpersonService;
@@ -17,6 +18,7 @@ import no.fint.model.resource.Link;
 import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
 import no.fint.model.resource.felles.kodeverk.iso.KjonnResource;
+import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.kodeverk.iso.SprakResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.felles.KontaktpersonResource;
@@ -37,6 +39,9 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
 
     @Autowired
     private KjonnService kjonnService;
+
+    @Autowired
+    private PersonService personService;
 
     @Autowired
     private SprakService sprakService;
@@ -67,6 +72,15 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(l -> kjonnService.getKjonnResource(l, dfe))
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
+    }
+
+    public List<PersonResource> getForeldreansvar(PersonResource person, DataFetchingEnvironment dfe) {
+        return person.getForeldreansvar()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personService.getPersonResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public SprakResource getMalform(PersonResource person, DataFetchingEnvironment dfe) {
@@ -101,6 +115,15 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .stream()
                 .map(Link::getHref)
                 .map(l -> kontaktpersonService.getKontaktpersonResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public List<PersonResource> getForeldre(PersonResource person, DataFetchingEnvironment dfe) {
+        return person.getForeldre()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> personService.getPersonResource(l, dfe))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

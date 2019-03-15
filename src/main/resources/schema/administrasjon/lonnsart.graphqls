@@ -1,4 +1,4 @@
-# Built from tag v3.1.0
+# Built from tag release-3.2
 
 type Lonnsart {
 	# Attributes
@@ -9,4 +9,7 @@ type Lonnsart {
     systemId: Identifikator!
     beskrivelse: String!
 
+
+	# Relations
+    art: Art
 }

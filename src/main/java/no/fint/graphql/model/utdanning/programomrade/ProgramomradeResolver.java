@@ -1,4 +1,4 @@
-// Built from tag v3.1.0
+// Built from tag release-3.2
 
 package no.fint.graphql.model.utdanning.programomrade;
 
@@ -6,6 +6,7 @@ import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 
 import no.fint.graphql.model.utdanning.utdanningsprogram.UtdanningsprogramService;
+import no.fint.graphql.model.utdanning.elevforhold.ElevforholdService;
 import no.fint.graphql.model.utdanning.fag.FagService;
 import no.fint.graphql.model.utdanning.arstrinn.ArstrinnService;
 import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
@@ -14,6 +15,7 @@ import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
 import no.fint.model.resource.Link;
 import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.fint.model.resource.utdanning.timeplan.FagResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
 import no.fint.model.resource.utdanning.elev.MedlemskapResource;
@@ -32,6 +34,9 @@ public class ProgramomradeResolver implements GraphQLResolver<ProgramomradeResou
     private UtdanningsprogramService utdanningsprogramService;
 
     @Autowired
+    private ElevforholdService elevforholdService;
+
+    @Autowired
     private FagService fagService;
 
     @Autowired
@@ -48,6 +53,15 @@ public class ProgramomradeResolver implements GraphQLResolver<ProgramomradeResou
                 .map(l -> utdanningsprogramService.getUtdanningsprogramResource(l, dfe))
                 .filter(Objects::nonNull)
                 .findFirst().orElse(null);
+    }
+
+    public List<ElevforholdResource> getElevforhold(ProgramomradeResource programomrade, DataFetchingEnvironment dfe) {
+        return programomrade.getElevforhold()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public List<FagResource> getFag(ProgramomradeResource programomrade, DataFetchingEnvironment dfe) {
