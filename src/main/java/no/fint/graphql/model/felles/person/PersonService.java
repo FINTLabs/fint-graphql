@@ -9,6 +9,9 @@ import no.fint.model.resource.felles.PersonResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 @Service("fellesPersonService")
 public class PersonService {
 
@@ -19,13 +22,16 @@ public class PersonService {
     private Endpoints endpoints;
 
     public PersonResource getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
-        return getPersonResource(
-            endpoints.getFelles() 
-                + "/person/" 
-                + id 
-                + "/" 
-                + value,
-            dfe);
+        return Stream
+                .of(endpoints.getAdministrasjonPersonal(), endpoints.getUtdanningElev(), endpoints.getFelles())
+                .map(e -> e + "/person/"
+                        + id
+                        + "/"
+                        + value)
+                .map(r -> getPersonResource(r, dfe))
+                .filter(Objects::nonNull)
+                .findAny()
+                .orElse(null);
     }
 
     public PersonResource getPersonResource(String url, DataFetchingEnvironment dfe) {
