@@ -1,4 +1,3 @@
-// Built from tag release-3.2
 
 package no.fint.graphql.model.utdanning.kontaktlarergruppe;
 
