@@ -7,7 +7,6 @@ type Lonnsart {
     navn: String!
     passiv: Boolean
     systemId: Identifikator!
-    beskrivelse: String!
 
 
 	# Relations
