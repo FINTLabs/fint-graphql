@@ -24,7 +24,6 @@ type Arbeidsforhold {
     personalleder: Personalressurs
     fastlonn: [Fastlonn]
     fasttillegg: [Fasttillegg]
-    fravar: [Fravar]
     lonn: [String]
     variabellonn: [Variabellonn]
     personalressurs: Personalressurs!

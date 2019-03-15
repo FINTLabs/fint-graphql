@@ -14,7 +14,6 @@ import no.fint.graphql.model.utdanning.kontaktlarergruppe.KontaktlarergruppeServ
 import no.fint.graphql.model.utdanning.programomrade.ProgramomradeService;
 import no.fint.graphql.model.utdanning.undervisningsgruppe.UndervisningsgruppeService;
 import no.fint.graphql.model.utdanning.vurdering.VurderingService;
-import no.fint.graphql.model.utdanning.fravar.FravarService;
 import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
 
 
@@ -29,7 +28,6 @@ import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
 import no.fint.model.resource.utdanning.vurdering.VurderingResource;
-import no.fint.model.resource.utdanning.vurdering.FravarResource;
 import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,9 +66,6 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
 
     @Autowired
     private VurderingService vurderingService;
-
-    @Autowired
-    private FravarService fravarService;
 
     @Autowired
     private MedlemskapService medlemskapService;
@@ -153,15 +148,6 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .stream()
                 .map(Link::getHref)
                 .map(l -> vurderingService.getVurderingResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public List<FravarResource> getFravar(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return elevforhold.getFravar()
-                .stream()
-                .map(Link::getHref)
-                .map(l -> fravarService.getFravarResource(l, dfe))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

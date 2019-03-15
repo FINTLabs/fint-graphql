@@ -15,7 +15,6 @@ import no.fint.graphql.model.administrasjon.organisasjonselement.Organisasjonsel
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
 import no.fint.graphql.model.administrasjon.fastlonn.FastlonnService;
 import no.fint.graphql.model.administrasjon.fasttillegg.FasttilleggService;
-import no.fint.graphql.model.administrasjon.fravar.FravarService;
 import no.fint.graphql.model.administrasjon.variabellonn.VariabellonnService;
 import no.fint.graphql.model.utdanning.undervisningsforhold.UndervisningsforholdService;
 
@@ -32,7 +31,6 @@ import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementRe
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.administrasjon.personal.FastlonnResource;
 import no.fint.model.resource.administrasjon.personal.FasttilleggResource;
-import no.fint.model.resource.administrasjon.personal.FravarResource;
 import no.fint.model.resource.administrasjon.personal.VariabellonnResource;
 import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
 
@@ -75,9 +73,6 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
 
     @Autowired
     private FasttilleggService fasttilleggService;
-
-    @Autowired
-    private FravarService fravarService;
 
     @Autowired
     private VariabellonnService variabellonnService;
@@ -172,15 +167,6 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .stream()
                 .map(Link::getHref)
                 .map(l -> fasttilleggService.getFasttilleggResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public List<FravarResource> getFravar(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getFravar()
-                .stream()
-                .map(Link::getHref)
-                .map(l -> fravarService.getFravarResource(l, dfe))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

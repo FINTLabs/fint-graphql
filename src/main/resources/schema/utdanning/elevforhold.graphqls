@@ -16,6 +16,5 @@ type Elevforhold {
     programomrade: Programomrade
     undervisningsgruppe: [Undervisningsgruppe]
     vurdering: [Vurdering]
-    fravar: [Fravar]
     medlemskap: [Medlemskap]
 }

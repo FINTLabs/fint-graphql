@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
         - name: graphql
-          image: fintlabs.azurecr.io/graphql:build.14
+          image: fintlabs.azurecr.io/graphql:PR-13.1
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -52,13 +52,16 @@ spec:
               path: /graphql/actuator/health
           resources:
             limits:
-              memory: "1.5Gi"
+              memory: "2Gi"
               cpu: "1000m"
+            requests:
+              memory: "1Gi"
+              cpu: "250m"
           env:
             - name: TZ
               value: Europe/Oslo
-            - name: JAVA_OPTS
-              value: -Xmx1G
+            - name: JAVA_TOOL_OPTIONS
+              value: -XX:+ExitOnOutOfMemoryError -verbose:gc -Xmx1G
             - name: server.servlet.context-path
               value: "/graphql"
             - name: graphiql.endpoint.graphql

@@ -10,5 +10,4 @@ type Medlemskap {
     fortlopendeVurdering: [Vurdering]
     gruppe: [String]
     endeligVurdering: Vurdering
-    fravar: [Fravar]
 }
