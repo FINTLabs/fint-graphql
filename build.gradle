@@ -39,7 +39,6 @@ lombokVersion = '1.18.4'
 spockSpringVersion = '1.2-RC3-groovy-2.5'
 
 dependencies {
-    compile('no.fint:fint-model-core:0.1.0')
     compile('no.fint:fint-model-resource:0.3.3')
     compile("no.fint:fint-utdanning-resource-model-java:${apiVersion}")
     compile("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
