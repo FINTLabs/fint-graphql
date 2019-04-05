@@ -8,5 +8,5 @@ type Skoleressurs {
 	# Relations
     personalressurs: Personalressurs!
     undervisningsforhold: [Undervisningsforhold]
-    skole: [Skole]!
+    skole: [Skole]
 }
