@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Kontaktinformasjon {
-	# Attributes
+	#  Attributes
     epostadresse: String
     mobiltelefonnummer: String
     nettsted: String

@@ -1,4 +1,3 @@
-// Built from tag v3.1.0
 
 package no.fint.graphql.model.utdanning.skoleressurs;
 
@@ -54,13 +53,13 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
                 .collect(Collectors.toList());
     }
 
-    public SkoleResource getSkole(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
+    public List<SkoleResource> getSkole(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         return skoleressurs.getSkole()
                 .stream()
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe))
                 .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .collect(Collectors.toList());
     }
 
 }

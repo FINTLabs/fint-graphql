@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Personalressurs {
-	# Attributes
+	#  Attributes
     ansattnummer: Identifikator!
     ansettelsesperiode: Periode!
     ansiennitet: Date

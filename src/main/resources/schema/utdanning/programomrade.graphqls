@@ -1,15 +1,15 @@
-# Built from tag v3.1.0
 
 type Programomrade {
-	# Attributes
-    beskrivelse: String!
-    navn: String!
-    periode: [Periode]!
-    systemId: Identifikator!
 
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
+    systemId: Identifikator! # Gruppe
 
 	# Relations
     utdanningsprogram: Utdanningsprogram!
+    elevforhold: [Elevforhold]
     fag: [Fag]
     trinn: [Arstrinn]
     grepreferanse: [String]

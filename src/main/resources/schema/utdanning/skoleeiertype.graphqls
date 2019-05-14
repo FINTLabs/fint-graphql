@@ -1,11 +1,10 @@
-# Built from tag v3.1.0
 
 type Skoleeiertype {
-	# Attributes
-    gyldighetsperiode: Periode
-    kode: String!
-    navn: String!
-    passiv: Boolean
-    systemId: Identifikator!
 
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Begrep
+    kode: String! # Begrep
+    navn: String! # Begrep
+    passiv: Boolean # Begrep
+    systemId: Identifikator! # Begrep
 }

@@ -1,18 +1,18 @@
-# Built from tag v3.1.0
 
 type Skole {
-	# Attributes
-    forretningsadresse: Adresse
-    organisasjonsnavn: String
-    organisasjonsnummer: Identifikator
+	#  Attributes
     domenenavn: String
     juridiskNavn: String
     navn: String!
     skolenummer: Identifikator!
     systemId: Identifikator!
-    kontaktinformasjon: Kontaktinformasjon
-    postadresse: Adresse
 
+	# Inherited Attributes
+    forretningsadresse: Adresse # Enhet
+    organisasjonsnavn: String # Enhet
+    organisasjonsnummer: Identifikator # Enhet
+    kontaktinformasjon: Kontaktinformasjon # Aktor
+    postadresse: Adresse # Aktor
 
 	# Relations
     organisasjon: Organisasjonselement

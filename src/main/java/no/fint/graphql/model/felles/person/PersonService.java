@@ -1,4 +1,3 @@
-// Built from tag v3.1.0
 
 package no.fint.graphql.model.felles.person;
 
@@ -8,6 +7,9 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.PersonResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service("fellesPersonService")
 public class PersonService {
@@ -19,25 +21,16 @@ public class PersonService {
     private Endpoints endpoints;
 
     public PersonResource getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
-        PersonResource personResource = getPersonResource(
-                endpoints.getUtdanningElev()
-                        + "/person/"
+        return Stream
+                .of(endpoints.getAdministrasjonPersonal(), endpoints.getUtdanningElev(), endpoints.getFelles())
+                .map(e -> e + "/person/"
                         + id
                         + "/"
-                        + value,
-                dfe);
-        if (personResource == null) {
-            personResource = getPersonResource(
-                    endpoints.getAdministrasjonPersonal()
-                            + "/person/"
-                            + id
-                            + "/"
-                            + value,
-                    dfe);
-        }
-
-        return personResource;
-
+                        + value)
+                .map(r -> getPersonResource(r, dfe))
+                .filter(Objects::nonNull)
+                .findAny()
+                .orElse(null);
     }
 
     public PersonResource getPersonResource(String url, DataFetchingEnvironment dfe) {

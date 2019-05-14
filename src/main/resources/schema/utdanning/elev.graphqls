@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Elev {
-	# Attributes
+	#  Attributes
     brukernavn: Identifikator
     elevnummer: Identifikator
     feidenavn: Identifikator

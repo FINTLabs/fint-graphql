@@ -1,12 +1,11 @@
-# Built from tag v3.1.0
 
 type Basisgruppe {
-	# Attributes
-    beskrivelse: String!
-    navn: String!
-    periode: [Periode]!
-    systemId: Identifikator!
 
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
+    systemId: Identifikator! # Gruppe
 
 	# Relations
     trinn: Arstrinn!

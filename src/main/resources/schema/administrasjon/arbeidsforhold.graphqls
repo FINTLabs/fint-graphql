@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Arbeidsforhold {
-	# Attributes
+	#  Attributes
     ansettelsesprosent: Long!
     gyldighetsperiode: Periode!
     hovedstilling: Boolean!
@@ -16,12 +15,16 @@ type Arbeidsforhold {
 	# Relations
     ansvar: Ansvar
     arbeidsforholdstype: Arbeidsforholdstype
+    art: Art
     funksjon: Funksjon
     stillingskode: Stillingskode
     timerPerUke: Uketimetall
     arbeidssted: Organisasjonselement!
     personalleder: Personalressurs
+    fastlonn: [Fastlonn]
+    fasttillegg: [Fasttillegg]
     lonn: [String]
+    variabellonn: [Variabellonn]
     personalressurs: Personalressurs!
     undervisningsforhold: Undervisningsforhold
 }

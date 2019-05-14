@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Vurdering {
-	# Attributes
+	#  Attributes
     endelig: Boolean!
     kommentar: String!
     systemId: Identifikator!

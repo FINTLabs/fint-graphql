@@ -1,3 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\Users\noasgnil\go\bin\kompose.exe convert -f docker-stack.yml
+    kompose.version: 1.16.0 (HEAD)
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  labels:
+    io.kompose.service: graphql
+  name: graphql
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+  type: LoadBalancer
+  selector:
+    io.kompose.service: graphql
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,7 +41,7 @@ spec:
     spec:
       containers:
         - name: graphql
-          image: fintlabs.azurecr.io/graphql:build.13
+          image: fintlabs.azurecr.io/graphql:PR-13.1
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -34,13 +52,16 @@ spec:
               path: /graphql/actuator/health
           resources:
             limits:
-              memory: "1.5Gi"
+              memory: "2Gi"
               cpu: "1000m"
+            requests:
+              memory: "1Gi"
+              cpu: "250m"
           env:
             - name: TZ
               value: Europe/Oslo
-            - name: JAVA_OPTS
-              value: -Xmx1G
+            - name: JAVA_TOOL_OPTIONS
+              value: -XX:+ExitOnOutOfMemoryError -verbose:gc -Xmx1G
             - name: server.servlet.context-path
               value: "/graphql"
             - name: graphiql.endpoint.graphql

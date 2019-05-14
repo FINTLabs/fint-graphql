@@ -1,3 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.version: 1.16.0 (HEAD)
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  labels:
+    io.kompose.service: graphql-beta
+  name: graphql-beta
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+  type: LoadBalancer
+  selector:
+    io.kompose.service: graphql-beta
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,7 +40,7 @@ spec:
     spec:
       containers:
         - name: graphql-beta
-          image: fintlabs.azurecr.io/graphql:build.13
+          image: fintlabs.azurecr.io/graphql:build.14
           ports:
             - containerPort: 8080
           readinessProbe:

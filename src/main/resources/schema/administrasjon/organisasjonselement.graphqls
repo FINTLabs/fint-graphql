@@ -1,18 +1,18 @@
-# Built from tag v3.1.0
 
 type Organisasjonselement {
-	# Attributes
-    forretningsadresse: Adresse
-    organisasjonsnavn: String
-    organisasjonsnummer: Identifikator
+	#  Attributes
     gyldighetsperiode: Periode
     kortnavn: String
     navn: String
     organisasjonsId: Identifikator!
     organisasjonsKode: Identifikator!
-    kontaktinformasjon: Kontaktinformasjon
-    postadresse: Adresse
 
+	# Inherited Attributes
+    forretningsadresse: Adresse # Enhet
+    organisasjonsnavn: String # Enhet
+    organisasjonsnummer: Identifikator # Enhet
+    kontaktinformasjon: Kontaktinformasjon # Aktor
+    postadresse: Adresse # Aktor
 
 	# Relations
     ansvar: [Ansvar]

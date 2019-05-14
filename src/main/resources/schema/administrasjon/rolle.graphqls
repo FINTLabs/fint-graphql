@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Rolle {
-	# Attributes
+	#  Attributes
     beskrivelse: String!
     navn: Identifikator!
 

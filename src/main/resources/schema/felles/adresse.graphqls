@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Adresse {
-	# Attributes
+	#  Attributes
     adresselinje: [String]!
     postnummer: String
     poststed: String

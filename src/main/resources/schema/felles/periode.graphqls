@@ -1,7 +1,6 @@
-# Built from tag v3.1.0
 
 type Periode {
-	# Attributes
+	#  Attributes
     beskrivelse: String
     slutt: Date
     start: Date!

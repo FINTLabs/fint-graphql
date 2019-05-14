@@ -1,22 +1,22 @@
-# Built from tag v3.1.0
 
 type Fastlonn {
-	# Attributes
-    anvist: Date
-    attestert: Date
-    beskrivelse: String!
-    kontert: Date
-    kontostreng: Kontostreng!
-    opptjent: Periode
-    periode: Periode!
-    systemId: Identifikator
+	#  Attributes
     prosent: Long!
 
+	# Inherited Attributes
+    anvist: Date # Lonn
+    attestert: Date # Lonn
+    beskrivelse: String! # Lonn
+    kontert: Date # Lonn
+    kontostreng: Kontostreng! # Lonn
+    opptjent: Periode # Lonn
+    periode: Periode! # Lonn
+    systemId: Identifikator # Lonn
 
 	# Relations
     lonnsart: Lonnsart
+    arbeidsforhold: Arbeidsforhold!
     anviser: Personalressurs
     konterer: Personalressurs
     attestant: Personalressurs
-    arbeidsforhold: Arbeidsforhold!
 }

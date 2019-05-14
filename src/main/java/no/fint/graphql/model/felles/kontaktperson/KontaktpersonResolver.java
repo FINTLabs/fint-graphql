@@ -1,4 +1,3 @@
-// Built from tag v3.1.0
 
 package no.fint.graphql.model.felles.kontaktperson;
 
@@ -26,13 +25,13 @@ public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResou
     private PersonService personService;
 
 
-    public PersonResource getKontaktperson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
+    public List<PersonResource> getKontaktperson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
         return kontaktperson.getKontaktperson()
                 .stream()
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe))
                 .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .collect(Collectors.toList());
     }
 
     public PersonResource getPerson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
