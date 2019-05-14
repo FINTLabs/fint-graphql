@@ -35,7 +35,7 @@ public class ApplicationConfig {
 
     @PostConstruct
     public void init() throws IOException {
-        Path path = Paths.get("build.properties");
+        Path path = Paths.get("/data/build.properties");
         if (Files.exists(path)) {
             Properties properties = new Properties();
             properties.load(Files.newInputStream(path));
