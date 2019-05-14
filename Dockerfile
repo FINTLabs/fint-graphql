@@ -8,4 +8,5 @@ ENV JAVA_TOOL_OPTIONS -XX:+ExitOnOutOfMemoryError
 COPY --from=builder /home/gradle/build/deps/external/*.jar /data/
 COPY --from=builder /home/gradle/build/deps/fint/*.jar /data/
 COPY --from=builder /home/gradle/build/libs/fint-graphql-*.jar /data/fint-graphql.jar
+COPY --from=builder /home/gradle/build/build.properties /data/
 CMD ["/data/fint-graphql.jar"]

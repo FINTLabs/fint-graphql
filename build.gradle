@@ -74,8 +74,21 @@ task copyFintDependencies(type: Copy) {
     include '**/fint-*.jar'
 }
 
+task buildProperties(type: WriteProperties) {
+    properties = [
+            version: version,
+            apiVersion: apiVersion,
+            git_commit: "${System.env.GIT_COMMIT}",
+            build_number: "${System.env.BUILD_NUMBER}",
+            branch_name: "${System.env.BRANCH_NAME}",
+            tag_name: "${System.env.TAG_NAME}"
+    ]
+    outputFile = file("$buildDir/build.properties")
+}
+
 build.dependsOn(copyExternalDependencies)
 build.dependsOn(copyFintDependencies)
+build.dependsOn(buildProperties)
 
 jar {
     enabled = true
