@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
         - name: graphql-beta
-          image: fintlabs.azurecr.io/graphql:build.14
+          image: fintlabs.azurecr.io/graphql:build.17
           ports:
             - containerPort: 8080
           readinessProbe:

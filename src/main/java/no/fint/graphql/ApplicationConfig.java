@@ -10,13 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Properties;
-
 @Configuration
 @Slf4j
 public class ApplicationConfig {
@@ -33,13 +26,4 @@ public class ApplicationConfig {
                 .build();
     }
 
-    @PostConstruct
-    public void init() throws IOException {
-        Path path = Paths.get("/data/build.properties");
-        if (Files.exists(path)) {
-            Properties properties = new Properties();
-            properties.load(Files.newInputStream(path));
-            properties.forEach((k, v) -> log.info("{}: {}", k, v));
-        }
-    }
 }
