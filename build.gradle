@@ -55,13 +55,13 @@ dependencies {
 
 
 task copyExternalDependencies(type: Copy) {
-    from configurations.runtime
+    from configurations.runtimeClasspath
     into "$buildDir/deps/external"
     exclude '**/fint-*.jar'
 }
 
 task copyFintDependencies(type: Copy) {
-    from configurations.runtime
+    from configurations.runtimeClasspath
     into "$buildDir/deps/fint"
     include '**/fint-*.jar'
 }
@@ -77,7 +77,7 @@ jar {
                 "Main-Class": "no.fint.graphql.Application",
                 "Specification-Version": "${apiVersion}",
                 "Implementation-Version": "${version}",
-                "Class-Path": configurations.runtime.collect { it.getName() }.join(' ')
+                "Class-Path": configurations.runtimeClasspath.collect { it.getName() }.join(' ')
         )
     }
 }
