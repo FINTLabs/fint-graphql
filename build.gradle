@@ -1,7 +1,4 @@
 buildscript {
-    ext {
-        springBootVersion = '2.1.2.RELEASE'
-    }
     repositories {
         jcenter()
     }
@@ -11,7 +8,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.ben-manes.versions' version '0.20.0'
+    id 'com.github.ben-manes.versions' version '0.24.0'
 }
 
 apply plugin: 'java'
@@ -31,22 +28,15 @@ repositories {
     }
 }
 
-
-apply from: 'https://raw.githubusercontent.com/FINTlibs/fint-buildscripts/master/dependencies.gradle'
-
-cglibVersion = '3.2.10'
-lombokVersion = '1.18.4'
-spockSpringVersion = '1.2-RC3-groovy-2.5'
-
 dependencies {
     compile('no.fint:fint-model-resource:0.3.3')
     compile("no.fint:fint-utdanning-resource-model-java:${apiVersion}")
     compile("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
 
-    compile('com.graphql-java-kickstart:graphql-spring-boot-starter:5.4')
-    compile('com.graphql-java-kickstart:graphiql-spring-boot-starter:5.4')
-    compile('com.graphql-java-kickstart:graphql-java-tools:5.4.1')
-    compile('com.zhokhov.graphql:graphql-datetime-spring-boot-starter:1.4.0')
+    compile("com.graphql-java-kickstart:graphql-spring-boot-starter:${graphqlSpringBoot}")
+    compile("com.graphql-java-kickstart:graphiql-spring-boot-starter:${graphqlSpringBoot}")
+    compile('com.graphql-java-kickstart:graphql-java-tools:5.6.1')
+    compile('com.zhokhov.graphql:graphql-datetime-spring-boot-starter:1.5.1')
 
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter')
@@ -58,7 +48,7 @@ dependencies {
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
     testCompile("org.spockframework:spock-core:${spockSpringVersion}")
     testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('com.squareup.okhttp3:mockwebserver:3.12.1')
+    testCompile('com.squareup.okhttp3:mockwebserver:4.1.0')
 }
 
 

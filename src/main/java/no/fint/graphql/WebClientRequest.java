@@ -1,7 +1,7 @@
 package no.fint.graphql;
 
 import graphql.schema.DataFetchingEnvironment;
-import graphql.servlet.GraphQLContext;
+import graphql.servlet.context.GraphQLServletContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -44,11 +44,10 @@ public class WebClientRequest {
     }
 
     private String getToken(DataFetchingEnvironment dfe) {
-        Object context = dfe.getExecutionContext().getContext();
-        if (context instanceof GraphQLContext) {
-            return ((GraphQLContext) context).getHttpServletRequest()
-                    .map(r -> r.getHeader(HttpHeaders.AUTHORIZATION))
-                    .orElse(null);
+        Object context = dfe.getContext();
+        if (context instanceof GraphQLServletContext) {
+            return ((GraphQLServletContext) context).getHttpServletRequest()
+                    .getHeader(HttpHeaders.AUTHORIZATION);
         }
 
         return null;
