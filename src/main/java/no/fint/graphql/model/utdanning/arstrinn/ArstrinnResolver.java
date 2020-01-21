@@ -17,10 +17,11 @@ import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningArstrinnResolver")
 public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
@@ -35,31 +36,34 @@ public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
     private MedlemskapService medlemskapService;
 
 
-    public List<ProgramomradeResource> getProgramomrade(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
-        return arstrinn.getProgramomrade()
+    public CompletionStage<List<ProgramomradeResource>> getProgramomrade(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arstrinn.getProgramomrade()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> programomradeService.getProgramomradeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> programomradeService.getProgramomradeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<BasisgruppeResource> getBasisgruppe(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
-        return arstrinn.getBasisgruppe()
+    public CompletionStage<List<BasisgruppeResource>> getBasisgruppe(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arstrinn.getBasisgruppe()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> basisgruppeService.getBasisgruppeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> basisgruppeService.getBasisgruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<MedlemskapResource> getMedlemskap(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
-        return arstrinn.getMedlemskap()
+    public CompletionStage<List<MedlemskapResource>> getMedlemskap(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arstrinn.getMedlemskap()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> medlemskapService.getMedlemskapResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

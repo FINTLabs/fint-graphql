@@ -17,7 +17,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
 @Component("fellesKontaktpersonResolver")
@@ -33,7 +32,6 @@ public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResou
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .filter(Objects::nonNull)
                 .collectList()
                 .toFuture();
     }
@@ -44,7 +42,6 @@ public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResou
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .filter(Objects::nonNull)
                 .singleOrEmpty()
                 .toFuture();
     }

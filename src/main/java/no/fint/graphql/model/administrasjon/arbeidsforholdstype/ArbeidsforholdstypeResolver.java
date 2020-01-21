@@ -13,10 +13,11 @@ import no.fint.model.resource.administrasjon.kodeverk.ArbeidsforholdstypeResourc
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonArbeidsforholdstypeResolver")
 public class ArbeidsforholdstypeResolver implements GraphQLResolver<ArbeidsforholdstypeResource> {
@@ -25,13 +26,14 @@ public class ArbeidsforholdstypeResolver implements GraphQLResolver<Arbeidsforho
     private ArbeidsforholdstypeService arbeidsforholdstypeService;
 
 
-    public ArbeidsforholdstypeResource getForelder(ArbeidsforholdstypeResource arbeidsforholdstype, DataFetchingEnvironment dfe) {
-        return arbeidsforholdstype.getForelder()
+    public CompletionStage<ArbeidsforholdstypeResource> getForelder(ArbeidsforholdstypeResource arbeidsforholdstype, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforholdstype.getForelder()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

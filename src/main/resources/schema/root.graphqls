@@ -10,8 +10,6 @@ type Query {
 	elev(brukernavn: String, elevnummer: String, feidenavn: String, systemId: String): Elev
 	elevforhold(systemId: String): Elevforhold
 	fag(systemId: String): Fag
-	fastlonn(systemId: String): Fastlonn
-	fasttillegg(systemId: String): Fasttillegg
 	fullmakt(systemId: String): Fullmakt
 	karakterverdi(systemId: String): Karakterverdi
 	kontaktlarergruppe(systemId: String): Kontaktlarergruppe
@@ -29,6 +27,5 @@ type Query {
 	undervisningsforhold(systemId: String): Undervisningsforhold
 	undervisningsgruppe(systemId: String): Undervisningsgruppe
 	utdanningsprogram(systemId: String): Utdanningsprogram
-	variabellonn(systemId: String): Variabellonn
 	vurdering(systemId: String): Vurdering
 }

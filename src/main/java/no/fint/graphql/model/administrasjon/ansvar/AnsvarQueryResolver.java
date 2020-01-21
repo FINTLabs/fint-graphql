@@ -7,6 +7,9 @@ import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonAnsvarQueryResolver")
 public class AnsvarQueryResolver implements GraphQLQueryResolver {
@@ -14,12 +17,12 @@ public class AnsvarQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AnsvarService service;
 
-    public AnsvarResource getAnsvar(
+    public CompletionStage<AnsvarResource> getAnsvar(
             String systemId,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getAnsvarResourceById("systemid", systemId, dfe);
+            return service.getAnsvarResourceById("systemid", systemId, dfe).toFuture();
         }
-        return null;
+        return Mono.<AnsvarResource>empty().toFuture();
     }
 }

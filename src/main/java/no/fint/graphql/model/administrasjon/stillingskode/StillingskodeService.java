@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.kodeverk.StillingskodeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonStillingskodeService")
 public class StillingskodeService {
@@ -17,7 +18,7 @@ public class StillingskodeService {
     @Autowired
     private Endpoints endpoints;
 
-    public StillingskodeResource getStillingskodeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<StillingskodeResource> getStillingskodeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getStillingskodeResource(
             endpoints.getAdministrasjonKodeverk() 
                 + "/stillingskode/" 
@@ -27,7 +28,7 @@ public class StillingskodeService {
             dfe);
     }
 
-    public StillingskodeResource getStillingskodeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<StillingskodeResource> getStillingskodeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, StillingskodeResource.class, dfe);
     }
 }

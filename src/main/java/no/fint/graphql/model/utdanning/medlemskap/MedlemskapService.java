@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningMedlemskapService")
 public class MedlemskapService {
@@ -17,7 +18,7 @@ public class MedlemskapService {
     @Autowired
     private Endpoints endpoints;
 
-    public MedlemskapResource getMedlemskapResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<MedlemskapResource> getMedlemskapResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getMedlemskapResource(
             endpoints.getUtdanningElev() 
                 + "/medlemskap/" 
@@ -27,7 +28,7 @@ public class MedlemskapService {
             dfe);
     }
 
-    public MedlemskapResource getMedlemskapResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<MedlemskapResource> getMedlemskapResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, MedlemskapResource.class, dfe);
     }
 }

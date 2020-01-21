@@ -7,6 +7,9 @@ import no.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriRes
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonPersonalressurskategoriQueryResolver")
 public class PersonalressurskategoriQueryResolver implements GraphQLQueryResolver {
@@ -14,12 +17,12 @@ public class PersonalressurskategoriQueryResolver implements GraphQLQueryResolve
     @Autowired
     private PersonalressurskategoriService service;
 
-    public PersonalressurskategoriResource getPersonalressurskategori(
+    public CompletionStage<PersonalressurskategoriResource> getPersonalressurskategori(
             String systemId,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getPersonalressurskategoriResourceById("systemid", systemId, dfe);
+            return service.getPersonalressurskategoriResourceById("systemid", systemId, dfe).toFuture();
         }
-        return null;
+        return Mono.<PersonalressurskategoriResource>empty().toFuture();
     }
 }

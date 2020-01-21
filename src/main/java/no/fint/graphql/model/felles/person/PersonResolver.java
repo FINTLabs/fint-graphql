@@ -6,6 +6,7 @@ import graphql.schema.DataFetchingEnvironment;
 
 import no.fint.graphql.model.felles.landkode.LandkodeService;
 import no.fint.graphql.model.felles.kjonn.KjonnService;
+import no.fint.graphql.model.felles.person.PersonService;
 import no.fint.graphql.model.felles.sprak.SprakService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
 import no.fint.graphql.model.felles.kontaktperson.KontaktpersonService;
@@ -16,6 +17,7 @@ import no.fint.model.resource.Link;
 import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
 import no.fint.model.resource.felles.kodeverk.iso.KjonnResource;
+import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.kodeverk.iso.SprakResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.felles.KontaktpersonResource;
@@ -27,9 +29,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @Component("fellesPersonResolver")
 public class PersonResolver implements GraphQLResolver<PersonResource> {
@@ -56,13 +56,14 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
     private ElevService elevService;
 
 
-    public List<LandkodeResource> getStatsborgerskap(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getStatsborgerskap()
+    public CompletionStage<List<LandkodeResource>> getStatsborgerskap(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getStatsborgerskap()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> landkodeService.getLandkodeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> landkodeService.getLandkodeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
     public CompletionStage<KjonnResource> getKjonn(PersonResource person, DataFetchingEnvironment dfe) {
@@ -71,7 +72,6 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> kjonnService.getKjonnResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .filter(Objects::nonNull)
                 .singleOrEmpty()
                 .toFuture();
     }
@@ -82,45 +82,48 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .filter(Objects::nonNull)
                 .collectList()
                 .toFuture();
     }
 
-    public SprakResource getMalform(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getMalform()
+    public CompletionStage<SprakResource> getMalform(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getMalform()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> sprakService.getSprakResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> sprakService.getSprakResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getPersonalressurs(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getPersonalressurs()
+    public CompletionStage<PersonalressursResource> getPersonalressurs(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getPersonalressurs()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public SprakResource getMorsmal(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getMorsmal()
+    public CompletionStage<SprakResource> getMorsmal(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getMorsmal()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> sprakService.getSprakResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> sprakService.getSprakResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public List<KontaktpersonResource> getParorende(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getParorende()
+    public CompletionStage<List<KontaktpersonResource>> getParorende(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getParorende()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> kontaktpersonService.getKontaktpersonResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> kontaktpersonService.getKontaktpersonResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
     public CompletionStage<List<PersonResource>> getForeldre(PersonResource person, DataFetchingEnvironment dfe) {
@@ -129,7 +132,6 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .filter(Objects::nonNull)
                 .collectList()
                 .toFuture();
     }
@@ -140,7 +142,6 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> elevService.getElevResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .filter(Objects::nonNull)
                 .singleOrEmpty()
                 .toFuture();
     }

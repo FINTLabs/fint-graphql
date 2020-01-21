@@ -21,9 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @Component("utdanningUtdanningsprogramResolver")
 public class UtdanningsprogramResolver implements GraphQLResolver<UtdanningsprogramResource> {
@@ -48,22 +46,24 @@ public class UtdanningsprogramResolver implements GraphQLResolver<Utdanningsprog
                 .toFuture();
     }
 
-    public List<ProgramomradeResource> getProgramomrade(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
-        return utdanningsprogram.getProgramomrade()
+    public CompletionStage<List<ProgramomradeResource>> getProgramomrade(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(utdanningsprogram.getProgramomrade()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> programomradeService.getProgramomradeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> programomradeService.getProgramomradeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<MedlemskapResource> getMedlemskap(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
-        return utdanningsprogram.getMedlemskap()
+    public CompletionStage<List<MedlemskapResource>> getMedlemskap(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(utdanningsprogram.getMedlemskap()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> medlemskapService.getMedlemskapResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

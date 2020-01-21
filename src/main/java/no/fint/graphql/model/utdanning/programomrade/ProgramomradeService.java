@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningProgramomradeService")
 public class ProgramomradeService {
@@ -17,7 +18,7 @@ public class ProgramomradeService {
     @Autowired
     private Endpoints endpoints;
 
-    public ProgramomradeResource getProgramomradeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<ProgramomradeResource> getProgramomradeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getProgramomradeResource(
             endpoints.getUtdanningUtdanningsprogram() 
                 + "/programomrade/" 
@@ -27,7 +28,7 @@ public class ProgramomradeService {
             dfe);
     }
 
-    public ProgramomradeResource getProgramomradeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<ProgramomradeResource> getProgramomradeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, ProgramomradeResource.class, dfe);
     }
 }

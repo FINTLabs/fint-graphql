@@ -13,10 +13,11 @@ import no.fint.model.resource.administrasjon.kodeverk.StillingskodeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonStillingskodeResolver")
 public class StillingskodeResolver implements GraphQLResolver<StillingskodeResource> {
@@ -25,13 +26,14 @@ public class StillingskodeResolver implements GraphQLResolver<StillingskodeResou
     private StillingskodeService stillingskodeService;
 
 
-    public StillingskodeResource getForelder(StillingskodeResource stillingskode, DataFetchingEnvironment dfe) {
-        return stillingskode.getForelder()
+    public CompletionStage<StillingskodeResource> getForelder(StillingskodeResource stillingskode, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(stillingskode.getForelder()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> stillingskodeService.getStillingskodeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> stillingskodeService.getStillingskodeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

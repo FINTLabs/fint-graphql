@@ -13,10 +13,11 @@ import no.fint.model.resource.felles.kodeverk.FylkeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("fellesKommuneResolver")
 public class KommuneResolver implements GraphQLResolver<KommuneResource> {
@@ -25,13 +26,14 @@ public class KommuneResolver implements GraphQLResolver<KommuneResource> {
     private FylkeService fylkeService;
 
 
-    public FylkeResource getFylke(KommuneResource kommune, DataFetchingEnvironment dfe) {
-        return kommune.getFylke()
+    public CompletionStage<FylkeResource> getFylke(KommuneResource kommune, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(kommune.getFylke()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> fylkeService.getFylkeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> fylkeService.getFylkeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

@@ -8,6 +8,7 @@ type Variabellonn {
     anvist: Date # Lonn
     attestert: Date # Lonn
     beskrivelse: String! # Lonn
+    kildesystemId: Identifikator # Lonn
     kontert: Date # Lonn
     kontostreng: Kontostreng! # Lonn
     opptjent: Periode # Lonn

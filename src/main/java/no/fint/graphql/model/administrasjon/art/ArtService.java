@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.kodeverk.ArtResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonArtService")
 public class ArtService {
@@ -17,7 +18,7 @@ public class ArtService {
     @Autowired
     private Endpoints endpoints;
 
-    public ArtResource getArtResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<ArtResource> getArtResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getArtResource(
             endpoints.getAdministrasjonKodeverk() 
                 + "/art/" 
@@ -27,7 +28,7 @@ public class ArtService {
             dfe);
     }
 
-    public ArtResource getArtResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<ArtResource> getArtResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, ArtResource.class, dfe);
     }
 }

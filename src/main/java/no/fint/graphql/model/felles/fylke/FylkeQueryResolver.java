@@ -7,6 +7,9 @@ import no.fint.model.resource.felles.kodeverk.FylkeResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.CompletionStage;
 
 @Component("fellesFylkeQueryResolver")
 public class FylkeQueryResolver implements GraphQLQueryResolver {
@@ -14,12 +17,12 @@ public class FylkeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FylkeService service;
 
-    public FylkeResource getFylke(
+    public CompletionStage<FylkeResource> getFylke(
             String systemId,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getFylkeResourceById("systemid", systemId, dfe);
+            return service.getFylkeResourceById("systemid", systemId, dfe).toFuture();
         }
-        return null;
+        return Mono.<FylkeResource>empty().toFuture();
     }
 }

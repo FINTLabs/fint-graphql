@@ -29,7 +29,7 @@ public class ElevService {
     }
 
     public Mono<ElevResource> getElevResource(String url, DataFetchingEnvironment dfe) {
-        return webClientRequest.getMono(url, ElevResource.class, dfe);
+        return webClientRequest.get(url, ElevResource.class, dfe);
     }
 }
 

@@ -8,12 +8,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
 import java.time.Duration;
-import java.util.function.Function;
 
 @Slf4j
 @Component
@@ -22,15 +19,7 @@ public class WebClientRequest {
     @Autowired
     private WebClient webClient;
 
-    public <T> T get(Function<UriBuilder, URI> uri, Class<T> type, DataFetchingEnvironment dfe) {
-        return get(webClient.get().uri(uri), type, dfe).block();
-    }
-
-    public <T> T get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        return get(webClient.get().uri(uri), type, dfe).block();
-    }
-
-    public <T> Mono<T> getMono(String uri, Class<T> type, DataFetchingEnvironment dfe) {
+    public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
         return get(webClient.get().uri(uri), type, dfe);
     }
 

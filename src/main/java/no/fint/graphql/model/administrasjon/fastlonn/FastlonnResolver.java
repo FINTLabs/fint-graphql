@@ -17,10 +17,11 @@ import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonFastlonnResolver")
 public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
@@ -35,49 +36,54 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
     private PersonalressursService personalressursService;
 
 
-    public LonnsartResource getLonnsart(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
-        return fastlonn.getLonnsart()
+    public CompletionStage<LonnsartResource> getLonnsart(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fastlonn.getLonnsart()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> lonnsartService.getLonnsartResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> lonnsartService.getLonnsartResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
-        return fastlonn.getArbeidsforhold()
+    public CompletionStage<ArbeidsforholdResource> getArbeidsforhold(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fastlonn.getArbeidsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getAnviser(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
-        return fastlonn.getAnviser()
+    public CompletionStage<PersonalressursResource> getAnviser(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fastlonn.getAnviser()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getKonterer(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
-        return fastlonn.getKonterer()
+    public CompletionStage<PersonalressursResource> getKonterer(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fastlonn.getKonterer()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getAttestant(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
-        return fastlonn.getAttestant()
+    public CompletionStage<PersonalressursResource> getAttestant(FastlonnResource fastlonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fastlonn.getAttestant()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

@@ -13,10 +13,11 @@ import no.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonArtResolver")
 public class ArtResolver implements GraphQLResolver<ArtResource> {
@@ -25,13 +26,14 @@ public class ArtResolver implements GraphQLResolver<ArtResource> {
     private FullmaktService fullmaktService;
 
 
-    public List<FullmaktResource> getFullmakt(ArtResource art, DataFetchingEnvironment dfe) {
-        return art.getFullmakt()
+    public CompletionStage<List<FullmaktResource>> getFullmakt(ArtResource art, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(art.getFullmakt()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> fullmaktService.getFullmaktResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> fullmaktService.getFullmaktResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

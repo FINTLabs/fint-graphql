@@ -13,10 +13,11 @@ import no.fint.model.resource.utdanning.vurdering.VurderingResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningMedlemskapResolver")
 public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
@@ -25,22 +26,24 @@ public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
     private VurderingService vurderingService;
 
 
-    public List<VurderingResource> getFortlopendeVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
-        return medlemskap.getFortlopendeVurdering()
+    public CompletionStage<List<VurderingResource>> getFortlopendeVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(medlemskap.getFortlopendeVurdering()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> vurderingService.getVurderingResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> vurderingService.getVurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public VurderingResource getEndeligVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
-        return medlemskap.getEndeligVurdering()
+    public CompletionStage<VurderingResource> getEndeligVurdering(MedlemskapResource medlemskap, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(medlemskap.getEndeligVurdering()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> vurderingService.getVurderingResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> vurderingService.getVurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

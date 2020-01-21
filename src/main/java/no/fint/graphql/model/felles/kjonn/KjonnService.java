@@ -29,7 +29,7 @@ public class KjonnService {
     }
 
     public Mono<KjonnResource> getKjonnResource(String url, DataFetchingEnvironment dfe) {
-        return webClientRequest.getMono(url, KjonnResource.class, dfe).cache();
+        return webClientRequest.get(url, KjonnResource.class, dfe);
     }
 }
 

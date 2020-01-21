@@ -24,7 +24,7 @@ class WebClientRequestSpec extends Specification {
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
-        def response = webClientRequest.get(url, String, dfe)
+        def response = webClientRequest.get(url, String, dfe).block()
         def request = server.takeRequest()
 
         then:
@@ -38,7 +38,7 @@ class WebClientRequestSpec extends Specification {
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
-        def response = webClientRequest.get(url, String, dfe)
+        def response = webClientRequest.get(url, String, dfe).block()
         def request = server.takeRequest()
 
         then:

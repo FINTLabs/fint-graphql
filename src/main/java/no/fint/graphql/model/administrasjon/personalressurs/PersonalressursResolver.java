@@ -27,9 +27,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @Component("administrasjonPersonalressursResolver")
 public class PersonalressursResolver implements GraphQLResolver<PersonalressursResource> {
@@ -53,22 +51,24 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
     private SkoleressursService skoleressursService;
 
 
-    public PersonalressurskategoriResource getPersonalressurskategori(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getPersonalressurskategori()
+    public CompletionStage<PersonalressurskategoriResource> getPersonalressurskategori(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getPersonalressurskategori()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressurskategoriService.getPersonalressurskategoriResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressurskategoriService.getPersonalressurskategoriResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public List<ArbeidsforholdResource> getArbeidsforhold(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getArbeidsforhold()
+    public CompletionStage<List<ArbeidsforholdResource>> getArbeidsforhold(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getArbeidsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
     public CompletionStage<PersonResource> getPerson(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
@@ -77,54 +77,58 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .filter(Objects::nonNull)
                 .singleOrEmpty()
                 .toFuture();
     }
 
-    public List<FullmaktResource> getStedfortreder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getStedfortreder()
+    public CompletionStage<List<FullmaktResource>> getStedfortreder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getStedfortreder()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> fullmaktService.getFullmaktResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> fullmaktService.getFullmaktResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<FullmaktResource> getFullmakt(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getFullmakt()
+    public CompletionStage<List<FullmaktResource>> getFullmakt(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getFullmakt()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> fullmaktService.getFullmaktResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> fullmaktService.getFullmaktResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<OrganisasjonselementResource> getLeder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getLeder()
+    public CompletionStage<List<OrganisasjonselementResource>> getLeder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getLeder()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<ArbeidsforholdResource> getPersonalansvar(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getPersonalansvar()
+    public CompletionStage<List<ArbeidsforholdResource>> getPersonalansvar(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getPersonalansvar()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public SkoleressursResource getSkoleressurs(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getSkoleressurs()
+    public CompletionStage<SkoleressursResource> getSkoleressurs(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getSkoleressurs()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleressursService.getSkoleressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> skoleressursService.getSkoleressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

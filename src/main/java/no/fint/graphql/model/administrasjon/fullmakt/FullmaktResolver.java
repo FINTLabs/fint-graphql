@@ -15,10 +15,11 @@ import no.fint.model.resource.administrasjon.fullmakt.RolleResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonFullmaktResolver")
 public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
@@ -30,31 +31,34 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
     private RolleService rolleService;
 
 
-    public PersonalressursResource getStedfortreder(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
-        return fullmakt.getStedfortreder()
+    public CompletionStage<PersonalressursResource> getStedfortreder(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fullmakt.getStedfortreder()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getFullmektig(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
-        return fullmakt.getFullmektig()
+    public CompletionStage<PersonalressursResource> getFullmektig(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fullmakt.getFullmektig()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public RolleResource getRolle(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
-        return fullmakt.getRolle()
+    public CompletionStage<RolleResource> getRolle(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fullmakt.getRolle()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> rolleService.getRolleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> rolleService.getRolleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

@@ -17,10 +17,11 @@ import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonVariabellonnResolver")
 public class VariabellonnResolver implements GraphQLResolver<VariabellonnResource> {
@@ -35,49 +36,54 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
     private PersonalressursService personalressursService;
 
 
-    public LonnsartResource getLonnsart(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
-        return variabellonn.getLonnsart()
+    public CompletionStage<LonnsartResource> getLonnsart(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(variabellonn.getLonnsart()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> lonnsartService.getLonnsartResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> lonnsartService.getLonnsartResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public ArbeidsforholdResource getArbeidsforhold(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
-        return variabellonn.getArbeidsforhold()
+    public CompletionStage<ArbeidsforholdResource> getArbeidsforhold(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(variabellonn.getArbeidsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getAnviser(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
-        return variabellonn.getAnviser()
+    public CompletionStage<PersonalressursResource> getAnviser(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(variabellonn.getAnviser()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getKonterer(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
-        return variabellonn.getKonterer()
+    public CompletionStage<PersonalressursResource> getKonterer(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(variabellonn.getKonterer()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getAttestant(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
-        return variabellonn.getAttestant()
+    public CompletionStage<PersonalressursResource> getAttestant(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(variabellonn.getAttestant()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

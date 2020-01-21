@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonFullmaktService")
 public class FullmaktService {
@@ -17,7 +18,7 @@ public class FullmaktService {
     @Autowired
     private Endpoints endpoints;
 
-    public FullmaktResource getFullmaktResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<FullmaktResource> getFullmaktResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getFullmaktResource(
             endpoints.getAdministrasjonFullmakt() 
                 + "/fullmakt/" 
@@ -27,7 +28,7 @@ public class FullmaktService {
             dfe);
     }
 
-    public FullmaktResource getFullmaktResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<FullmaktResource> getFullmaktResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, FullmaktResource.class, dfe);
     }
 }

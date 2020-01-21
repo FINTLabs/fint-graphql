@@ -29,7 +29,7 @@ public class ElevforholdService {
     }
 
     public Mono<ElevforholdResource> getElevforholdResource(String url, DataFetchingEnvironment dfe) {
-        return webClientRequest.getMono(url, ElevforholdResource.class, dfe);
+        return webClientRequest.get(url, ElevforholdResource.class, dfe);
     }
 }
 

@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonOrganisasjonselementService")
 public class OrganisasjonselementService {
@@ -17,7 +18,7 @@ public class OrganisasjonselementService {
     @Autowired
     private Endpoints endpoints;
 
-    public OrganisasjonselementResource getOrganisasjonselementResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<OrganisasjonselementResource> getOrganisasjonselementResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getOrganisasjonselementResource(
             endpoints.getAdministrasjonOrganisasjon() 
                 + "/organisasjonselement/" 
@@ -27,7 +28,7 @@ public class OrganisasjonselementService {
             dfe);
     }
 
-    public OrganisasjonselementResource getOrganisasjonselementResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<OrganisasjonselementResource> getOrganisasjonselementResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, OrganisasjonselementResource.class, dfe);
     }
 }

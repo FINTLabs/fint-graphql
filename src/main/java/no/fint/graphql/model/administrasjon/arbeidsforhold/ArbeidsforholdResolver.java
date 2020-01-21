@@ -35,10 +35,11 @@ import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonArbeidsforholdResolver")
 public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdResource> {
@@ -80,121 +81,134 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
     private UndervisningsforholdService undervisningsforholdService;
 
 
-    public AnsvarResource getAnsvar(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getAnsvar()
+    public CompletionStage<AnsvarResource> getAnsvar(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getAnsvar()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> ansvarService.getAnsvarResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> ansvarService.getAnsvarResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public ArbeidsforholdstypeResource getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getArbeidsforholdstype()
+    public CompletionStage<ArbeidsforholdstypeResource> getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getArbeidsforholdstype()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public ArtResource getArt(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getArt()
+    public CompletionStage<ArtResource> getArt(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getArt()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> artService.getArtResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> artService.getArtResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public FunksjonResource getFunksjon(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getFunksjon()
+    public CompletionStage<FunksjonResource> getFunksjon(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getFunksjon()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> funksjonService.getFunksjonResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> funksjonService.getFunksjonResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public StillingskodeResource getStillingskode(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getStillingskode()
+    public CompletionStage<StillingskodeResource> getStillingskode(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getStillingskode()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> stillingskodeService.getStillingskodeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> stillingskodeService.getStillingskodeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public UketimetallResource getTimerPerUke(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getTimerPerUke()
+    public CompletionStage<UketimetallResource> getTimerPerUke(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getTimerPerUke()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> uketimetallService.getUketimetallResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> uketimetallService.getUketimetallResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public OrganisasjonselementResource getArbeidssted(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getArbeidssted()
+    public CompletionStage<OrganisasjonselementResource> getArbeidssted(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getArbeidssted()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public PersonalressursResource getPersonalleder(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getPersonalleder()
+    public CompletionStage<PersonalressursResource> getPersonalleder(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getPersonalleder()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public List<FastlonnResource> getFastlonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getFastlonn()
+    public CompletionStage<List<FastlonnResource>> getFastlonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getFastlonn()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> fastlonnService.getFastlonnResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> fastlonnService.getFastlonnResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<FasttilleggResource> getFasttillegg(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getFasttillegg()
+    public CompletionStage<List<FasttilleggResource>> getFasttillegg(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getFasttillegg()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> fasttilleggService.getFasttilleggResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> fasttilleggService.getFasttilleggResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<VariabellonnResource> getVariabellonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getVariabellonn()
+    public CompletionStage<List<VariabellonnResource>> getVariabellonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getVariabellonn()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> variabellonnService.getVariabellonnResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> variabellonnService.getVariabellonnResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public PersonalressursResource getPersonalressurs(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getPersonalressurs()
+    public CompletionStage<PersonalressursResource> getPersonalressurs(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getPersonalressurs()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public UndervisningsforholdResource getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return arbeidsforhold.getUndervisningsforhold()
+    public CompletionStage<UndervisningsforholdResource> getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(arbeidsforhold.getUndervisningsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

@@ -13,10 +13,11 @@ import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("fellesAdresseResolver")
 public class AdresseResolver implements GraphQLResolver<AdresseResource> {
@@ -25,13 +26,14 @@ public class AdresseResolver implements GraphQLResolver<AdresseResource> {
     private LandkodeService landkodeService;
 
 
-    public LandkodeResource getLand(AdresseResource adresse, DataFetchingEnvironment dfe) {
-        return adresse.getLand()
+    public CompletionStage<LandkodeResource> getLand(AdresseResource adresse, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(adresse.getLand()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> landkodeService.getLandkodeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> landkodeService.getLandkodeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

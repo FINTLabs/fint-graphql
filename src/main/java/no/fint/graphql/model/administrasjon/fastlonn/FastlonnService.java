@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.personal.FastlonnResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonFastlonnService")
 public class FastlonnService {
@@ -17,7 +18,7 @@ public class FastlonnService {
     @Autowired
     private Endpoints endpoints;
 
-    public FastlonnResource getFastlonnResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<FastlonnResource> getFastlonnResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getFastlonnResource(
             endpoints.getAdministrasjonPersonal() 
                 + "/fastlonn/" 
@@ -27,7 +28,7 @@ public class FastlonnService {
             dfe);
     }
 
-    public FastlonnResource getFastlonnResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<FastlonnResource> getFastlonnResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, FastlonnResource.class, dfe);
     }
 }

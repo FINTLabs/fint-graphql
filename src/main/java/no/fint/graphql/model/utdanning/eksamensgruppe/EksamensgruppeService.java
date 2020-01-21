@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningEksamensgruppeService")
 public class EksamensgruppeService {
@@ -17,7 +18,7 @@ public class EksamensgruppeService {
     @Autowired
     private Endpoints endpoints;
 
-    public EksamensgruppeResource getEksamensgruppeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<EksamensgruppeResource> getEksamensgruppeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getEksamensgruppeResource(
             endpoints.getUtdanningVurdering() 
                 + "/eksamensgruppe/" 
@@ -27,7 +28,7 @@ public class EksamensgruppeService {
             dfe);
     }
 
-    public EksamensgruppeResource getEksamensgruppeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<EksamensgruppeResource> getEksamensgruppeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, EksamensgruppeResource.class, dfe);
     }
 }

@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.personal.VariabellonnResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonVariabellonnService")
 public class VariabellonnService {
@@ -17,7 +18,7 @@ public class VariabellonnService {
     @Autowired
     private Endpoints endpoints;
 
-    public VariabellonnResource getVariabellonnResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<VariabellonnResource> getVariabellonnResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getVariabellonnResource(
             endpoints.getAdministrasjonPersonal() 
                 + "/variabellonn/" 
@@ -27,7 +28,7 @@ public class VariabellonnService {
             dfe);
     }
 
-    public VariabellonnResource getVariabellonnResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<VariabellonnResource> getVariabellonnResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, VariabellonnResource.class, dfe);
     }
 }

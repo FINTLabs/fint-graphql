@@ -17,10 +17,11 @@ import no.fint.model.resource.utdanning.timeplan.RomResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningTimeResolver")
 public class TimeResolver implements GraphQLResolver<TimeResource> {
@@ -35,31 +36,34 @@ public class TimeResolver implements GraphQLResolver<TimeResource> {
     private RomService romService;
 
 
-    public List<UndervisningsgruppeResource> getUndervisningsgruppe(TimeResource time, DataFetchingEnvironment dfe) {
-        return time.getUndervisningsgruppe()
+    public CompletionStage<List<UndervisningsgruppeResource>> getUndervisningsgruppe(TimeResource time, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(time.getUndervisningsgruppe()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<UndervisningsforholdResource> getUndervisningsforhold(TimeResource time, DataFetchingEnvironment dfe) {
-        return time.getUndervisningsforhold()
+    public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(TimeResource time, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(time.getUndervisningsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<RomResource> getRom(TimeResource time, DataFetchingEnvironment dfe) {
-        return time.getRom()
+    public CompletionStage<List<RomResource>> getRom(TimeResource time, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(time.getRom()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> romService.getRomResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> romService.getRomResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

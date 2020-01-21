@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.kodeverk.iso.SprakResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("fellesSprakService")
 public class SprakService {
@@ -17,7 +18,7 @@ public class SprakService {
     @Autowired
     private Endpoints endpoints;
 
-    public SprakResource getSprakResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<SprakResource> getSprakResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getSprakResource(
             endpoints.getFellesKodeverkIso() 
                 + "/sprak/" 
@@ -27,7 +28,7 @@ public class SprakService {
             dfe);
     }
 
-    public SprakResource getSprakResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<SprakResource> getSprakResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, SprakResource.class, dfe);
     }
 }

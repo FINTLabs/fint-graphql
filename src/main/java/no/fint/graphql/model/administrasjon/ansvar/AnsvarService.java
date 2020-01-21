@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonAnsvarService")
 public class AnsvarService {
@@ -17,7 +18,7 @@ public class AnsvarService {
     @Autowired
     private Endpoints endpoints;
 
-    public AnsvarResource getAnsvarResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<AnsvarResource> getAnsvarResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getAnsvarResource(
             endpoints.getAdministrasjonKodeverk() 
                 + "/ansvar/" 
@@ -27,7 +28,7 @@ public class AnsvarService {
             dfe);
     }
 
-    public AnsvarResource getAnsvarResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<AnsvarResource> getAnsvarResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, AnsvarResource.class, dfe);
     }
 }

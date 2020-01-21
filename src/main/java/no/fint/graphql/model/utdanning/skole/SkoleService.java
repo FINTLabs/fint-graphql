@@ -29,7 +29,7 @@ public class SkoleService {
     }
 
     public Mono<SkoleResource> getSkoleResource(String url, DataFetchingEnvironment dfe) {
-        return webClientRequest.getMono(url, SkoleResource.class, dfe);
+        return webClientRequest.get(url, SkoleResource.class, dfe);
     }
 }
 

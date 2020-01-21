@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.kodeverk.KommuneResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("fellesKommuneService")
 public class KommuneService {
@@ -17,7 +18,7 @@ public class KommuneService {
     @Autowired
     private Endpoints endpoints;
 
-    public KommuneResource getKommuneResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<KommuneResource> getKommuneResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getKommuneResource(
             endpoints.getFellesKodeverk() 
                 + "/kommune/" 
@@ -27,7 +28,7 @@ public class KommuneService {
             dfe);
     }
 
-    public KommuneResource getKommuneResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<KommuneResource> getKommuneResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, KommuneResource.class, dfe);
     }
 }

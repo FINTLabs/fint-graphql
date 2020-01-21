@@ -3,8 +3,15 @@ type Kontostreng {
 
 
 	# Relations
+    aktivitet: Aktivitet
+    anlegg: Anlegg
     ansvar: Ansvar!
     art: Art!
+    diverse: Diverse
     funksjon: Funksjon!
+    kontrakt: Kontrakt
+    lopenummer: Lopenummer
+    objekt: Objekt
     prosjekt: Prosjekt
+    ramme: Ramme
 }
