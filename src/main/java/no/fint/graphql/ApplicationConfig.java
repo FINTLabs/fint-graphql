@@ -8,7 +8,6 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorResourceFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
-import reactor.netty.resources.ConnectionProvider;
 
 @Configuration
 @Slf4j
@@ -19,7 +18,7 @@ public class ApplicationConfig {
 
     @Bean
     public WebClient webClient(WebClient.Builder builder, ReactorResourceFactory factory) {
-        factory.setConnectionProvider(ConnectionProvider.newConnection());
+        //factory.setConnectionProvider(ConnectionProvider.fixed("graphql"));
         return builder
                 .clientConnector(new ReactorClientHttpConnector(factory, HttpClient::secure))
                 .baseUrl(rootUri)

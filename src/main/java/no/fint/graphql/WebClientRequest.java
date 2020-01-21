@@ -12,6 +12,7 @@ import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.function.Function;
 
 @Slf4j
@@ -41,7 +42,8 @@ public class WebClientRequest {
         }
         return request.retrieve()
                 .onStatus(HttpStatus::is4xxClientError, r -> Mono.empty())
-                .bodyToMono(type);
+                .bodyToMono(type)
+                .retryBackoff(5, Duration.ofMillis(500));
     }
 
     private String getToken(DataFetchingEnvironment dfe) {
