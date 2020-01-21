@@ -3,32 +3,24 @@ package no.fint.graphql.model.utdanning.elevforhold;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
 import no.fint.graphql.model.utdanning.basisgruppe.BasisgruppeService;
+import no.fint.graphql.model.utdanning.eksamensgruppe.EksamensgruppeService;
 import no.fint.graphql.model.utdanning.elev.ElevService;
 import no.fint.graphql.model.utdanning.elevkategori.ElevkategoriService;
-import no.fint.graphql.model.utdanning.skole.SkoleService;
-import no.fint.graphql.model.utdanning.eksamensgruppe.EksamensgruppeService;
 import no.fint.graphql.model.utdanning.kontaktlarergruppe.KontaktlarergruppeService;
+import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
 import no.fint.graphql.model.utdanning.programomrade.ProgramomradeService;
+import no.fint.graphql.model.utdanning.skole.SkoleService;
 import no.fint.graphql.model.utdanning.undervisningsgruppe.UndervisningsgruppeService;
 import no.fint.graphql.model.utdanning.vurdering.VurderingService;
-import no.fint.graphql.model.utdanning.medlemskap.MedlemskapService;
-
-
 import no.fint.model.resource.Link;
-import no.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
-import no.fint.model.resource.utdanning.elev.ElevResource;
+import no.fint.model.resource.utdanning.elev.*;
 import no.fint.model.resource.utdanning.kodeverk.ElevkategoriResource;
+import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
-import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
-import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
-import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
 import no.fint.model.resource.utdanning.vurdering.VurderingResource;
-import no.fint.model.resource.utdanning.elev.MedlemskapResource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -102,13 +94,14 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .findFirst().orElse(null);
     }
 
-    public SkoleResource getSkole(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return elevforhold.getSkole()
+    public CompletionStage<SkoleResource> getSkole(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(elevforhold.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
     public List<EksamensgruppeResource> getEksamensgruppe(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {

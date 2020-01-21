@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningSkoleService")
 public class SkoleService {
@@ -17,7 +18,7 @@ public class SkoleService {
     @Autowired
     private Endpoints endpoints;
 
-    public SkoleResource getSkoleResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<SkoleResource> getSkoleResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getSkoleResource(
             endpoints.getUtdanningUtdanningsprogram() 
                 + "/skole/" 
@@ -27,8 +28,8 @@ public class SkoleService {
             dfe);
     }
 
-    public SkoleResource getSkoleResource(String url, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(url, SkoleResource.class, dfe);
+    public Mono<SkoleResource> getSkoleResource(String url, DataFetchingEnvironment dfe) {
+        return webClientRequest.getMono(url, SkoleResource.class, dfe);
     }
 }
 

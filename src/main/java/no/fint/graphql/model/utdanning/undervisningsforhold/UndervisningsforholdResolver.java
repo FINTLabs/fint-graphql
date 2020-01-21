@@ -29,9 +29,12 @@ import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("utdanningUndervisningsforholdResolver")
@@ -119,13 +122,14 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .collect(Collectors.toList());
     }
 
-    public SkoleResource getSkole(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        return undervisningsforhold.getSkole()
+    public CompletionStage<SkoleResource> getSkole(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(undervisningsforhold.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
     public SkoleressursResource getSkoleressurs(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {

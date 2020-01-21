@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("utdanningUndervisningsgruppeResolver")
@@ -61,13 +62,14 @@ public class UndervisningsgruppeResolver implements GraphQLResolver<Undervisning
                 .collect(Collectors.toList());
     }
 
-    public SkoleResource getSkole(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
-        return undervisningsgruppe.getSkole()
+    public CompletionStage<SkoleResource> getSkole(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(undervisningsgruppe.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
     public List<ElevforholdResource> getElevforhold(UndervisningsgruppeResource undervisningsgruppe, DataFetchingEnvironment dfe) {

@@ -17,9 +17,12 @@ import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("utdanningUtdanningsprogramResolver")
@@ -35,13 +38,14 @@ public class UtdanningsprogramResolver implements GraphQLResolver<Utdanningsprog
     private MedlemskapService medlemskapService;
 
 
-    public List<SkoleResource> getSkole(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
-        return utdanningsprogram.getSkole()
+    public CompletionStage<List<SkoleResource>> getSkole(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(utdanningsprogram.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
     public List<ProgramomradeResource> getProgramomrade(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {

@@ -6,7 +6,6 @@ import graphql.schema.DataFetchingEnvironment;
 
 import no.fint.graphql.model.administrasjon.ansvar.AnsvarService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
-import no.fint.graphql.model.administrasjon.organisasjonselement.OrganisasjonselementService;
 import no.fint.graphql.model.utdanning.skole.SkoleService;
 import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService;
 
@@ -15,15 +14,17 @@ import no.fint.model.resource.Link;
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("administrasjonOrganisasjonselementResolver")
@@ -81,13 +82,14 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .collect(Collectors.toList());
     }
 
-    public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselement.getSkole()
+    public CompletionStage<SkoleResource> getSkole(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .singleOrEmpty()
+                .toFuture();
     }
 
     public List<ArbeidsforholdResource> getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
