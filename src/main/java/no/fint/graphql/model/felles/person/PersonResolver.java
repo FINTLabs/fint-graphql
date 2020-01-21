@@ -6,7 +6,6 @@ import graphql.schema.DataFetchingEnvironment;
 
 import no.fint.graphql.model.felles.landkode.LandkodeService;
 import no.fint.graphql.model.felles.kjonn.KjonnService;
-import no.fint.graphql.model.felles.person.PersonService;
 import no.fint.graphql.model.felles.sprak.SprakService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
 import no.fint.graphql.model.felles.kontaktperson.KontaktpersonService;
@@ -17,7 +16,6 @@ import no.fint.model.resource.Link;
 import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
 import no.fint.model.resource.felles.kodeverk.iso.KjonnResource;
-import no.fint.model.resource.felles.PersonResource;
 import no.fint.model.resource.felles.kodeverk.iso.SprakResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.felles.KontaktpersonResource;
@@ -25,9 +23,12 @@ import no.fint.model.resource.utdanning.elev.ElevResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("fellesPersonResolver")
@@ -64,22 +65,26 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .collect(Collectors.toList());
     }
 
-    public KjonnResource getKjonn(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getKjonn()
+    public CompletionStage<KjonnResource> getKjonn(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getKjonn()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> kjonnService.getKjonnResource(l, dfe))
+                .map(l -> kjonnService.getKjonnResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .singleOrEmpty()
+                .toFuture();
     }
 
-    public List<PersonResource> getForeldreansvar(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getForeldreansvar()
+    public CompletionStage<List<PersonResource>> getForeldreansvar(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getForeldreansvar()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personService.getPersonResource(l, dfe))
+                .map(l -> personService.getPersonResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collectList()
+                .toFuture();
     }
 
     public SprakResource getMalform(PersonResource person, DataFetchingEnvironment dfe) {
@@ -118,22 +123,26 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .collect(Collectors.toList());
     }
 
-    public List<PersonResource> getForeldre(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getForeldre()
+    public CompletionStage<List<PersonResource>> getForeldre(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getForeldre()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personService.getPersonResource(l, dfe))
+                .map(l -> personService.getPersonResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collectList()
+                .toFuture();
     }
 
-    public ElevResource getElev(PersonResource person, DataFetchingEnvironment dfe) {
-        return person.getElev()
+    public CompletionStage<ElevResource> getElev(PersonResource person, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(person.getElev()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> elevService.getElevResource(l, dfe))
+                .map(l -> elevService.getElevResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .singleOrEmpty()
+                .toFuture();
     }
 
 }

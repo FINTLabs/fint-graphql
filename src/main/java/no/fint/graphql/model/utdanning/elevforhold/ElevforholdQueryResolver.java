@@ -18,7 +18,7 @@ public class ElevforholdQueryResolver implements GraphQLQueryResolver {
             String systemId,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getElevforholdResourceById("systemid", systemId, dfe);
+            return service.getElevforholdResourceById("systemid", systemId, dfe).block();
         }
         return null;
     }

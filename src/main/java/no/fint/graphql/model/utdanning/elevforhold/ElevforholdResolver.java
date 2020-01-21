@@ -31,9 +31,12 @@ import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("utdanningElevforholdResolver")
@@ -79,13 +82,15 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .collect(Collectors.toList());
     }
 
-    public ElevResource getElev(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return elevforhold.getElev()
+    public CompletionStage<ElevResource> getElev(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(elevforhold.getElev()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> elevService.getElevResource(l, dfe))
+                .map(l -> elevService.getElevResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .singleOrEmpty()
+                .toFuture();
     }
 
     public ElevkategoriResource getKategori(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {

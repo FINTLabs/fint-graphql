@@ -22,16 +22,18 @@ public class WebClientRequest {
     private WebClient webClient;
 
     public <T> T get(Function<UriBuilder, URI> uri, Class<T> type, DataFetchingEnvironment dfe) {
-        WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
-        return get(request, type, dfe);
+        return get(webClient.get().uri(uri), type, dfe).block();
     }
 
     public <T> T get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
-        return get(request, type, dfe);
+        return get(webClient.get().uri(uri), type, dfe).block();
     }
 
-    private <T> T get(WebClient.RequestHeadersSpec<?> request, Class<T> type, DataFetchingEnvironment dfe) {
+    public <T> Mono<T> getMono(String uri, Class<T> type, DataFetchingEnvironment dfe) {
+        return get(webClient.get().uri(uri), type, dfe);
+    }
+
+    private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type, DataFetchingEnvironment dfe) {
         String token = getToken(dfe);
         log.debug("Token: {}", token);
         if (token != null) {
@@ -39,8 +41,7 @@ public class WebClientRequest {
         }
         return request.retrieve()
                 .onStatus(HttpStatus::is4xxClientError, r -> Mono.empty())
-                .bodyToMono(type)
-                .block();
+                .bodyToMono(type);
     }
 
     private String getToken(DataFetchingEnvironment dfe) {

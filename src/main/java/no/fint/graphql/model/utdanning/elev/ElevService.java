@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.ElevResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningElevService")
 public class ElevService {
@@ -17,7 +18,7 @@ public class ElevService {
     @Autowired
     private Endpoints endpoints;
 
-    public ElevResource getElevResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<ElevResource> getElevResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getElevResource(
             endpoints.getUtdanningElev() 
                 + "/elev/" 
@@ -27,8 +28,8 @@ public class ElevService {
             dfe);
     }
 
-    public ElevResource getElevResource(String url, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(url, ElevResource.class, dfe);
+    public Mono<ElevResource> getElevResource(String url, DataFetchingEnvironment dfe) {
+        return webClientRequest.getMono(url, ElevResource.class, dfe);
     }
 }
 

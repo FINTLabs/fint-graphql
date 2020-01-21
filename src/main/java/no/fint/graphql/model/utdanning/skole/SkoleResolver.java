@@ -33,9 +33,12 @@ import no.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResou
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("utdanningSkoleResolver")
@@ -111,13 +114,15 @@ public class SkoleResolver implements GraphQLResolver<SkoleResource> {
                 .collect(Collectors.toList());
     }
 
-    public List<ElevforholdResource> getElevforhold(SkoleResource skole, DataFetchingEnvironment dfe) {
-        return skole.getElevforhold()
+    public CompletionStage<List<ElevforholdResource>> getElevforhold(SkoleResource skole, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(skole.getElevforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> elevforholdService.getElevforholdResource(l, dfe))
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .collectList()
+                .toFuture();
     }
 
     public List<KontaktlarergruppeResource> getKontaktlarergruppe(SkoleResource skole, DataFetchingEnvironment dfe) {

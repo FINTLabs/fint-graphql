@@ -18,7 +18,7 @@ public class PersonQueryResolver implements GraphQLQueryResolver {
             String fodselsnummer,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(fodselsnummer)) {
-            return service.getPersonResourceById("fodselsnummer", fodselsnummer, dfe);
+            return service.getPersonResourceById("fodselsnummer", fodselsnummer, dfe).block();
         }
         return null;
     }

@@ -19,6 +19,8 @@ import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
@@ -41,12 +43,12 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
 
 
     public ElevforholdResource getElevforhold(VurderingResource vurdering, DataFetchingEnvironment dfe) {
-        return vurdering.getElevforhold()
+        return Flux.fromStream(vurdering.getElevforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> elevforholdService.getElevforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .blockFirst();
     }
 
     public UndervisningsgruppeResource getUndervisningsgruppe(VurderingResource vurdering, DataFetchingEnvironment dfe) {

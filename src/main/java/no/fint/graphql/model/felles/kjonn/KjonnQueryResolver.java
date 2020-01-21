@@ -18,7 +18,7 @@ public class KjonnQueryResolver implements GraphQLQueryResolver {
             String systemId,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getKjonnResourceById("systemid", systemId, dfe);
+            return service.getKjonnResourceById("systemid", systemId, dfe).block();
         }
         return null;
     }

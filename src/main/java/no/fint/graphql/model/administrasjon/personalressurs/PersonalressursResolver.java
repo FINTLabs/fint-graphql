@@ -23,9 +23,12 @@ import no.fint.model.resource.utdanning.elev.SkoleressursResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Component("administrasjonPersonalressursResolver")
@@ -68,13 +71,15 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .collect(Collectors.toList());
     }
 
-    public PersonResource getPerson(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return personalressurs.getPerson()
+    public CompletionStage<PersonResource> getPerson(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(personalressurs.getPerson()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personService.getPersonResource(l, dfe))
+                .map(l -> personService.getPersonResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .singleOrEmpty()
+                .toFuture();
     }
 
     public List<FullmaktResource> getStedfortreder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {

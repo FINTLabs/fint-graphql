@@ -21,16 +21,16 @@ public class ElevQueryResolver implements GraphQLQueryResolver {
             String systemId,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(brukernavn)) {
-            return service.getElevResourceById("brukernavn", brukernavn, dfe);
+            return service.getElevResourceById("brukernavn", brukernavn, dfe).block();
         }
         if (StringUtils.isNotEmpty(elevnummer)) {
-            return service.getElevResourceById("elevnummer", elevnummer, dfe);
+            return service.getElevResourceById("elevnummer", elevnummer, dfe).block();
         }
         if (StringUtils.isNotEmpty(feidenavn)) {
-            return service.getElevResourceById("feidenavn", feidenavn, dfe);
+            return service.getElevResourceById("feidenavn", feidenavn, dfe).block();
         }
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getElevResourceById("systemid", systemId, dfe);
+            return service.getElevResourceById("systemid", systemId, dfe).block();
         }
         return null;
     }
