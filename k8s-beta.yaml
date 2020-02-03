@@ -53,6 +53,10 @@ spec:
             limits:
               memory: "5Gi"
               cpu: "2"
+          envFrom:
+            - configMapRef:
+                name: fint-environment
+                optional: true
           env:
             - name: TZ
               value: Europe/Oslo
@@ -68,3 +72,5 @@ spec:
               value: "true"
             - name: spring.codec.max-in-memory-size
               value: "50000000"
+            - name: fint.webclient.connection-provider.maxLifeTime
+              value: "PT15M"
