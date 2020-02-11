@@ -32,7 +32,7 @@ public class PersonService {
                 .map(r -> getPersonResource(r, dfe)))
                 .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .singleOrEmpty();
+                .next();
     }
 
     public Mono<PersonResource> getPersonResource(String url, DataFetchingEnvironment dfe) {
