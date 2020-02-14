@@ -57,7 +57,7 @@ public class BasisgruppeResolver implements GraphQLResolver<BasisgruppeResource>
                 .map(Link::getHref)
                 .map(l -> arstrinnService.getArstrinnResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -67,7 +67,7 @@ public class BasisgruppeResolver implements GraphQLResolver<BasisgruppeResource>
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

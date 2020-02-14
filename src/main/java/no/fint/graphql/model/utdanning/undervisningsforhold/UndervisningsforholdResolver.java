@@ -72,7 +72,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .map(Link::getHref)
                 .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -132,7 +132,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -142,7 +142,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .map(Link::getHref)
                 .map(l -> skoleressursService.getSkoleressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

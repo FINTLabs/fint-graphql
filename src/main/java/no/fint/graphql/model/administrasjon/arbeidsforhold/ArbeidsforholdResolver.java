@@ -87,7 +87,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> ansvarService.getAnsvarResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -97,7 +97,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -107,7 +107,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> artService.getArtResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -117,7 +117,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> funksjonService.getFunksjonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -127,7 +127,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> stillingskodeService.getStillingskodeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -137,7 +137,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> uketimetallService.getUketimetallResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -147,7 +147,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -157,7 +157,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -197,7 +197,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -207,7 +207,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .map(Link::getHref)
                 .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

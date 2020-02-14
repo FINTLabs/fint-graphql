@@ -42,7 +42,7 @@ public class MedlemskapResolver implements GraphQLResolver<MedlemskapResource> {
                 .map(Link::getHref)
                 .map(l -> vurderingService.getVurderingResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

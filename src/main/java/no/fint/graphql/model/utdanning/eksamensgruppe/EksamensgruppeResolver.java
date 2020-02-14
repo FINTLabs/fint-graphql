@@ -52,7 +52,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .map(Link::getHref)
                 .map(l -> fagService.getFagResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -62,7 +62,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

@@ -42,7 +42,7 @@ public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResou
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

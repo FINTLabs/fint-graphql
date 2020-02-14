@@ -42,7 +42,7 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
                 .map(Link::getHref)
                 .map(l -> lonnsartService.getLonnsartResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -52,7 +52,7 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
                 .map(Link::getHref)
                 .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -62,7 +62,7 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -72,7 +72,7 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -82,7 +82,7 @@ public class FastlonnResolver implements GraphQLResolver<FastlonnResource> {
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

@@ -32,7 +32,7 @@ public class ArbeidsforholdstypeResolver implements GraphQLResolver<Arbeidsforho
                 .map(Link::getHref)
                 .map(l -> arbeidsforholdstypeService.getArbeidsforholdstypeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

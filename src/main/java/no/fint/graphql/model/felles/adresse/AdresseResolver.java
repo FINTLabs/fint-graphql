@@ -32,7 +32,7 @@ public class AdresseResolver implements GraphQLResolver<AdresseResource> {
                 .map(Link::getHref)
                 .map(l -> landkodeService.getLandkodeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

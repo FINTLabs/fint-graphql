@@ -67,7 +67,7 @@ public class UndervisningsgruppeResolver implements GraphQLResolver<Undervisning
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

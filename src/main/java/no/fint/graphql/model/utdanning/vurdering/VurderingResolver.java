@@ -47,7 +47,7 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
                 .map(Link::getHref)
                 .map(l -> elevforholdService.getElevforholdResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -57,7 +57,7 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
                 .map(Link::getHref)
                 .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -67,7 +67,7 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
                 .map(Link::getHref)
                 .map(l -> eksamensgruppeService.getEksamensgruppeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -77,7 +77,7 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
                 .map(Link::getHref)
                 .map(l -> karakterverdiService.getKarakterverdiResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

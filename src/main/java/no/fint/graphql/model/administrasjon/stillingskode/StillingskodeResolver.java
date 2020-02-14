@@ -32,7 +32,7 @@ public class StillingskodeResolver implements GraphQLResolver<StillingskodeResou
                 .map(Link::getHref)
                 .map(l -> stillingskodeService.getStillingskodeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

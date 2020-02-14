@@ -37,7 +37,7 @@ public class FunksjonResolver implements GraphQLResolver<FunksjonResource> {
                 .map(Link::getHref)
                 .map(l -> funksjonService.getFunksjonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

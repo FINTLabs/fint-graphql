@@ -32,7 +32,7 @@ public class KarakterverdiResolver implements GraphQLResolver<KarakterverdiResou
                 .map(Link::getHref)
                 .map(l -> karakterskalaService.getKarakterskalaResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

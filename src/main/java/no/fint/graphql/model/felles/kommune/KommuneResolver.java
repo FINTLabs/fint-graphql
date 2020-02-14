@@ -32,7 +32,7 @@ public class KommuneResolver implements GraphQLResolver<KommuneResource> {
                 .map(Link::getHref)
                 .map(l -> fylkeService.getFylkeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

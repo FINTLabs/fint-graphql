@@ -42,7 +42,7 @@ public class AnsvarResolver implements GraphQLResolver<AnsvarResource> {
                 .map(Link::getHref)
                 .map(l -> ansvarService.getAnsvarResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

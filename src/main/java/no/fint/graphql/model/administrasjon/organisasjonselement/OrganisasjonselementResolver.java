@@ -62,7 +62,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -72,7 +72,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .map(Link::getHref)
                 .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -92,7 +92,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

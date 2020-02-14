@@ -82,7 +82,7 @@ public class SkoleResolver implements GraphQLResolver<SkoleResource> {
                 .map(Link::getHref)
                 .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -102,7 +102,7 @@ public class SkoleResolver implements GraphQLResolver<SkoleResource> {
                 .map(Link::getHref)
                 .map(l -> skoleeiertypeService.getSkoleeiertypeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

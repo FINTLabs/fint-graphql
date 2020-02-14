@@ -32,7 +32,7 @@ public class LonnsartResolver implements GraphQLResolver<LonnsartResource> {
                 .map(Link::getHref)
                 .map(l -> artService.getArtResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

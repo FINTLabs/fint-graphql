@@ -37,7 +37,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -47,7 +47,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -57,7 +57,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .map(Link::getHref)
                 .map(l -> rolleService.getRolleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

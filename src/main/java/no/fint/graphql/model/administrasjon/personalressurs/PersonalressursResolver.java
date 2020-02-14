@@ -57,7 +57,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .map(l -> personalressurskategoriService.getPersonalressurskategoriResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -77,7 +77,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .map(l -> personService.getPersonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -127,7 +127,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .map(l -> skoleressursService.getSkoleressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

@@ -62,7 +62,7 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

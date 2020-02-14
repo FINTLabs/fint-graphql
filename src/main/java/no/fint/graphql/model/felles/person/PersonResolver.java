@@ -72,7 +72,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> kjonnService.getKjonnResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -92,7 +92,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> sprakService.getSprakResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -102,7 +102,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -112,7 +112,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> sprakService.getSprakResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -142,7 +142,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .map(l -> elevService.getElevResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

@@ -52,7 +52,7 @@ public class ProgramomradeResolver implements GraphQLResolver<ProgramomradeResou
                 .map(Link::getHref)
                 .map(l -> utdanningsprogramService.getUtdanningsprogramResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

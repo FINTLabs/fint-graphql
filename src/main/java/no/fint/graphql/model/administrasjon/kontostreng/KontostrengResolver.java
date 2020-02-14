@@ -82,7 +82,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> aktivitetService.getAktivitetResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -92,7 +92,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> anleggService.getAnleggResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -102,7 +102,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> ansvarService.getAnsvarResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -112,7 +112,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> artService.getArtResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -122,7 +122,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> diverseService.getDiverseResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -132,7 +132,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> funksjonService.getFunksjonResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -142,7 +142,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> kontraktService.getKontraktResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -152,7 +152,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> lopenummerService.getLopenummerResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -162,7 +162,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> objektService.getObjektResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -172,7 +172,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> prosjektService.getProsjektResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -182,7 +182,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .map(Link::getHref)
                 .map(l -> rammeService.getRammeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

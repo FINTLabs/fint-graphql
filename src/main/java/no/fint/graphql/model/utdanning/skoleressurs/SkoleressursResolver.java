@@ -42,7 +42,7 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
                 .map(Link::getHref)
                 .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 

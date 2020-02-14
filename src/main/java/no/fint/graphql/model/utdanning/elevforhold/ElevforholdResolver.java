@@ -87,7 +87,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .map(Link::getHref)
                 .map(l -> elevService.getElevResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -97,7 +97,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .map(Link::getHref)
                 .map(l -> elevkategoriService.getElevkategoriResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -107,7 +107,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .map(Link::getHref)
                 .map(l -> skoleService.getSkoleResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
@@ -137,7 +137,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .map(Link::getHref)
                 .map(l -> programomradeService.getProgramomradeResource(l, dfe)))
                 .flatMap(Mono::flux)
-                .singleOrEmpty()
+                .next()
                 .toFuture();
     }
 
