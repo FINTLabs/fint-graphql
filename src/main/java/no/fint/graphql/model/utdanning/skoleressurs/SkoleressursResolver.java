@@ -17,10 +17,11 @@ import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningSkoleressursResolver")
 public class SkoleressursResolver implements GraphQLResolver<SkoleressursResource> {
@@ -35,31 +36,34 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
     private SkoleService skoleService;
 
 
-    public PersonalressursResource getPersonalressurs(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
-        return skoleressurs.getPersonalressurs()
+    public CompletionStage<PersonalressursResource> getPersonalressurs(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(skoleressurs.getPersonalressurs()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public List<UndervisningsforholdResource> getUndervisningsforhold(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
-        return skoleressurs.getUndervisningsforhold()
+    public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(skoleressurs.getUndervisningsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<SkoleResource> getSkole(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
-        return skoleressurs.getSkole()
+    public CompletionStage<List<SkoleResource>> getSkole(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(skoleressurs.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

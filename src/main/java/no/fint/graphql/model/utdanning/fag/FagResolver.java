@@ -21,10 +21,11 @@ import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningFagResolver")
 public class FagResolver implements GraphQLResolver<FagResource> {
@@ -45,49 +46,54 @@ public class FagResolver implements GraphQLResolver<FagResource> {
     private MedlemskapService medlemskapService;
 
 
-    public List<ProgramomradeResource> getProgramomrade(FagResource fag, DataFetchingEnvironment dfe) {
-        return fag.getProgramomrade()
+    public CompletionStage<List<ProgramomradeResource>> getProgramomrade(FagResource fag, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fag.getProgramomrade()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> programomradeService.getProgramomradeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> programomradeService.getProgramomradeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<SkoleResource> getSkole(FagResource fag, DataFetchingEnvironment dfe) {
-        return fag.getSkole()
+    public CompletionStage<List<SkoleResource>> getSkole(FagResource fag, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fag.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<UndervisningsgruppeResource> getUndervisningsgruppe(FagResource fag, DataFetchingEnvironment dfe) {
-        return fag.getUndervisningsgruppe()
+    public CompletionStage<List<UndervisningsgruppeResource>> getUndervisningsgruppe(FagResource fag, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fag.getUndervisningsgruppe()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<EksamensgruppeResource> getEksamensgruppe(FagResource fag, DataFetchingEnvironment dfe) {
-        return fag.getEksamensgruppe()
+    public CompletionStage<List<EksamensgruppeResource>> getEksamensgruppe(FagResource fag, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fag.getEksamensgruppe()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> eksamensgruppeService.getEksamensgruppeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> eksamensgruppeService.getEksamensgruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<MedlemskapResource> getMedlemskap(FagResource fag, DataFetchingEnvironment dfe) {
-        return fag.getMedlemskap()
+    public CompletionStage<List<MedlemskapResource>> getMedlemskap(FagResource fag, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(fag.getMedlemskap()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> medlemskapService.getMedlemskapResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

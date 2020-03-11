@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningKarakterverdiService")
 public class KarakterverdiService {
@@ -17,7 +18,7 @@ public class KarakterverdiService {
     @Autowired
     private Endpoints endpoints;
 
-    public KarakterverdiResource getKarakterverdiResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<KarakterverdiResource> getKarakterverdiResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getKarakterverdiResource(
             endpoints.getUtdanningVurdering() 
                 + "/karakterverdi/" 
@@ -27,7 +28,7 @@ public class KarakterverdiService {
             dfe);
     }
 
-    public KarakterverdiResource getKarakterverdiResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<KarakterverdiResource> getKarakterverdiResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, KarakterverdiResource.class, dfe);
     }
 }

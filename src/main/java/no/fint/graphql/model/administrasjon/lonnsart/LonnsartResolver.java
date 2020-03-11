@@ -13,10 +13,11 @@ import no.fint.model.resource.administrasjon.kodeverk.ArtResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonLonnsartResolver")
 public class LonnsartResolver implements GraphQLResolver<LonnsartResource> {
@@ -25,13 +26,14 @@ public class LonnsartResolver implements GraphQLResolver<LonnsartResource> {
     private ArtService artService;
 
 
-    public ArtResource getArt(LonnsartResource lonnsart, DataFetchingEnvironment dfe) {
-        return lonnsart.getArt()
+    public CompletionStage<ArtResource> getArt(LonnsartResource lonnsart, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(lonnsart.getArt()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> artService.getArtResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> artService.getArtResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
 }

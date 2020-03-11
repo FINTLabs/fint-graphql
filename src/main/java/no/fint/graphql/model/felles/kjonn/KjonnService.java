@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.kodeverk.iso.KjonnResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("fellesKjonnService")
 public class KjonnService {
@@ -17,7 +18,7 @@ public class KjonnService {
     @Autowired
     private Endpoints endpoints;
 
-    public KjonnResource getKjonnResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<KjonnResource> getKjonnResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getKjonnResource(
             endpoints.getFellesKodeverkIso() 
                 + "/kjonn/" 
@@ -27,7 +28,7 @@ public class KjonnService {
             dfe);
     }
 
-    public KjonnResource getKjonnResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<KjonnResource> getKjonnResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, KjonnResource.class, dfe);
     }
 }

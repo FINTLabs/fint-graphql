@@ -24,3 +24,9 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+### Visual Studio Code / Eclipse ###
+/.classpath
+/.settings/
+/.project
+/bin/

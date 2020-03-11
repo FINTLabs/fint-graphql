@@ -19,10 +19,11 @@ import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningVurderingResolver")
 public class VurderingResolver implements GraphQLResolver<VurderingResource> {
@@ -40,40 +41,44 @@ public class VurderingResolver implements GraphQLResolver<VurderingResource> {
     private KarakterverdiService karakterverdiService;
 
 
-    public ElevforholdResource getElevforhold(VurderingResource vurdering, DataFetchingEnvironment dfe) {
-        return vurdering.getElevforhold()
+    public CompletionStage<ElevforholdResource> getElevforhold(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(vurdering.getElevforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> elevforholdService.getElevforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public UndervisningsgruppeResource getUndervisningsgruppe(VurderingResource vurdering, DataFetchingEnvironment dfe) {
-        return vurdering.getUndervisningsgruppe()
+    public CompletionStage<UndervisningsgruppeResource> getUndervisningsgruppe(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(vurdering.getUndervisningsgruppe()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public EksamensgruppeResource getEksamensgruppe(VurderingResource vurdering, DataFetchingEnvironment dfe) {
-        return vurdering.getEksamensgruppe()
+    public CompletionStage<EksamensgruppeResource> getEksamensgruppe(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(vurdering.getEksamensgruppe()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> eksamensgruppeService.getEksamensgruppeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> eksamensgruppeService.getEksamensgruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public KarakterverdiResource getKarakter(VurderingResource vurdering, DataFetchingEnvironment dfe) {
-        return vurdering.getKarakter()
+    public CompletionStage<KarakterverdiResource> getKarakter(VurderingResource vurdering, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(vurdering.getKarakter()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> karakterverdiService.getKarakterverdiResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> karakterverdiService.getKarakterverdiResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
 }

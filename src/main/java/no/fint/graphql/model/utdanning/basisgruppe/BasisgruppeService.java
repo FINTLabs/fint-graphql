@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningBasisgruppeService")
 public class BasisgruppeService {
@@ -17,7 +18,7 @@ public class BasisgruppeService {
     @Autowired
     private Endpoints endpoints;
 
-    public BasisgruppeResource getBasisgruppeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<BasisgruppeResource> getBasisgruppeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getBasisgruppeResource(
             endpoints.getUtdanningElev() 
                 + "/basisgruppe/" 
@@ -27,7 +28,7 @@ public class BasisgruppeService {
             dfe);
     }
 
-    public BasisgruppeResource getBasisgruppeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<BasisgruppeResource> getBasisgruppeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, BasisgruppeResource.class, dfe);
     }
 }

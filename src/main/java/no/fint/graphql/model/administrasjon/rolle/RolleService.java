@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.fullmakt.RolleResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonRolleService")
 public class RolleService {
@@ -17,7 +18,7 @@ public class RolleService {
     @Autowired
     private Endpoints endpoints;
 
-    public RolleResource getRolleResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<RolleResource> getRolleResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getRolleResource(
             endpoints.getAdministrasjonFullmakt() 
                 + "/rolle/" 
@@ -27,7 +28,7 @@ public class RolleService {
             dfe);
     }
 
-    public RolleResource getRolleResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<RolleResource> getRolleResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, RolleResource.class, dfe);
     }
 }

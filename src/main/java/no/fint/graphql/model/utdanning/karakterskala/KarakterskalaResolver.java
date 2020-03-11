@@ -13,10 +13,11 @@ import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningKarakterskalaResolver")
 public class KarakterskalaResolver implements GraphQLResolver<KarakterskalaResource> {
@@ -25,13 +26,14 @@ public class KarakterskalaResolver implements GraphQLResolver<KarakterskalaResou
     private KarakterverdiService karakterverdiService;
 
 
-    public List<KarakterverdiResource> getVerdi(KarakterskalaResource karakterskala, DataFetchingEnvironment dfe) {
-        return karakterskala.getVerdi()
+    public CompletionStage<List<KarakterverdiResource>> getVerdi(KarakterskalaResource karakterskala, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(karakterskala.getVerdi()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> karakterverdiService.getKarakterverdiResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> karakterverdiService.getKarakterverdiResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

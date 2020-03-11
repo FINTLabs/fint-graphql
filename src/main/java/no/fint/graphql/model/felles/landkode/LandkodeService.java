@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("fellesLandkodeService")
 public class LandkodeService {
@@ -17,7 +18,7 @@ public class LandkodeService {
     @Autowired
     private Endpoints endpoints;
 
-    public LandkodeResource getLandkodeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<LandkodeResource> getLandkodeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getLandkodeResource(
             endpoints.getFellesKodeverkIso() 
                 + "/landkode/" 
@@ -27,7 +28,7 @@ public class LandkodeService {
             dfe);
     }
 
-    public LandkodeResource getLandkodeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<LandkodeResource> getLandkodeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, LandkodeResource.class, dfe);
     }
 }

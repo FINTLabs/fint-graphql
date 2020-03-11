@@ -23,10 +23,11 @@ import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningBasisgruppeResolver")
 public class BasisgruppeResolver implements GraphQLResolver<BasisgruppeResource> {
@@ -50,58 +51,64 @@ public class BasisgruppeResolver implements GraphQLResolver<BasisgruppeResource>
     private MedlemskapService medlemskapService;
 
 
-    public ArstrinnResource getTrinn(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
-        return basisgruppe.getTrinn()
+    public CompletionStage<ArstrinnResource> getTrinn(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(basisgruppe.getTrinn()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arstrinnService.getArstrinnResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> arstrinnService.getArstrinnResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public SkoleResource getSkole(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
-        return basisgruppe.getSkole()
+    public CompletionStage<SkoleResource> getSkole(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(basisgruppe.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public List<UndervisningsforholdResource> getUndervisningsforhold(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
-        return basisgruppe.getUndervisningsforhold()
+    public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(basisgruppe.getUndervisningsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<ElevforholdResource> getElevforhold(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
-        return basisgruppe.getElevforhold()
+    public CompletionStage<List<ElevforholdResource>> getElevforhold(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(basisgruppe.getElevforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> elevforholdService.getElevforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<KontaktlarergruppeResource> getKontaktlarergruppe(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
-        return basisgruppe.getKontaktlarergruppe()
+    public CompletionStage<List<KontaktlarergruppeResource>> getKontaktlarergruppe(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(basisgruppe.getKontaktlarergruppe()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> kontaktlarergruppeService.getKontaktlarergruppeResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> kontaktlarergruppeService.getKontaktlarergruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<MedlemskapResource> getMedlemskap(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
-        return basisgruppe.getMedlemskap()
+    public CompletionStage<List<MedlemskapResource>> getMedlemskap(BasisgruppeResource basisgruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(basisgruppe.getMedlemskap()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> medlemskapService.getMedlemskapResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> medlemskapService.getMedlemskapResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

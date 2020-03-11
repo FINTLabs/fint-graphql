@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.kodeverk.FylkeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("fellesFylkeService")
 public class FylkeService {
@@ -17,7 +18,7 @@ public class FylkeService {
     @Autowired
     private Endpoints endpoints;
 
-    public FylkeResource getFylkeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<FylkeResource> getFylkeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getFylkeResource(
             endpoints.getFellesKodeverk() 
                 + "/fylke/" 
@@ -27,7 +28,7 @@ public class FylkeService {
             dfe);
     }
 
-    public FylkeResource getFylkeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<FylkeResource> getFylkeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, FylkeResource.class, dfe);
     }
 }

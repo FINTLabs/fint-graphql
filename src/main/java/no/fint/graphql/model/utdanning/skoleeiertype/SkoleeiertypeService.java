@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningSkoleeiertypeService")
 public class SkoleeiertypeService {
@@ -17,7 +18,7 @@ public class SkoleeiertypeService {
     @Autowired
     private Endpoints endpoints;
 
-    public SkoleeiertypeResource getSkoleeiertypeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<SkoleeiertypeResource> getSkoleeiertypeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getSkoleeiertypeResource(
             endpoints.getUtdanningKodeverk() 
                 + "/skoleeiertype/" 
@@ -27,7 +28,7 @@ public class SkoleeiertypeService {
             dfe);
     }
 
-    public SkoleeiertypeResource getSkoleeiertypeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<SkoleeiertypeResource> getSkoleeiertypeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, SkoleeiertypeResource.class, dfe);
     }
 }

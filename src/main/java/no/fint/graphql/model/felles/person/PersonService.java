@@ -7,6 +7,8 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.PersonResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -20,20 +22,20 @@ public class PersonService {
     @Autowired
     private Endpoints endpoints;
 
-    public PersonResource getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
-        return Stream
+    public Mono<PersonResource> getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(Stream
                 .of(endpoints.getAdministrasjonPersonal(), endpoints.getUtdanningElev(), endpoints.getFelles())
                 .map(e -> e + "/person/"
                         + id
                         + "/"
                         + value)
-                .map(r -> getPersonResource(r, dfe))
+                .map(r -> getPersonResource(r, dfe)))
+                .flatMap(Mono::flux)
                 .filter(Objects::nonNull)
-                .findAny()
-                .orElse(null);
+                .next();
     }
 
-    public PersonResource getPersonResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<PersonResource> getPersonResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, PersonResource.class, dfe);
     }
 }

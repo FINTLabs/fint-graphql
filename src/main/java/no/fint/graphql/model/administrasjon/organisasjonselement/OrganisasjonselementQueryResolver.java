@@ -7,6 +7,9 @@ import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementRe
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonOrganisasjonselementQueryResolver")
 public class OrganisasjonselementQueryResolver implements GraphQLQueryResolver {
@@ -14,20 +17,20 @@ public class OrganisasjonselementQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private OrganisasjonselementService service;
 
-    public OrganisasjonselementResource getOrganisasjonselement(
+    public CompletionStage<OrganisasjonselementResource> getOrganisasjonselement(
             String organisasjonsId,
             String organisasjonsKode,
             String organisasjonsnummer,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(organisasjonsId)) {
-            return service.getOrganisasjonselementResourceById("organisasjonsid", organisasjonsId, dfe);
+            return service.getOrganisasjonselementResourceById("organisasjonsid", organisasjonsId, dfe).toFuture();
         }
         if (StringUtils.isNotEmpty(organisasjonsKode)) {
-            return service.getOrganisasjonselementResourceById("organisasjonskode", organisasjonsKode, dfe);
+            return service.getOrganisasjonselementResourceById("organisasjonskode", organisasjonsKode, dfe).toFuture();
         }
         if (StringUtils.isNotEmpty(organisasjonsnummer)) {
-            return service.getOrganisasjonselementResourceById("organisasjonsnummer", organisasjonsnummer, dfe);
+            return service.getOrganisasjonselementResourceById("organisasjonsnummer", organisasjonsnummer, dfe).toFuture();
         }
-        return null;
+        return Mono.<OrganisasjonselementResource>empty().toFuture();
     }
 }

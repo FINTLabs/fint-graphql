@@ -1,8 +1,8 @@
 package no.fint.graphql
 
-import graphql.execution.ExecutionContext
+
 import graphql.schema.DataFetchingEnvironment
-import graphql.servlet.GraphQLContext
+import graphql.servlet.context.GraphQLServletContext
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.http.HttpHeaders
@@ -24,7 +24,7 @@ class WebClientRequestSpec extends Specification {
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
-        def response = webClientRequest.get(url, String, dfe)
+        def response = webClientRequest.get(url, String, dfe).block()
         def request = server.takeRequest()
 
         then:
@@ -38,7 +38,7 @@ class WebClientRequestSpec extends Specification {
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
-        def response = webClientRequest.get(url, String, dfe)
+        def response = webClientRequest.get(url, String, dfe).block()
         def request = server.takeRequest()
 
         then:
@@ -48,11 +48,9 @@ class WebClientRequestSpec extends Specification {
 
     private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null) {
         Mock(DataFetchingEnvironment) {
-            getExecutionContext() >> Mock(ExecutionContext) {
-                getContext() >> Mock(GraphQLContext) {
-                    getHttpServletRequest() >> Optional.of(Mock(HttpServletRequest) {
-                        if (token != null) getHeader(HttpHeaders.AUTHORIZATION) >> token
-                    })
+            getContext() >> Mock(GraphQLServletContext) {
+                getHttpServletRequest() >> Mock(HttpServletRequest) {
+                    if (token != null) getHeader(HttpHeaders.AUTHORIZATION) >> token
                 }
             }
         }

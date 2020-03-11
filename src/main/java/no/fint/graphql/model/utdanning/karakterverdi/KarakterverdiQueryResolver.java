@@ -7,6 +7,9 @@ import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.CompletionStage;
 
 @Component("utdanningKarakterverdiQueryResolver")
 public class KarakterverdiQueryResolver implements GraphQLQueryResolver {
@@ -14,12 +17,12 @@ public class KarakterverdiQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KarakterverdiService service;
 
-    public KarakterverdiResource getKarakterverdi(
+    public CompletionStage<KarakterverdiResource> getKarakterverdi(
             String systemId,
             DataFetchingEnvironment dfe) {
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getKarakterverdiResourceById("systemid", systemId, dfe);
+            return service.getKarakterverdiResourceById("systemid", systemId, dfe).toFuture();
         }
-        return null;
+        return Mono.<KarakterverdiResource>empty().toFuture();
     }
 }

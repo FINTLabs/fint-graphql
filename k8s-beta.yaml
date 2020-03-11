@@ -22,7 +22,7 @@ metadata:
     io.kompose.service: graphql-beta
   name: graphql-beta
 spec:
-  replicas: 1
+  replicas: 3
   minReadySeconds: 30
   revisionHistoryLimit: 0
   strategy:
@@ -40,29 +40,37 @@ spec:
     spec:
       containers:
         - name: graphql-beta
-          image: fintlabs.azurecr.io/graphql:1.0.0
+          image: fintlabs.azurecr.io/graphql:PR-16.1
           ports:
             - containerPort: 8080
           readinessProbe:
-            initialDelaySeconds: 30
+            initialDelaySeconds: 20
             timeoutSeconds: 5
             httpGet:
               port: 8080
               path: /graphql/actuator/health
           resources:
             limits:
-              memory: "1.5Gi"
-              cpu: "1000m"
+              memory: "5Gi"
+              cpu: "2"
+          envFrom:
+            - configMapRef:
+                name: fint-environment
+                optional: true
           env:
             - name: TZ
               value: Europe/Oslo
             - name: JAVA_OPTS
-              value: -Xmx1G
+              value: -Xmx4G
             - name: server.servlet.context-path
               value: "/graphql"
             - name: graphiql.endpoint.graphql
               value: "/graphql/graphql"
             - name: fint.endpoint.root
               value: "https://beta.felleskomponent.no"
-            - name: logging.level.org.springframework.web.reactive.function.client.ExchangeFunctions
-              value: "DEBUG"
+            - name: spring.main.allow-bean-definition-overriding
+              value: "true"
+            - name: spring.codec.max-in-memory-size
+              value: "50000000"
+            - name: fint.webclient.connection-provider.maxLifeTime
+              value: "PT15M"

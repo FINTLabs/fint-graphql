@@ -21,10 +21,11 @@ import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonOrganisasjonselementResolver")
 public class OrganisasjonselementResolver implements GraphQLResolver<OrganisasjonselementResource> {
@@ -45,58 +46,64 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
     private ArbeidsforholdService arbeidsforholdService;
 
 
-    public List<AnsvarResource> getAnsvar(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselement.getAnsvar()
+    public CompletionStage<List<AnsvarResource>> getAnsvar(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getAnsvar()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> ansvarService.getAnsvarResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> ansvarService.getAnsvarResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public PersonalressursResource getLeder(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselement.getLeder()
+    public CompletionStage<PersonalressursResource> getLeder(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getLeder()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personalressursService.getPersonalressursResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personalressursService.getPersonalressursResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public OrganisasjonselementResource getOverordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselement.getOverordnet()
+    public CompletionStage<OrganisasjonselementResource> getOverordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getOverordnet()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public List<OrganisasjonselementResource> getUnderordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselement.getUnderordnet()
+    public CompletionStage<List<OrganisasjonselementResource>> getUnderordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getUnderordnet()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public SkoleResource getSkole(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselement.getSkole()
+    public CompletionStage<SkoleResource> getSkole(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getSkole()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> skoleService.getSkoleResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public List<ArbeidsforholdResource> getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return organisasjonselement.getArbeidsforhold()
+    public CompletionStage<List<ArbeidsforholdResource>> getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getArbeidsforhold()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }

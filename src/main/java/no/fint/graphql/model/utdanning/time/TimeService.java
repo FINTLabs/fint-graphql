@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.timeplan.TimeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningTimeService")
 public class TimeService {
@@ -17,7 +18,7 @@ public class TimeService {
     @Autowired
     private Endpoints endpoints;
 
-    public TimeResource getTimeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<TimeResource> getTimeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getTimeResource(
             endpoints.getUtdanningTimeplan() 
                 + "/time/" 
@@ -27,7 +28,7 @@ public class TimeService {
             dfe);
     }
 
-    public TimeResource getTimeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<TimeResource> getTimeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, TimeResource.class, dfe);
     }
 }

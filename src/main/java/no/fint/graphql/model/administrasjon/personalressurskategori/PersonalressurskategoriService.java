@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("administrasjonPersonalressurskategoriService")
 public class PersonalressurskategoriService {
@@ -17,7 +18,7 @@ public class PersonalressurskategoriService {
     @Autowired
     private Endpoints endpoints;
 
-    public PersonalressurskategoriResource getPersonalressurskategoriResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<PersonalressurskategoriResource> getPersonalressurskategoriResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getPersonalressurskategoriResource(
             endpoints.getAdministrasjonKodeverk() 
                 + "/personalressurskategori/" 
@@ -27,7 +28,7 @@ public class PersonalressurskategoriService {
             dfe);
     }
 
-    public PersonalressurskategoriResource getPersonalressurskategoriResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<PersonalressurskategoriResource> getPersonalressurskategoriResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, PersonalressurskategoriResource.class, dfe);
     }
 }

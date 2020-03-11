@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningKontaktlarergruppeService")
 public class KontaktlarergruppeService {
@@ -17,7 +18,7 @@ public class KontaktlarergruppeService {
     @Autowired
     private Endpoints endpoints;
 
-    public KontaktlarergruppeResource getKontaktlarergruppeResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<KontaktlarergruppeResource> getKontaktlarergruppeResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getKontaktlarergruppeResource(
             endpoints.getUtdanningElev() 
                 + "/kontaktlarergruppe/" 
@@ -27,7 +28,7 @@ public class KontaktlarergruppeService {
             dfe);
     }
 
-    public KontaktlarergruppeResource getKontaktlarergruppeResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<KontaktlarergruppeResource> getKontaktlarergruppeResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, KontaktlarergruppeResource.class, dfe);
     }
 }

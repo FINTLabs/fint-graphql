@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.utdanning.kodeverk.KarakterskalaResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("utdanningKarakterskalaService")
 public class KarakterskalaService {
@@ -17,7 +18,7 @@ public class KarakterskalaService {
     @Autowired
     private Endpoints endpoints;
 
-    public KarakterskalaResource getKarakterskalaResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<KarakterskalaResource> getKarakterskalaResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getKarakterskalaResource(
             endpoints.getUtdanningKodeverk() 
                 + "/karakterskala/" 
@@ -27,7 +28,7 @@ public class KarakterskalaService {
             dfe);
     }
 
-    public KarakterskalaResource getKarakterskalaResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<KarakterskalaResource> getKarakterskalaResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, KarakterskalaResource.class, dfe);
     }
 }

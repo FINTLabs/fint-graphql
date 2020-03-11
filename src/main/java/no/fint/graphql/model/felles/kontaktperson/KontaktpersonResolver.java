@@ -13,10 +13,11 @@ import no.fint.model.resource.felles.PersonResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("fellesKontaktpersonResolver")
 public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResource> {
@@ -25,22 +26,24 @@ public class KontaktpersonResolver implements GraphQLResolver<KontaktpersonResou
     private PersonService personService;
 
 
-    public List<PersonResource> getKontaktperson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
-        return kontaktperson.getKontaktperson()
+    public CompletionStage<List<PersonResource>> getKontaktperson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(kontaktperson.getKontaktperson()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personService.getPersonResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> personService.getPersonResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public PersonResource getPerson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
-        return kontaktperson.getPerson()
+    public CompletionStage<PersonResource> getPerson(KontaktpersonResource kontaktperson, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(kontaktperson.getPerson()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> personService.getPersonResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> personService.getPersonResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
 }

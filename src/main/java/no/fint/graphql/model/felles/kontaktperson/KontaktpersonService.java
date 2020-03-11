@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.fint.model.resource.felles.KontaktpersonResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Service("fellesKontaktpersonService")
 public class KontaktpersonService {
@@ -17,7 +18,7 @@ public class KontaktpersonService {
     @Autowired
     private Endpoints endpoints;
 
-    public KontaktpersonResource getKontaktpersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
+    public Mono<KontaktpersonResource> getKontaktpersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return getKontaktpersonResource(
             endpoints.getFelles() 
                 + "/kontaktperson/" 
@@ -27,7 +28,7 @@ public class KontaktpersonService {
             dfe);
     }
 
-    public KontaktpersonResource getKontaktpersonResource(String url, DataFetchingEnvironment dfe) {
+    public Mono<KontaktpersonResource> getKontaktpersonResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, KontaktpersonResource.class, dfe);
     }
 }

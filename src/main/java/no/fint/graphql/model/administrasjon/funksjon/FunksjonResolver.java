@@ -15,10 +15,11 @@ import no.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonFunksjonResolver")
 public class FunksjonResolver implements GraphQLResolver<FunksjonResource> {
@@ -30,31 +31,34 @@ public class FunksjonResolver implements GraphQLResolver<FunksjonResource> {
     private FullmaktService fullmaktService;
 
 
-    public FunksjonResource getOverordnet(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
-        return funksjon.getOverordnet()
+    public CompletionStage<FunksjonResource> getOverordnet(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(funksjon.getOverordnet()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> funksjonService.getFunksjonResource(l, dfe))
-                .filter(Objects::nonNull)
-                .findFirst().orElse(null);
+                .map(l -> funksjonService.getFunksjonResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
     }
 
-    public List<FunksjonResource> getUnderordnet(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
-        return funksjon.getUnderordnet()
+    public CompletionStage<List<FunksjonResource>> getUnderordnet(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(funksjon.getUnderordnet()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> funksjonService.getFunksjonResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> funksjonService.getFunksjonResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
-    public List<FullmaktResource> getFullmakt(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
-        return funksjon.getFullmakt()
+    public CompletionStage<List<FullmaktResource>> getFullmakt(FunksjonResource funksjon, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(funksjon.getFullmakt()
                 .stream()
                 .map(Link::getHref)
-                .map(l -> fullmaktService.getFullmaktResource(l, dfe))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .map(l -> fullmaktService.getFullmaktResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
     }
 
 }
