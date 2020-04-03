@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
         - name: graphql-beta
-          image: fintlabs.azurecr.io/graphql:PR-16.1
+          image: fintlabs.azurecr.io/graphql:1.2.0
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -56,12 +56,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: fint-environment
-                optional: true
           env:
-            - name: TZ
-              value: Europe/Oslo
-            - name: JAVA_OPTS
-              value: -Xmx4G
             - name: server.servlet.context-path
               value: "/graphql"
             - name: graphiql.endpoint.graphql
