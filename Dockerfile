@@ -1,6 +1,12 @@
-FROM gradle:4.10.2-jdk8-alpine as builder
+FROM fint/graphql-cli:1.1.0 as generator
+WORKDIR /
+RUN ["/usr/bin/fint-graphql-cli", "--tag", "v3.5.0", "generate", "--exclude", "Fravar"]
+
+FROM gradle:4.10.3-jdk8-alpine as builder
 USER root
 COPY . .
+COPY --from=generator /graphql/schema/ src/main/resources/schema/
+COPY --from=generator /graphql/model/ src/main/java/no/fint/graphql/model/
 RUN gradle --no-daemon build
 
 FROM gcr.io/distroless/java:8
