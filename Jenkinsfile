@@ -1,17 +1,20 @@
 pipeline {
     agent { label 'docker' }
+    parameters {
+        string(name: 'MODEL_VERSION', description: 'Version of model to generate for')
+    }
     stages {
         stage('Build') {
             steps {
-                sh "docker build --tag ${GIT_COMMIT} ."
+                sh "docker build --tag ${GIT_COMMIT} --build-arg TAG_NAME=v${MODEL_VERSION} --build-arg VERSION=${MODEL_VERSION} ."
             }
         }
         stage('Publish') {
             when { branch 'master' }
             steps {
                 withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
-                    sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/graphql:build.${BUILD_NUMBER}"
-                    sh "docker push fintlabs.azurecr.io/graphql:build.${BUILD_NUMBER}"
+                    sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/graphql:${MODEL_VERSION}-${BUILD_NUMBER}"
+                    sh "docker push fintlabs.azurecr.io/graphql:${MODEL_VERSION}-${BUILD_NUMBER}"
                 }
             }
         }
@@ -21,20 +24,6 @@ pipeline {
                 withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
                     sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/graphql:${BRANCH_NAME}.${BUILD_NUMBER}"
                     sh "docker push fintlabs.azurecr.io/graphql:${BRANCH_NAME}.${BUILD_NUMBER}"
-                }
-            }
-        }
-        stage('Publish Version') {
-            when {
-                tag pattern: "v\\d+\\.\\d+\\.\\d+(-\\w+-\\d+)?", comparator: "REGEXP"
-            }
-            steps {
-                script {
-                    VERSION = TAG_NAME[1..-1]
-                }
-                sh "docker tag ${GIT_COMMIT} fintlabs.azurecr.io/graphql:${VERSION}"
-                withDockerRegistry([credentialsId: 'fintlabs.azurecr.io', url: 'https://fintlabs.azurecr.io']) {
-                    sh "docker push fintlabs.azurecr.io/graphql:${VERSION}"
                 }
             }
         }
