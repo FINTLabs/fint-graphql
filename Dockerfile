@@ -9,6 +9,7 @@ USER root
 COPY . .
 COPY --from=generator /graphql/schema/ src/main/resources/schema/
 COPY --from=generator /graphql/model/ src/main/java/no/fint/graphql/model/
+COPY PersonService.txt src/main/java/no/fint/graphql/model/felles/person/PersonService.java
 RUN gradle --no-daemon -Pversion=${VERSION} build
 
 FROM gcr.io/distroless/java:8
