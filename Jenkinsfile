@@ -2,11 +2,12 @@ pipeline {
     agent { label 'docker' }
     parameters {
         string(name: 'MODEL_VERSION', description: 'Version of model to generate for')
+        string(name: 'LIB_VERSION', description: 'Version of model library to compile with')
     }
     stages {
         stage('Build') {
             steps {
-                sh "docker build --tag ${GIT_COMMIT} --build-arg TAG_NAME=v${MODEL_VERSION} --build-arg VERSION=${MODEL_VERSION} ."
+                sh "docker build --tag ${GIT_COMMIT} --build-arg TAG_NAME=v${MODEL_VERSION} --build-arg VERSION=${LIB_VERSION} ."
             }
         }
         stage('Publish') {
