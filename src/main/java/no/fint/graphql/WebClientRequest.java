@@ -18,6 +18,7 @@ import reactor.cache.CacheMono;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -26,6 +27,7 @@ public class WebClientRequest {
     private final WebClient webClient;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
+    private final AtomicInteger requests, misses;
 
     public WebClientRequest(
             WebClient webClient,
@@ -33,6 +35,8 @@ public class WebClientRequest {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
         hashFunction = Hashing.murmur3_128();
+        requests = new AtomicInteger();
+        misses = new AtomicInteger();
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
@@ -44,10 +48,11 @@ public class WebClientRequest {
         }
         if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
+            requests.incrementAndGet();
             return CacheMono
                     .lookup(cache.asMap(), key, type)
                     .onCacheMissResume(() -> {
-                        log.info("Cache miss for {}", uri);
+                        log.info("Cache hit rate {}", 1.0 - (misses.incrementAndGet() / requests.get()));
                         return get(request, type);
                     });
         }
