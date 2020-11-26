@@ -48,7 +48,6 @@ dependencies {
     compile('com.graphql-java-kickstart:graphql-java-tools:5.7.1')
     compile('com.zhokhov.graphql:graphql-datetime-spring-boot-starter:1.6.0')
     compile('com.github.ben-manes.caffeine:caffeine')
-    compile('io.projectreactor.addons:reactor-extra')
 
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter')
