@@ -14,7 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.cache.CacheMono;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -44,12 +43,14 @@ public class WebClientRequest {
         }
         if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
-            return CacheMono
-                    .lookup(cache.asMap(), key, type)
-                    .onCacheMissResume(() -> {
-                        log.info("Cache miss for {}", uri);
-                        return get(request, type);
-                    });
+            final T result = (T) cache.getIfPresent(key);
+            if (result != null) {
+                log.info("Cache hit on {}", uri);
+                return Mono.just(result);
+            }
+            log.info("Cache miss on {}", uri);
+            return get(request, type)
+                    .doOnNext(value -> cache.put(key, value));
         }
         return get(request, type);
     }
