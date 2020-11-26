@@ -36,7 +36,6 @@ public class WebClientRequest {
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
         String token = getToken(dfe);
-        log.debug("Token: {}", token);
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
         if (token != null) {
             request.header(HttpHeaders.AUTHORIZATION, token);
@@ -45,10 +44,10 @@ public class WebClientRequest {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);
             if (result != null) {
-                log.info("Cache hit on {}", uri);
+                log.trace("Cache hit on {}", uri);
                 return Mono.just(result);
             }
-            log.info("Cache miss on {}", uri);
+            log.trace("Cache miss on {}", uri);
             return get(request, type)
                     .doOnNext(value -> cache.put(key, value));
         }
