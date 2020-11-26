@@ -43,7 +43,7 @@ public class WebClientRequest {
         if (token != null) {
             request.header(HttpHeaders.AUTHORIZATION, token);
         }
-        if (StringUtils.containsIgnoreCase(uri, "/kodeverk/systemid/")) {
+        if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putString(token, Charsets.UTF_8).putString(uri, Charsets.UTF_8).hash();
             return CacheMono
                     .lookup(cache.asMap(), key, type)
