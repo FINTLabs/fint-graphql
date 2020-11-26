@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.2.4.RELEASE'
+        springBootVersion = '2.2.7.RELEASE'
     }
     repositories {
         jcenter()
@@ -47,9 +47,12 @@ dependencies {
     compile('com.graphql-java-kickstart:graphiql-spring-boot-starter:6.0.1')
     compile('com.graphql-java-kickstart:graphql-java-tools:5.7.1')
     compile('com.zhokhov.graphql:graphql-datetime-spring-boot-starter:1.6.0')
+    compile('io.projectreactor.addons:reactor-extra')
+    compile('com.github.ben-manes.caffeine:caffeine')
 
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter')
+    compileOnly('org.springframework.boot:spring-boot-configuration-processor')
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
 
     runtime('org.springframework.boot:spring-boot-starter-actuator')
