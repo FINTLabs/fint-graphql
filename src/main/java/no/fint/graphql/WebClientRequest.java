@@ -2,7 +2,6 @@ package no.fint.graphql;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.common.base.Charsets;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -44,10 +43,13 @@ public class WebClientRequest {
             request.header(HttpHeaders.AUTHORIZATION, token);
         }
         if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
-            HashCode key = hashFunction.newHasher().putString(token, Charsets.UTF_8).putString(uri, Charsets.UTF_8).hash();
+            HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             return CacheMono
                     .lookup(cache.asMap(), key, type)
-                    .onCacheMissResume(() -> get(request, type));
+                    .onCacheMissResume(() -> {
+                        log.info("Cache miss for {}", uri);
+                        return get(request, type);
+                    });
         }
         return get(request, type);
     }
