@@ -54,7 +54,8 @@ dependencies {
     compileOnly('org.springframework.boot:spring-boot-configuration-processor')
     compileOnly("org.projectlombok:lombok:${lombokVersion}")
 
-    runtime('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('io.micrometer:micrometer-registry-prometheus')
 
     testCompile("cglib:cglib-nodep:${cglibVersion}")
     testCompile("org.spockframework:spock-spring:${spockSpringVersion}")
