@@ -11,9 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -56,8 +56,9 @@ public class WebClientRequest {
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type) {
         return request.retrieve()
-                .onStatus(HttpStatus::is4xxClientError, r -> Mono.empty())
                 .bodyToMono(type)
+                .onErrorResume(WebClientResponseException.class,
+                        ex -> ex.getRawStatusCode() == 404 ? Mono.empty() : Mono.error(ex))
                 .retryBackoff(5, Duration.ofMillis(500));
     }
 

@@ -25,7 +25,7 @@ public class PersonService {
 
     public Mono<PersonResource> getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return Flux.fromStream(Stream
-                        .of(endpoints.getAdministrasjonPersonal(), endpoints.getUtdanningElev(), endpoints.getFelles())
+                        .of(endpoints.getAdministrasjonPersonal(), endpoints.getUtdanningElev())
                         .map(e -> e + "/person/"
                                 + id
                                 + "/"
