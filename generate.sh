@@ -3,7 +3,7 @@
 docker run \
   -v "${PWD}/src/main/resources/schema:/src/graphql/schema" \
   -v "${PWD}/src/main/java/no/fint/graphql/model:/src/graphql/model" \
-  fint/graphql-cli:latest \
+  fint/graphql-cli:1.1.2-rc-1 \
   generate --exclude Fravar
 
 echo Schema and models generated.  Please remember to clean up ${PWD}/src/main/{resources/schema,java/no/fint/graphql/model} before commit.
