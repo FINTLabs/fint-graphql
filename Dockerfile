@@ -1,4 +1,4 @@
-FROM fint/graphql-cli:1.1.1 as generator
+FROM fint/graphql-cli:1.1.2-rc-1 as generator
 ARG TAG_NAME
 WORKDIR /
 RUN ["/usr/bin/fint-graphql-cli", "generate", "--exclude", "Fravar"]
