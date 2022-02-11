@@ -6,4 +6,6 @@ docker run \
   fint/graphql-cli:1.1.2-rc-1 \
   generate --exclude Fravar
 
+cp PersonService.txt src/main/java/no/fint/graphql/model/felles/person/PersonService.java
+
 echo Schema and models generated.  Please remember to clean up ${PWD}/src/main/{resources/schema,java/no/fint/graphql/model} before commit.
