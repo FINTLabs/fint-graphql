@@ -1,0 +1,35 @@
+name: CI/CD
+on:
+  push:
+#    branches:
+#      - master
+  workflow_dispatch:
+
+env:
+  REGISTRY_NAME: fintlabsacr
+  MODEL_VERSION: 3.11.0-rc-3
+  LIB_VERSION: 3.11.0-rc-3
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get repo name
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+      - name: Connect to Azure Container Registry (ACR)
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{env.REGISTRY_NAME}}.azurecr.io
+          username: ${{secrets.REGISTRY_USERNAME}}
+          password: ${{secrets.REGISTRY_PASSWORD}}
+
+      - name: Building the container
+        run: |
+          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
+
+      - name: Push the container to Azure Container Registry (ACR)
+        run: |
+          docker push ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}}
