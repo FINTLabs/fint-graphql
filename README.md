@@ -1,5 +1,12 @@
 # FINT graphql
 
+## When you're releasing a new version remember these two things
+
+1. Update `version` in [gradle.properties](gradle.properties)
+2. Update `MODEL_VERSION` and `LIB_VERSION` in the GitHub Action file [.github/workflows/cicd.yaml](.github/workflows/cicd.yaml).
+3. Push play and 🤞
+
+
 ## Getting started
 
 The application works out of the box.  Launch `Application` from within your IDE and go to http://localhost:8080/graphiql
