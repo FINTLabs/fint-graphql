@@ -1,6 +1,6 @@
 name: CI/CD
 on: push
-git s
+
 env:
   REGISTRY_NAME: fintlabsacr
   MODEL_VERSION: 3.14.10
