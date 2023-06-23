@@ -1,4 +1,4 @@
-FROM hcr.io/fintlabs/fint-graphql-cli:1.2.0-rc-1 as generator
+FROM ghcr.io/fintlabs/fint-graphql-cli:1.2.0-rc-1 as generator
 ARG TAG_NAME
 WORKDIR /
 RUN ["/usr/bin/fint-graphql-cli", "generate", "--exclude", "Fravar", "--exclude", "OTUngdom", "--exclude-schema", "OTUngdom"]
