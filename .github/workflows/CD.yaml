@@ -1,8 +1,9 @@
-name: CI/CD
+name: CD
 on:
   push:
     branches:
       - main
+      - CT-778-exclude-fields
   workflow_dispatch:
 
 env:
