@@ -3,9 +3,9 @@
 ## When you're releasing a new version remember these two things
 
 1. Update `version` in [gradle.properties](gradle.properties)
-2. Update `MODEL_VERSION` and `LIB_VERSION` in the GitHub Action file [.github/workflows/cicd.yaml](.github/workflows/CD.yaml).
+2. Update `MODEL_VERSION` and `LIB_VERSION` in the GitHub Action file [.github/workflows/CD.yaml](.github/workflows/CD.yaml) and [.github/workflows/CI.yaml](.github/workflows/CI.yaml).
 3. Push play and 🤞
-
+4. Manually deploy from `fint-infra-tools`
 
 ## Getting started
 
