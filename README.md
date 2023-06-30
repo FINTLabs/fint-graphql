@@ -9,7 +9,8 @@
 
 ## Getting started
 
-The application works out of the box.  Launch `Application` from within your IDE and go to http://localhost:8080/graphiql
+The application works out of the box. Run `generate.sh` to import model and schema. 
+Launch `Application` from within your IDE and go to http://localhost:8080/graphiql
 
 ## Queries
 
