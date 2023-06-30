@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - CT-778-try-to-fix
   workflow_dispatch:
 
 env:
