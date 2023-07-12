@@ -65,11 +65,24 @@ public class WebClientRequest {
     private String getToken(DataFetchingEnvironment dfe) {
         Object context = dfe.getContext();
         if (context instanceof GraphQLServletContext) {
-            String ip = ((GraphQLServletContext) context).getHttpServletRequest().getLocalAddr().toString();
-            log.info("Request-id: " + ip);
-            return ((GraphQLServletContext) context).getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION);
+            GraphQLServletContext graphQLServletContext = (GraphQLServletContext) context;
+            logRemoteIp(graphQLServletContext);
+            return graphQLServletContext.getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION);
         }
 
         return null;
+    }
+
+
+    private static void logRemoteIp(GraphQLServletContext graphQLServletContext) {
+        String ip = "null";
+
+        if (graphQLServletContext != null &&
+                graphQLServletContext.getHttpServletRequest() != null &&
+                graphQLServletContext.getHttpServletRequest().getLocalAddr() != null) {
+            ip = graphQLServletContext.getHttpServletRequest().getLocalAddr();
+        }
+
+        log.info("Request-id: " + ip);
     }
 }
