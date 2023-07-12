@@ -3,7 +3,7 @@ ARG TAG_NAME
 WORKDIR /
 RUN ["/usr/bin/fint-graphql-cli", "generate", "--exclude", "Fravar","generate", "--exclude", "Fravarstype", "--exclude", "OTUngdom", "--exclude-schema", "OTUngdom", "--exclude-schema", "OTStatus", "--exclude-schema", "OTEnhet"]
 
-FROM gradle:7.6-jdk11-alpine as builder
+FROM gradle:7.6.2-jdk11-alpine as builder
 ARG VERSION
 USER root
 COPY . .

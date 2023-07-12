@@ -7,7 +7,6 @@ plugins {
 }
 
 group = 'no.fintlabs'
-version = '0-SNAPSHOT'
 sourceCompatibility = 11
 
 configurations {
@@ -35,8 +34,8 @@ repositories {
 dependencies {
     implementation 'commons-beanutils:commons-beanutils:1.9.4'
     implementation 'no.fint:fint-model-resource:0.4.1'
-    implementation 'no.fint:fint-utdanning-resource-model-java:' + apiVersion
-    implementation 'no.fint:fint-administrasjon-resource-model-java:' + apiVersion
+    implementation 'no.fint:fint-utdanning-resource-model-java:' + version
+    implementation 'no.fint:fint-administrasjon-resource-model-java:' + version
 
     implementation 'com.graphql-java-kickstart:graphql-kickstart-spring-boot-starter-tools:6.0.1'
     implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:6.0.1'
