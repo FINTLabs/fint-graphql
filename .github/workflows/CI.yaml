@@ -23,5 +23,4 @@ jobs:
           password: ${{secrets.REGISTRY_PASSWORD}}
 
       - name: Building the container
-        run: |
-          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
+        run: docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .

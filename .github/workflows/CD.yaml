@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - upgrade-java-and-gradle
   workflow_dispatch:
 
 env:
@@ -27,9 +28,7 @@ jobs:
           password: ${{secrets.REGISTRY_PASSWORD}}
 
       - name: Building the container
-        run: |
-          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
+        run: docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
 
       - name: Push the container to Azure Container Registry (ACR)
-        run: |
-          docker push ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}}
+        run: docker push ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}}
