@@ -17,6 +17,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -73,16 +75,19 @@ public class WebClientRequest {
         return null;
     }
 
+    private Set<String> remoteAddresses = new HashSet<>();
 
-    private static void logRemoteIp(GraphQLServletContext graphQLServletContext) {
+    private void logRemoteIp(GraphQLServletContext graphQLServletContext) {
         String ip = "null";
 
         if (graphQLServletContext != null &&
                 graphQLServletContext.getHttpServletRequest() != null &&
-                graphQLServletContext.getHttpServletRequest().getLocalAddr() != null) {
-            ip = graphQLServletContext.getHttpServletRequest().getLocalAddr();
+                graphQLServletContext.getHttpServletRequest().getRemoteAddr() != null) {
+            ip = graphQLServletContext.getHttpServletRequest().getRemoteAddr();
         }
 
-        log.info("Request-id: " + ip);
+        if (remoteAddresses.add(ip)) {
+            log.info("Request-id: " + ip);
+        }
     }
 }
