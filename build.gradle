@@ -17,14 +17,12 @@ configurations {
 }
 
 jar {
-    enabled = false
+    enabled = true
 }
 
 bootJar {
-    enabled = true
-    //mainClassName = 'com.my.package.MyMainClass'
+    enabled = false
 }
-
 
 repositories {
     mavenLocal()
