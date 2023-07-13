@@ -31,7 +31,8 @@ public class WebClientRequest {
 
     public WebClientRequest(
             WebClient webClient,
-            @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec, BlacklistService blacklistService) {
+            @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
+            BlacklistService blacklistService) {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
         this.blacklistService = blacklistService;
