@@ -24,7 +24,7 @@ public class BlacklistService {
 
         if (applicationConfig.getBlacklist().contains(ip)) {
             log.info("Cast exception because IP is blacklisted");
-            throw new IllegalCallerException("Client is blacklisted: " + ip);
+            throw new RuntimeException("Client is blacklisted: " + ip);
         }
     }
 }
