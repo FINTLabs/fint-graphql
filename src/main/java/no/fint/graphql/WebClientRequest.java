@@ -27,17 +27,23 @@ public class WebClientRequest {
     private final WebClient webClient;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
+    private final BlacklistService blacklistService;
 
     public WebClientRequest(
             WebClient webClient,
-            @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec) {
+            @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec, BlacklistService blacklistService) {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
+        this.blacklistService = blacklistService;
         hashFunction = Hashing.murmur3_128();
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        String token = getToken(dfe);
+        GraphQLServletContext context = getContext(dfe);
+        String token = getToken(context);
+        logRemoteIp(context);
+        blacklistService.failIfBlacklisted(getRemoteIp(context));
+
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
         if (token != null) {
             request.header(HttpHeaders.AUTHORIZATION, token);
@@ -64,30 +70,29 @@ public class WebClientRequest {
                 .retryBackoff(5, Duration.ofMillis(500));
     }
 
-    private String getToken(DataFetchingEnvironment dfe) {
-        Object context = dfe.getContext();
-        if (context instanceof GraphQLServletContext) {
-            GraphQLServletContext graphQLServletContext = (GraphQLServletContext) context;
-            logRemoteIp(graphQLServletContext);
-            return graphQLServletContext.getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION);
-        }
-
-        return null;
+    private String getToken(GraphQLServletContext context) {
+        return context != null ? context.getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION) : null;
     }
 
     private Set<String> remoteAddresses = new HashSet<>();
 
-    private void logRemoteIp(GraphQLServletContext graphQLServletContext) {
-        String ip = "null";
-
-        if (graphQLServletContext != null &&
-                graphQLServletContext.getHttpServletRequest() != null &&
-                graphQLServletContext.getHttpServletRequest().getRemoteAddr() != null) {
-            ip = graphQLServletContext.getHttpServletRequest().getRemoteAddr();
-        }
+    private void logRemoteIp(GraphQLServletContext context) {
+        String ip = getRemoteIp(context);
 
         if (remoteAddresses.add(ip)) {
             log.info("Request-id: " + ip);
         }
+    }
+
+    private GraphQLServletContext getContext(DataFetchingEnvironment dataFetchingEnvironment) {
+        Object context = dataFetchingEnvironment.getContext();
+        return context instanceof GraphQLServletContext ? (GraphQLServletContext) context : null;
+    }
+
+    private String getRemoteIp(GraphQLServletContext context) {
+        if (context == null) return null;
+        if (context.getHttpServletRequest() == null) return null;
+        if (context.getHttpServletRequest().getRemoteAddr() == null) return null;
+        return context.getHttpServletRequest().getRemoteAddr();
     }
 }

@@ -18,7 +18,8 @@ class WebClientRequestSpec extends Specification {
     private WebClient webClient = WebClient.create(url)
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
-            'maximumSize=1,expireAfterWrite=1s')
+            'maximumSize=1,expireAfterWrite=1s',
+            applicationConfig)
 
     def "Get request with token"() {
         given:
