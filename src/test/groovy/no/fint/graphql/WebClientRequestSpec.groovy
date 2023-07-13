@@ -16,9 +16,11 @@ class WebClientRequestSpec extends Specification {
     private MockWebServer server = new MockWebServer()
     private String url = server.url('/').toString()
     private WebClient webClient = WebClient.create(url)
+    private BlacklistService blacklistService = Mock(BlacklistService)
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
-            'maximumSize=1,expireAfterWrite=1s')
+            'maximumSize=1,expireAfterWrite=1s',
+            blacklistService)
 
     def "Get request with token"() {
         given:
