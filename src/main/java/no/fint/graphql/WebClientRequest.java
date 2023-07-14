@@ -43,7 +43,7 @@ public class WebClientRequest {
         GraphQLServletContext context = getContext(dfe);
         String token = getToken(context);
         logRemoteIp(context);
-        blacklistService.failIfBlacklisted(getRemoteIp(context));
+        blacklistService.failIfBlacklisted(getRemoteIp(context), token);
 
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
         if (token != null) {

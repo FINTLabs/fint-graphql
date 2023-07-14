@@ -19,12 +19,25 @@ public class BlacklistService {
         }
     }
 
-    public void failIfBlacklisted(String ip) {
+    public void failIfBlacklisted(String ip, String bearerToken) {
         if (StringUtils.isBlank(ip)) return;
 
         if (applicationConfig.getBlacklist().contains(ip)) {
             log.info("Cast exception because IP is blacklisted");
+            log.info("CN blocked was: " + getJwtInfo(bearerToken));
             throw new RuntimeException("Client is blacklisted: " + ip);
+        }
+    }
+
+    private String getJwtInfo(String bearerToken) {
+        try {
+            String tokenWithoutBearer = bearerToken.substring(7);
+            NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation("https://idp.felleskomponent.no/nidp/oauth/nam/");
+            Jwt jwt = jwtDecoder.decode(token);
+            return jwt.getClaims().get("cn").toString();
+        } catch (Exception e) {
+            log.error("Error on extract jwt info: " + e.getMessage());
+            return "";
         }
     }
 }
