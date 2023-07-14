@@ -47,7 +47,6 @@ dependencies {
     compile('com.graphql-java-kickstart:graphql-java-tools:5.7.1')
     compile('com.zhokhov.graphql:graphql-datetime-spring-boot-starter:1.6.0')
     compile('com.github.ben-manes.caffeine:caffeine')
-    compile('org.springframework.security:spring-security-oauth2-jose:5.5.3')
 
     compile('org.springframework.boot:spring-boot-starter-webflux')
     compile('org.springframework.boot:spring-boot-starter')
