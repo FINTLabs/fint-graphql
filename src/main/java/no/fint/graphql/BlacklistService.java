@@ -19,11 +19,11 @@ public class BlacklistService {
         }
     }
 
-    public void failIfBlacklisted(String ip) {
+    public void failIfBlacklisted(String ip, String bearerToken) {
         if (StringUtils.isBlank(ip)) return;
 
         if (applicationConfig.getBlacklist().contains(ip)) {
-            log.info("Cast exception because IP is blacklisted");
+            log.info("Cast exception because IP is blacklisted " + bearerToken);
             throw new RuntimeException("Client is blacklisted: " + ip);
         }
     }
