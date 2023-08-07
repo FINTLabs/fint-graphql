@@ -22,7 +22,7 @@ public class ApplicationConfig {
     private String rootUri;
 
     @Getter
-    @Value("${fint.graphql.blacklist}")
+    @Value("${fint.graphql.blacklist:}")
     private List<String> blacklist;
 
     @Bean
