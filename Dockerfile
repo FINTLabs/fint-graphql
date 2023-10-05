@@ -1,7 +1,7 @@
 FROM ghcr.io/fintlabs/fint-graphql-cli:1.2.0 as generator
 ARG TAG_NAME
 WORKDIR /
-RUN ["/usr/bin/fint-graphql-cli", "generate"]
+RUN ["/usr/bin/fint-graphql-cli", "generate", "--exclude", "Fravar", "--exclude", "Fravarstype", "--exclude", "OTUngdom", "--exclude-schema", "OTUngdom", "--exclude-schema", "OTStatus", "--exclude-schema", "OTEnhet"]
 
 FROM gradle:6.9-jdk11-alpine as builder
 ARG VERSION
