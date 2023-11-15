@@ -19,21 +19,9 @@ import java.util.List;
 @Slf4j
 public class ApplicationConfig {
 
-    @Value("${fint.endpoint.root:https://play-with-fint.felleskomponent.no}")
-    private String rootUri;
-
     @Getter
     @Value("${fint.graphql.blacklist:}")
     private List<String> blacklist;
-
-    @Bean
-    public WebClient webClient(WebClient.Builder builder, ReactorResourceFactory factory, ConnectionProvider connectionProvider) {
-        factory.setConnectionProvider(connectionProvider);
-        return builder
-                .clientConnector(new ReactorClientHttpConnector(factory, HttpClient::secure))
-                .baseUrl(rootUri)
-                .build();
-    }
 
     @Bean
     public ConnectionProvider connectionProvider(ConnectionProviderSettings settings) {
