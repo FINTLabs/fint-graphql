@@ -9,7 +9,7 @@ import reactor.netty.resources.ConnectionProvider;
 
 @Configuration
 @Slf4j
-public class ApplicationConfig {
+public class ConnectionConfig {
 
     @Bean
     public ConnectionProvider connectionProvider(ConnectionProviderSettings settings) {
