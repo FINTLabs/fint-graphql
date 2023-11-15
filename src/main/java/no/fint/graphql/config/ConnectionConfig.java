@@ -1,7 +1,6 @@
 package no.fint.graphql.config;
 
 import lombok.extern.slf4j.Slf4j;
-import no.fint.graphql.ConnectionProviderSettings;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
