@@ -1,1 +1,5 @@
-
+fint:
+  webclient:
+    connection-provider:
+      max-idle-time: PT4M
+      max-life-time: PT15M
