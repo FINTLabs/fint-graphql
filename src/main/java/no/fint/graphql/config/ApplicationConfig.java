@@ -1,4 +1,4 @@
-package no.fint.graphql;
+package no.fint.graphql.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
