@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -14,11 +15,9 @@ public class BlacklistService {
     @Value("${fint.graphql.blacklist:}")
     private List<String> blacklist;
 
-    public BlacklistService() {
-        log.info("Blacklist: ");
-        for (String blacklist : blacklist) {
-            log.info(blacklist);
-        }
+    @PostConstruct
+    public void init() {
+        log.info("Blacklist: " + blacklist);
     }
 
     public void failIfBlacklisted(String ip, String bearerToken) {
