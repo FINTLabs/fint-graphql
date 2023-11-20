@@ -19,10 +19,6 @@ import java.util.List;
 @Slf4j
 public class ApplicationConfig {
 
-    @Getter
-    @Value("${fint.graphql.blacklist:}")
-    private List<String> blacklist;
-
     @Bean
     public ConnectionProvider connectionProvider(ConnectionProviderSettings settings) {
         log.info("Connection Provider settings: {}", settings);

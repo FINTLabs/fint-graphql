@@ -3,19 +3,21 @@ package no.fint.graphql;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.graphql.config.ApplicationConfig;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
 public class BlacklistService {
 
-    private final ApplicationConfig applicationConfig;
+    @Value("${fint.graphql.blacklist:}")
+    private List<String> blacklist;
 
-    public BlacklistService(ApplicationConfig applicationConfig) {
-        this.applicationConfig = applicationConfig;
-
+    public BlacklistService() {
         log.info("Blacklist: ");
-        for (String blacklist : applicationConfig.getBlacklist()) {
+        for (String blacklist : blacklist) {
             log.info(blacklist);
         }
     }
@@ -23,7 +25,7 @@ public class BlacklistService {
     public void failIfBlacklisted(String ip, String bearerToken) {
         if (StringUtils.isBlank(ip)) return;
 
-        if (applicationConfig.getBlacklist().contains(ip)) {
+        if (blacklist.contains(ip)) {
             log.info("Cast exception because IP is blacklisted " + bearerToken);
             throw new RuntimeException("Client is blacklisted: " + ip);
         }
