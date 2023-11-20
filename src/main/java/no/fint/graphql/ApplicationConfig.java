@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
+import java.time.Duration;
 import java.util.List;
 
 @Configuration
@@ -39,9 +40,17 @@ public class ApplicationConfig {
         log.info("Connection Provider settings: {}", settings);
         switch (StringUtils.upperCase(settings.getType())) {
             case "FIXED":
-                return ConnectionProvider.fixed("graphql", settings.getMaxConnections(), settings.getAcquireTimeout(), settings.getMaxIdleTime(), settings.getMaxLifeTime());
+                return ConnectionProvider.builder("graphql")
+                        .maxConnections(settings.getMaxConnections())
+                        .pendingAcquireTimeout(Duration.ofMillis(settings.getAcquireTimeout()))
+                        .maxIdleTime(settings.getMaxIdleTime())
+                        .maxLifeTime(settings.getMaxLifeTime())
+                        .build();
             case "ELASTIC":
-                return ConnectionProvider.elastic("graphql", settings.getMaxIdleTime(), settings.getMaxLifeTime());
+                return ConnectionProvider.builder("graphql")
+                        .maxIdleTime(settings.getMaxIdleTime())
+                        .maxLifeTime(settings.getMaxLifeTime())
+                        .build();
             case "NEW":
                 return ConnectionProvider.newConnection();
             default:
