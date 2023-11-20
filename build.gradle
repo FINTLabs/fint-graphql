@@ -27,10 +27,10 @@ dependencies {
     implementation("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
 
     implementation('com.graphql-java-kickstart:graphql-kickstart-spring-boot-starter-tools:6.0.1')
-    implementation('com.graphql-java-kickstart:graphql-spring-boot-starter:6.0.1')
+    implementation('com.graphql-java-kickstart:graphql-spring-boot-starter:14.1.0')
     implementation('com.graphql-java-kickstart:graphiql-spring-boot-starter:6.0.1')
     implementation('com.graphql-java-kickstart:graphql-java-tools:5.7.1')
-    implementation('com.zhokhov.graphql:graphql-datetime-spring-boot-starter:1.6.0')
+    implementation('com.zhokhov.graphql:graphql-datetime-spring-boot-starter:4.1.0')
     implementation('com.github.ben-manes.caffeine:caffeine')
 
     implementation('org.springframework.boot:spring-boot-starter-webflux')
