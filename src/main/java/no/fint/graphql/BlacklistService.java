@@ -17,7 +17,7 @@ public class BlacklistService {
 
     @PostConstruct
     public void init() {
-        log.info("Blacklist: " + blacklist);
+        log.info("Blacklist: {}", blacklist);
     }
 
     public void failIfBlacklisted(String ip, String bearerToken) {

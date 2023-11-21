@@ -15,6 +15,7 @@ public class ConnectionProviderConfig {
     @Bean
     public ConnectionProvider connectionProvider(ConnectionProviderSettings settings) {
         log.info("Connection Provider settings: {}", settings);
+
         return switch (StringUtils.upperCase(settings.getType())) {
             case "FIXED" -> ConnectionProvider.builder("graphql")
                     .maxConnections(settings.getMaxConnections())
