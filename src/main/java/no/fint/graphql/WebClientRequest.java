@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -69,9 +70,12 @@ public class WebClientRequest {
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type) {
         return request.retrieve()
                 .bodyToMono(type)
-                .onErrorResume(WebClientResponseException.class,
-                        ex -> ex.getRawStatusCode() == 404 ? Mono.empty() : Mono.error(ex))
-                .retryBackoff(5, Duration.ofMillis(500));
+                .onErrorResume(WebClientResponseException.class, ex -> {
+                    log.error("WebClient response error: Status Code {}, URI {}, Message {}",
+                            ex.getRawStatusCode(), ex.getRequest().getURI(), ex.getMessage());
+                    return ex.getRawStatusCode() == 404 ? Mono.empty() : Mono.error(ex);
+                })
+                .retryWhen(Retry.backoff(5, Duration.ofMillis(500)));
     }
 
     private String getToken(GraphQLServletContext context) {
