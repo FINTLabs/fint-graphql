@@ -86,7 +86,7 @@ public class WebClientRequest {
         if (token == null) {
             log.warn("No token found for URI: {}", uri);
         } else {
-            log.info("Sending request to URI: {} with token", uri);
+            log.debug("Sending request to URI: {} with token", uri);
         }
     }
 
