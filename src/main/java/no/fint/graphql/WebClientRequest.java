@@ -28,6 +28,7 @@ public class WebClientRequest {
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
     private final BlacklistService blacklistService;
+    private final Set<String> remoteAddresses = new HashSet<>();
 
     public WebClientRequest(
             WebClient webClient,
@@ -43,6 +44,8 @@ public class WebClientRequest {
         GraphQLServletContext context = getContext(dfe);
         String token = getToken(context);
         logRemoteIp(context);
+        logTokenPresence(uri, token);
+
         blacklistService.failIfBlacklisted(getRemoteIp(context), token);
 
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
@@ -75,7 +78,13 @@ public class WebClientRequest {
         return context != null ? context.getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION) : null;
     }
 
-    private Set<String> remoteAddresses = new HashSet<>();
+    private void logTokenPresence(String uri, String token) {
+        if (token == null) {
+            log.warn("No token found for URI: {}", uri);
+        } else {
+            log.info("Sending request to URI: {} with token", uri);
+        }
+    }
 
     private void logRemoteIp(GraphQLServletContext context) {
         String ip = getRemoteIp(context);
