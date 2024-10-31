@@ -1,0 +1,14 @@
+
+type Kontaktperson {
+	#  Attributes
+    foreldreansvar: Boolean!
+    kontaktinformasjon: Kontaktinformasjon
+    navn: Personnavn
+    systemId: Identifikator!
+    type: String!
+
+
+	# Relations
+    kontaktperson: [Person]
+    person: Person
+}

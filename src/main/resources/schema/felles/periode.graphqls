@@ -1,0 +1,8 @@
+
+type Periode {
+	#  Attributes
+    beskrivelse: String
+    slutt: Date
+    start: Date!
+
+}

@@ -1,0 +1,31 @@
+
+type Skole {
+	#  Attributes
+    domenenavn: String
+    juridiskNavn: String
+    navn: String!
+    skolenummer: Identifikator!
+    systemId: Identifikator!
+
+	# Inherited Attributes
+    forretningsadresse: Adresse # Enhet
+    organisasjonsnavn: String # Enhet
+    organisasjonsnummer: Identifikator # Enhet
+    kontaktinformasjon: Kontaktinformasjon # Aktor
+    postadresse: Adresse # Aktor
+
+	# Relations
+    organisasjon: Organisasjonselement
+    fag: [Fag]
+    skoleeierType: Skoleeiertype
+    vigoreferanse: [String]
+    basisgruppe: [Basisgruppe]
+    elevforhold: [Elevforhold]
+    kontaktlarergruppe: [Kontaktlarergruppe]
+    skoleressurs: [Skoleressurs]
+    undervisningsforhold: [Undervisningsforhold]
+    faggruppe: [Faggruppe]
+    undervisningsgruppe: [Undervisningsgruppe]
+    eksamensgruppe: [Eksamensgruppe]
+    utdanningsprogram: [Utdanningsprogram]
+}

@@ -1,0 +1,11 @@
+
+type Rom {
+	#  Attributes
+    navn: String
+    systemId: Identifikator!
+
+
+	# Relations
+    time: [Time]
+    eksamen: [Eksamen]
+}

@@ -1,0 +1,12 @@
+
+type OtUngdom {
+	#  Attributes
+    systemId: Identifikator!
+
+
+	# Relations
+    person: Person!
+    status: OtStatus
+    enhet: OtEnhet
+    programomrade: Programomrade
+}

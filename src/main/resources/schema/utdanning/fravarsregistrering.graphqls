@@ -1,0 +1,16 @@
+
+type Fravarsregistrering {
+	#  Attributes
+    foresPaVitnemal: Boolean!
+    kommentar: String
+    periode: Periode!
+    systemId: Identifikator!
+
+
+	# Relations
+    registrertAv: Skoleressurs
+    faggruppe: Faggruppe
+    undervisningsgruppe: Undervisningsgruppe!
+    fravarstype: Fravarstype!
+    elevfravar: Elevfravar!
+}

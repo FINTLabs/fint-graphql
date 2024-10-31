@@ -1,0 +1,12 @@
+
+type Sensor {
+	#  Attributes
+    aktiv: Boolean!
+    sensornummer: Int
+    systemId: Identifikator!
+
+
+	# Relations
+    skoleressurs: Skoleressurs!
+    eksamensgruppe: Eksamensgruppe!
+}

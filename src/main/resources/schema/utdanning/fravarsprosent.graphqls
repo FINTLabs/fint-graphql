@@ -1,0 +1,8 @@
+
+type Fravarsprosent {
+	#  Attributes
+    fravarstimer: Int!
+    prosent: Int!
+    undervisningstimer: Int!
+
+}

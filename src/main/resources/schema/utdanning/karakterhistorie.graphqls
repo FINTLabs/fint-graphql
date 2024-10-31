@@ -1,0 +1,14 @@
+
+type Karakterhistorie {
+	#  Attributes
+    endretDato: Date!
+    systemId: Identifikator!
+
+
+	# Relations
+    oppdatertAv: Skoleressurs
+    opprinneligKarakterverdi: Karakterverdi
+    opprinneligKarakterstatus: Karakterstatus
+    karakterverdi: Karakterverdi
+    karakterstatus: Karakterstatus
+}

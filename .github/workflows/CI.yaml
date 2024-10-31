@@ -3,7 +3,7 @@ on: push
 
 env:
   REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 3.18.0
+  MODEL_VERSION: 3.18.1
   LIB_VERSION: 3.18.0
 
 jobs:

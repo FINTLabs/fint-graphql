@@ -1,0 +1,61 @@
+
+# java.util.Date implementation
+scalar Date
+
+type Query {
+	anmerkninger(systemId: String): Anmerkninger
+	arbeidsforhold(systemId: String): Arbeidsforhold
+	arbeidslokasjon(lokasjonskode: String, organisasjonsnummer: String): Arbeidslokasjon
+	arstrinn(systemId: String): Arstrinn
+	avlagtprove(systemId: String): AvlagtProve
+	basisgruppe(systemId: String): Basisgruppe
+	basisgruppemedlemskap(systemId: String): Basisgruppemedlemskap
+	eksamen(systemId: String): Eksamen
+	eksamensgruppe(systemId: String): Eksamensgruppe
+	eksamensgruppemedlemskap(systemId: String): Eksamensgruppemedlemskap
+	elev(brukernavn: String, elevnummer: String, feidenavn: String, systemId: String): Elev
+	elevforhold(systemId: String): Elevforhold
+	elevfravar(systemId: String): Elevfravar
+	elevtilrettelegging(systemId: String): Elevtilrettelegging
+	elevvurdering(systemId: String): Elevvurdering
+	fag(systemId: String): Fag
+	faggruppe(systemId: String): Faggruppe
+	faggruppemedlemskap(systemId: String): Faggruppemedlemskap
+	fravarsoversikt(systemId: String): Fravarsoversikt
+	fravarsregistrering(systemId: String): Fravarsregistrering
+	fullmakt(systemId: String): Fullmakt
+	halvarsfagvurdering(systemId: String): Halvarsfagvurdering
+	halvarsordensvurdering(systemId: String): Halvarsordensvurdering
+	karakterhistorie(systemId: String): Karakterhistorie
+	karakterverdi(systemId: String): Karakterverdi
+	kontaktlarergruppe(systemId: String): Kontaktlarergruppe
+	kontaktlarergruppemedlemskap(systemId: String): Kontaktlarergruppemedlemskap
+	kontaktperson(systemId: String): Kontaktperson
+	larling(systemId: String): Larling
+	medlemskap(systemId: String): Medlemskap
+	organisasjonselement(organisasjonsId: String, organisasjonsKode: String, organisasjonsnummer: String): Organisasjonselement
+	otungdom(systemId: String): OtUngdom
+	person(fodselsnummer: String): Person
+	personalressurs(ansattnummer: String, brukernavn: String, systemId: String): Personalressurs
+	persongruppe(systemId: String): Persongruppe
+	persongruppemedlemskap(systemId: String): Persongruppemedlemskap
+	programomrade(systemId: String): Programomrade
+	programomrademedlemskap(systemId: String): Programomrademedlemskap
+	rolle(navn: String): Rolle
+	rom(systemId: String): Rom
+	sensor(systemId: String): Sensor
+	skole(skolenummer: String, systemId: String, organisasjonsnummer: String): Skole
+	skoleressurs(feidenavn: String, systemId: String): Skoleressurs
+	sluttfagvurdering(systemId: String): Sluttfagvurdering
+	sluttordensvurdering(systemId: String): Sluttordensvurdering
+	time(systemId: String): Time
+	underveisfagvurdering(systemId: String): Underveisfagvurdering
+	underveisordensvurdering(systemId: String): Underveisordensvurdering
+	undervisningsforhold(systemId: String): Undervisningsforhold
+	undervisningsgruppe(systemId: String): Undervisningsgruppe
+	undervisningsgruppemedlemskap(systemId: String): Undervisningsgruppemedlemskap
+	utdanningsprogram(systemId: String): Utdanningsprogram
+	varsel(systemId: String): Varsel
+	virksomhet(virksomhetsId: String, organisasjonsnummer: String): Virksomhet
+	vurdering(systemId: String): Vurdering
+}

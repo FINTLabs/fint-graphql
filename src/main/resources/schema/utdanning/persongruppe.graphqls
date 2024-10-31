@@ -1,0 +1,21 @@
+
+type Persongruppe {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    elev: [Elev]
+    persongruppemedlemskap: [Persongruppemedlemskap]
+    termin: [Termin]
+    undervisningsforhold: [Undervisningsforhold]
+    skole: [Skole]
+    skoleressurs: [Skoleressurs]
+    skolear: [Skolear]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
+}

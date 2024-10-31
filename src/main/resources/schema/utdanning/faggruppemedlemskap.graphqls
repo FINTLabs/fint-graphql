@@ -1,0 +1,14 @@
+
+type Faggruppemedlemskap {
+
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Gruppemedlemskap
+    systemId: Identifikator! # Gruppemedlemskap
+
+	# Relations
+    fagmerknad: Fagmerknad
+    fagstatus: Fagstatus
+    elevforhold: Elevforhold!
+    varsel: [Varsel]
+    faggruppe: Faggruppe!
+}

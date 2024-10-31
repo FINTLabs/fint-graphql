@@ -1,0 +1,13 @@
+
+type OtStatus {
+	#  Attributes
+    beskrivelse: String
+    type: String!
+
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Begrep
+    kode: String! # Begrep
+    navn: String! # Begrep
+    passiv: Boolean # Begrep
+    systemId: Identifikator! # Begrep
+}

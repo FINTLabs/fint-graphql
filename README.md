@@ -1,22 +1,35 @@
-# FINT graphql
+# FINT GraphQL
 
-## How to Release new version
+Rutine for å hente inn modell og publisere løsningen er omarbeidet i november 2024.
 
-1. Update `version` field [gradle.properties](gradle.properties)
-2. Modify `MODEL_VERSION` and `LIB_VERSION` in the GitHub Action file [.github/workflows/CD.yaml](.github/workflows/CD.yaml) and [.github/workflows/CI.yaml](.github/workflows/CI.yaml).
-3. Push play and 🤞
-4. Manually deploy from `fint-infra-tools`
+## Oppdatere modell og skjema
 
-## Getting started
+* Oppdater `version`-feltet i [gradle.properties](gradle.properties)
+* Kjør `generate.sh` for å generere modell og skjema.
+* Merge endringer / få løsningen til å bygge. Det er noen kjente avvik mellom det som blir generert av fint-graphql-cli og modellen som krever at man justerer casing på noen metoder (f.eks. getOtUngdom -> getOtungdom).
 
-The application works out of the box. Run `generate.sh` to import model and schema. 
-Launch `Application` from within your IDE and go to http://localhost:8080/graphiql
+Om du vil gjøre en opprydding og generere hele modellen på nytt:
+* Slett mappen `/src/main/resources/schema`
+* Slett mappen `/src/main/java/no/fint/graphql/model`
+* Følg instruksene i [## Oppdatere modell og skjema](#oppdatere-modell-og-skjema) for å generere modellen på nytt.
 
-## Queries
+## Hvordan publisere ny versjon
 
-Some queries to get you going:
+1. Følg instruksene i [## Oppdatere modell og skjema](#oppdatere-modell-og-skjema)
+2. Endre `MODEL_VERSION` og `LIB_VERSION` i GitHub Action-filene [.github/workflows/CD.yaml](.github/workflows/CD.yaml) og [.github/workflows/CI.yaml](.github/workflows/CI.yaml).
+3. Commit og push endringene
+4. Manuelt deploy fra `fint-infra-tools`
 
-### First name of all Persons
+## Teste lokalt
+
+Applikasjonen skal kunne testes lokalt uten noen konfigurasjon.  
+Start `Application` fra IDE-en din og gå til http://localhost:8080/graphiql
+
+## Spørringer
+
+Noen spørringer for å komme i gang:
+
+### Fornavn på alle personer
 
 ```graphql
 {
@@ -28,7 +41,7 @@ Some queries to get you going:
 }
 ```
 
-### All employees with first name, employment number, and position title
+### Alle ansatte med fornavn, ansattnummer og stillingstittel
 
 ```graphql
 {
@@ -48,7 +61,7 @@ Some queries to get you going:
 }
 ```
 
-### Birthday directory, with first names, birthdays, and mobile phone numbers
+### Bursdagsoversikt med fornavn, fødselsdato og mobiltelefonnummer
 
 ```graphql
 {
@@ -64,7 +77,7 @@ Some queries to get you going:
 }
 ```
 
-### Personnel, with name of department managers
+### Personell med navn på avdelingsledere
 
 ```graphql
 {
@@ -95,7 +108,7 @@ Some queries to get you going:
 }
 ```
 
-### Students with names, schools, and group memberships
+### Elever med navn, skoler og gruppemedlemskap
 
 ```graphql
 {

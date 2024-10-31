@@ -1,0 +1,11 @@
+
+type Anmerkninger {
+	#  Attributes
+    atferd: Int!
+    orden: Int!
+    systemId: Identifikator!
+
+
+	# Relations
+    skolear: Skolear
+}

@@ -1,0 +1,15 @@
+
+type Virksomhet {
+	#  Attributes
+    virksomhetsId: Identifikator!
+
+	# Inherited Attributes
+    forretningsadresse: Adresse # Enhet
+    organisasjonsnavn: String # Enhet
+    organisasjonsnummer: Identifikator # Enhet
+    kontaktinformasjon: Kontaktinformasjon # Aktor
+    postadresse: Adresse # Aktor
+
+	# Relations
+    larling: [Larling]
+}
