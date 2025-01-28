@@ -12,6 +12,7 @@ import no.fint.graphql.model.utdanning.underveisfagvurdering.Underveisfagvurderi
 import no.fint.graphql.model.utdanning.halvarsordensvurdering.HalvarsordensvurderingService;
 import no.fint.graphql.model.utdanning.halvarsfagvurdering.HalvarsfagvurderingService;
 import no.fint.graphql.model.utdanning.sluttordensvurdering.SluttordensvurderingService;
+import no.fint.graphql.model.utdanning.eksamensvurdering.EksamensvurderingService;
 
 
 import no.fint.model.resource.Link;
@@ -24,6 +25,7 @@ import no.fint.model.resource.utdanning.vurdering.UnderveisfagvurderingResource;
 import no.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
 import no.fint.model.resource.utdanning.vurdering.HalvarsfagvurderingResource;
 import no.fint.model.resource.utdanning.vurdering.SluttordensvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensvurderingResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -59,6 +61,9 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
 
     @Autowired
     private SluttordensvurderingService sluttordensvurderingService;
+
+    @Autowired
+    private EksamensvurderingService eksamensvurderingService;
 
 
     public CompletionStage<ElevforholdResource> getElevforhold(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
@@ -136,6 +141,16 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .stream()
                 .map(Link::getHref)
                 .map(l -> sluttordensvurderingService.getSluttordensvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
+    }
+
+    public CompletionStage<List<EksamensvurderingResource>> getEksamensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(elevvurdering.getEksamensvurdering()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> eksamensvurderingService.getEksamensvurderingResource(l, dfe)))
                 .flatMap(Mono::flux)
                 .collectList()
                 .toFuture();

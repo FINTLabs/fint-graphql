@@ -1,7 +1,7 @@
 
 type Kontaktperson {
 	#  Attributes
-    foreldreansvar: Boolean!
+    foreldreansvar: Boolean
     kontaktinformasjon: Kontaktinformasjon
     navn: Personnavn
     systemId: Identifikator!

@@ -3,6 +3,7 @@ package no.fint.graphql.model.utdanning.fravarsregistrering;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.utdanning.vurdering.FravarsregistreringResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.CompletionStage;
 
 @Component("utdanningFravarsregistreringQueryResolver")
+@Slf4j
 public class FravarsregistreringQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
@@ -20,6 +22,7 @@ public class FravarsregistreringQueryResolver implements GraphQLQueryResolver {
     public CompletionStage<FravarsregistreringResource> getFravarsregistrering(
             String systemId,
             DataFetchingEnvironment dfe) {
+		log.info("New Query for Fravarsregistrering");
         if (StringUtils.isNotEmpty(systemId)) {
             return service.getFravarsregistreringResourceById("systemid", systemId, dfe).toFuture();
         }

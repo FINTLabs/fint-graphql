@@ -3,6 +3,7 @@ package no.fint.graphql.model.administrasjon.prosjekt;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.administrasjon.kodeverk.ProsjektResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonProsjektQueryResolver")
+@Slf4j
 public class ProsjektQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
@@ -20,6 +22,7 @@ public class ProsjektQueryResolver implements GraphQLQueryResolver {
     public CompletionStage<ProsjektResource> getProsjekt(
             String systemId,
             DataFetchingEnvironment dfe) {
+		log.info("New Query for Prosjekt");
         if (StringUtils.isNotEmpty(systemId)) {
             return service.getProsjektResourceById("systemid", systemId, dfe).toFuture();
         }

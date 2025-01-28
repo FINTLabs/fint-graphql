@@ -13,4 +13,5 @@ type Elevvurdering {
     halvarsordensvurdering: [Halvarsordensvurdering]
     halvarsfagvurdering: [Halvarsfagvurdering]
     sluttordensvurdering: [Sluttordensvurdering]
+    eksamensvurdering: [Eksamensvurdering]
 }

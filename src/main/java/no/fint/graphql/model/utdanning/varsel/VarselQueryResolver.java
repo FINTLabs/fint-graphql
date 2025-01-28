@@ -3,6 +3,7 @@ package no.fint.graphql.model.utdanning.varsel;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.utdanning.elev.VarselResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.CompletionStage;
 
 @Component("utdanningVarselQueryResolver")
+@Slf4j
 public class VarselQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
@@ -20,6 +22,7 @@ public class VarselQueryResolver implements GraphQLQueryResolver {
     public CompletionStage<VarselResource> getVarsel(
             String systemId,
             DataFetchingEnvironment dfe) {
+		log.info("New Query for Varsel");
         if (StringUtils.isNotEmpty(systemId)) {
             return service.getVarselResourceById("systemid", systemId, dfe).toFuture();
         }

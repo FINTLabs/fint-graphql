@@ -3,6 +3,7 @@ package no.fint.graphql.model.utdanning.skole;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.CompletionStage;
 
 @Component("utdanningSkoleQueryResolver")
+@Slf4j
 public class SkoleQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
@@ -22,6 +24,7 @@ public class SkoleQueryResolver implements GraphQLQueryResolver {
             String systemId,
             String organisasjonsnummer,
             DataFetchingEnvironment dfe) {
+		log.info("New Query for Skole");
         if (StringUtils.isNotEmpty(skolenummer)) {
             return service.getSkoleResourceById("skolenummer", skolenummer, dfe).toFuture();
         }

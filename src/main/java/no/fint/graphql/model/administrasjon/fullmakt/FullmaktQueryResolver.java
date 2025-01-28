@@ -3,6 +3,7 @@ package no.fint.graphql.model.administrasjon.fullmakt;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonFullmaktQueryResolver")
+@Slf4j
 public class FullmaktQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
@@ -20,6 +22,7 @@ public class FullmaktQueryResolver implements GraphQLQueryResolver {
     public CompletionStage<FullmaktResource> getFullmakt(
             String systemId,
             DataFetchingEnvironment dfe) {
+		log.info("New Query for Fullmakt");
         if (StringUtils.isNotEmpty(systemId)) {
             return service.getFullmaktResourceById("systemid", systemId, dfe).toFuture();
         }

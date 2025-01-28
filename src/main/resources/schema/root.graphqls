@@ -13,6 +13,7 @@ type Query {
 	eksamen(systemId: String): Eksamen
 	eksamensgruppe(systemId: String): Eksamensgruppe
 	eksamensgruppemedlemskap(systemId: String): Eksamensgruppemedlemskap
+	eksamensvurdering(systemId: String): Eksamensvurdering
 	elev(brukernavn: String, elevnummer: String, feidenavn: String, systemId: String): Elev
 	elevforhold(systemId: String): Elevforhold
 	elevfravar(systemId: String): Elevfravar

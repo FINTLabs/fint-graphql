@@ -3,6 +3,7 @@ package no.fint.graphql.model.administrasjon.fasttillegg;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import lombok.extern.slf4j.Slf4j;
 import no.fint.model.resource.administrasjon.personal.FasttilleggResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.CompletionStage;
 
 @Component("administrasjonFasttilleggQueryResolver")
+@Slf4j
 public class FasttilleggQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
@@ -21,6 +23,7 @@ public class FasttilleggQueryResolver implements GraphQLQueryResolver {
             String kildesystemId,
             String systemId,
             DataFetchingEnvironment dfe) {
+		log.info("New Query for Fasttillegg");
         if (StringUtils.isNotEmpty(kildesystemId)) {
             return service.getFasttilleggResourceById("kildesystemid", kildesystemId, dfe).toFuture();
         }
