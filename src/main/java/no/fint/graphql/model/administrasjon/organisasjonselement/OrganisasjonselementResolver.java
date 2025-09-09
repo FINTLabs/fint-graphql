@@ -5,6 +5,7 @@ import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 
 import no.fint.graphql.model.administrasjon.ansvar.AnsvarService;
+import no.fint.graphql.model.administrasjon.organisasjonstype.OrganisasjonstypeService;
 import no.fint.graphql.model.administrasjon.personalressurs.PersonalressursService;
 import no.fint.graphql.model.administrasjon.organisasjonselement.OrganisasjonselementService;
 import no.fint.graphql.model.utdanning.skole.SkoleService;
@@ -14,6 +15,7 @@ import no.fint.graphql.model.administrasjon.arbeidsforhold.ArbeidsforholdService
 import no.fint.model.resource.Link;
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
+import no.fint.model.resource.administrasjon.kodeverk.OrganisasjonstypeResource;
 import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
@@ -32,6 +34,9 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
 
     @Autowired
     private AnsvarService ansvarService;
+
+    @Autowired
+    private OrganisasjonstypeService organisasjonstypeService;
 
     @Autowired
     private PersonalressursService personalressursService;
@@ -53,6 +58,16 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .map(l -> ansvarService.getAnsvarResource(l, dfe)))
                 .flatMap(Mono::flux)
                 .collectList()
+                .toFuture();
+    }
+
+    public CompletionStage<OrganisasjonstypeResource> getOrganisasjonstype(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(organisasjonselement.getOrganisasjonstype()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> organisasjonstypeService.getOrganisasjonstypeResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
                 .toFuture();
     }
 

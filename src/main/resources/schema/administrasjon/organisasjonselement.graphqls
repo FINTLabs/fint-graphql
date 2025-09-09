@@ -16,6 +16,7 @@ type Organisasjonselement {
 
 	# Relations
     ansvar: [Ansvar]
+    organisasjonstype: Organisasjonstype
     leder: Personalressurs
     overordnet: Organisasjonselement!
     underordnet: [Organisasjonselement]
