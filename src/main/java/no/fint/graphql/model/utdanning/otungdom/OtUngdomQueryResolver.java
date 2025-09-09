@@ -19,7 +19,7 @@ public class OtUngdomQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private OtUngdomService service;
 
-    public CompletionStage<OtUngdomResource> getOtUngdom(
+    public CompletionStage<OtUngdomResource> getOtungdom(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for OtUngdom");
