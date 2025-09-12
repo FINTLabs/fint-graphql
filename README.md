@@ -19,6 +19,7 @@ Om du vil gjøre en opprydding og generere hele modellen på nytt:
 2. Endre `MODEL_VERSION` og `LIB_VERSION` i GitHub Action-filene [.github/workflows/CD.yaml](.github/workflows/CD.yaml) og [.github/workflows/CI.yaml](.github/workflows/CI.yaml).
 3. Commit og push endringene
 4. Manuelt deploy fra `fint-infra-tools`
+(NB: Dersom man sletter og gjennoppretter deployment for dette prosjektet (kubctl delete og kubectl apply), så blir servicen tildelt en ny IP-adresse, og kunden mister tilgang. Dersom det skjer må FLAIS kontaktes for å oppdatere til den nye IPen.)
 
 ## Teste lokalt
 
