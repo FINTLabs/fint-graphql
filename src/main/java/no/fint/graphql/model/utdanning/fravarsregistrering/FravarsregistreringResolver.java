@@ -7,7 +7,6 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.utdanning.skoleressurs.SkoleressursService;
 import no.fint.graphql.model.utdanning.faggruppe.FaggruppeService;
 import no.fint.graphql.model.utdanning.undervisningsgruppe.UndervisningsgruppeService;
-import no.fint.graphql.model.utdanning.fravarstype.FravarstypeService;
 import no.fint.graphql.model.utdanning.elevfravar.ElevfravarService;
 
 
@@ -16,7 +15,6 @@ import no.fint.model.resource.utdanning.vurdering.FravarsregistreringResource;
 import no.fint.model.resource.utdanning.elev.SkoleressursResource;
 import no.fint.model.resource.utdanning.timeplan.FaggruppeResource;
 import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
-import no.fint.model.resource.utdanning.kodeverk.FravarstypeResource;
 import no.fint.model.resource.utdanning.vurdering.ElevfravarResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +36,6 @@ public class FravarsregistreringResolver implements GraphQLResolver<Fravarsregis
 
     @Autowired
     private UndervisningsgruppeService undervisningsgruppeService;
-
-    @Autowired
-    private FravarstypeService fravarstypeService;
 
     @Autowired
     private ElevfravarService elevfravarService;
@@ -71,16 +66,6 @@ public class FravarsregistreringResolver implements GraphQLResolver<Fravarsregis
                 .stream()
                 .map(Link::getHref)
                 .map(l -> undervisningsgruppeService.getUndervisningsgruppeResource(l, dfe)))
-                .flatMap(Mono::flux)
-                .next()
-                .toFuture();
-    }
-
-    public CompletionStage<FravarstypeResource> getFravarstype(FravarsregistreringResource fravarsregistrering, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(fravarsregistrering.getFravarstype()
-                .stream()
-                .map(Link::getHref)
-                .map(l -> fravarstypeService.getFravarstypeResource(l, dfe)))
                 .flatMap(Mono::flux)
                 .next()
                 .toFuture();

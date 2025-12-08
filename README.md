@@ -6,7 +6,10 @@ Rutine for å hente inn modell og publisere løsningen er omarbeidet i november 
 
 * Oppdater `version`-feltet i [gradle.properties](gradle.properties)
 * Kjør `generate.sh` for å generere modell og skjema.
-* Merge endringer / få løsningen til å bygge. Det er noen kjente avvik mellom det som blir generert av fint-graphql-cli og modellen som krever at man justerer casing på noen metoder (f.eks. getOtUngdom -> getOtungdom).
+* Rename disse metodenavnene
+  * getOtUngdom -> getOtungdom
+  * getAvlagtProve -> getAvlagtprove
+* Verifiser at tjenesten bygger (kjør den lokalt)
 
 Om du vil gjøre en opprydding og generere hele modellen på nytt:
 * Slett mappen `/src/main/resources/schema`

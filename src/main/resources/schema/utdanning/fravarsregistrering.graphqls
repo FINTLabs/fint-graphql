@@ -11,6 +11,5 @@ type Fravarsregistrering {
     registrertAv: Skoleressurs
     faggruppe: Faggruppe
     undervisningsgruppe: Undervisningsgruppe!
-    fravarstype: Fravarstype!
     elevfravar: Elevfravar!
 }
