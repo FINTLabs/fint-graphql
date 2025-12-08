@@ -1,0 +1,19 @@
+
+type Kontostreng {
+
+
+	# Relations
+    aktivitet: Aktivitet
+    anlegg: Anlegg
+    ansvar: Ansvar!
+    art: Art!
+    diverse: Diverse
+    formal: Formal
+    funksjon: Funksjon!
+    kontrakt: Kontrakt
+    lopenummer: Lopenummer
+    objekt: Objekt
+    prosjekt: Prosjekt
+    prosjektart: Prosjektart
+    ramme: Ramme
+}

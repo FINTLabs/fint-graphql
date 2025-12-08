@@ -1,0 +1,8 @@
+
+type Personnavn {
+	#  Attributes
+    etternavn: String!
+    fornavn: String!
+    mellomnavn: String
+
+}

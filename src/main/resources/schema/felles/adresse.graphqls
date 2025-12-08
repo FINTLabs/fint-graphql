@@ -1,0 +1,11 @@
+
+type Adresse {
+	#  Attributes
+    adresselinje: [String]!
+    postnummer: String
+    poststed: String
+
+
+	# Relations
+    land: Landkode
+}

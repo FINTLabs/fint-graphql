@@ -1,0 +1,12 @@
+
+type Fravarsoversikt {
+	#  Attributes
+    halvar: Fravarsprosent!
+    skolear: Fravarsprosent!
+    systemId: Identifikator!
+
+
+	# Relations
+    elevforhold: Elevforhold!
+    fag: Fag!
+}

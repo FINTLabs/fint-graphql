@@ -1,0 +1,10 @@
+
+type Kontaktinformasjon {
+	#  Attributes
+    epostadresse: String
+    mobiltelefonnummer: String
+    nettsted: String
+    sip: String
+    telefonnummer: String
+
+}

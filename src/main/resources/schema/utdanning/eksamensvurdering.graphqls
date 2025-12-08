@@ -1,0 +1,17 @@
+
+type Eksamensvurdering {
+
+	# Inherited Attributes
+    kommentar: String! # Fagvurdering
+    systemId: Identifikator! # Fagvurdering
+    vurderingsdato: Date! # Fagvurdering
+
+	# Relations
+    eksamensgruppe: Eksamensgruppe!
+    karakterhistorie: Karakterhistorie
+    elevvurdering: Elevvurdering!
+    fag: Fag!
+    undervisningsgruppe: Undervisningsgruppe
+    skolear: Skolear
+    karakter: Karakterverdi
+}

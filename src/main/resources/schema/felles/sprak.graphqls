@@ -1,0 +1,10 @@
+
+type Sprak {
+
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Begrep
+    kode: String! # Begrep
+    navn: String! # Begrep
+    passiv: Boolean # Begrep
+    systemId: Identifikator! # Begrep
+}

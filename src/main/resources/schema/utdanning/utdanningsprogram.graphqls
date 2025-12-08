@@ -1,0 +1,16 @@
+
+type Utdanningsprogram {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    skole: [Skole]
+    programomrade: [Programomrade]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
+}

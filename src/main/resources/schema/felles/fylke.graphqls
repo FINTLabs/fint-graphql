@@ -1,0 +1,13 @@
+
+type Fylke {
+
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Begrep
+    kode: String! # Begrep
+    navn: String! # Begrep
+    passiv: Boolean # Begrep
+    systemId: Identifikator! # Begrep
+
+	# Relations
+    kommune: [Kommune]
+}

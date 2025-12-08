@@ -1,0 +1,10 @@
+
+type Elevfravar {
+	#  Attributes
+    systemId: Identifikator!
+
+
+	# Relations
+    fravarsregistrering: [Fravarsregistrering]
+    elevforhold: Elevforhold!
+}

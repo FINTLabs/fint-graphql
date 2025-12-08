@@ -1,0 +1,19 @@
+
+type Programomrade {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    elevforhold: [Elevforhold]
+    utdanningsprogram: [Utdanningsprogram]!
+    fag: [Fag]
+    trinn: [Arstrinn]
+    gruppemedlemskap: [Programomrademedlemskap]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
+}

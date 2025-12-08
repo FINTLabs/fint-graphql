@@ -1,0 +1,14 @@
+
+type Larling {
+	#  Attributes
+    kontraktstype: String
+    laretid: Periode
+    systemId: Identifikator!
+
+
+	# Relations
+    person: Person!
+    bedrift: Virksomhet
+    programomrade: Programomrade
+    avlagtprove: [AvlagtProve]
+}

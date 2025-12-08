@@ -1,0 +1,11 @@
+
+type Basisgruppemedlemskap {
+
+	# Inherited Attributes
+    gyldighetsperiode: Periode # Gruppemedlemskap
+    systemId: Identifikator! # Gruppemedlemskap
+
+	# Relations
+    basisgruppe: Basisgruppe!
+    elevforhold: Elevforhold!
+}

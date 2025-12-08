@@ -1,0 +1,10 @@
+
+type Rolle {
+	#  Attributes
+    beskrivelse: String!
+    navn: Identifikator!
+
+
+	# Relations
+    fullmakt: [Fullmakt]!
+}

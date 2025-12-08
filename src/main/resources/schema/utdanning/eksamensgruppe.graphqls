@@ -1,0 +1,26 @@
+
+type Eksamensgruppe {
+	#  Attributes
+    eksamensdato: Date
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    elevforhold: [Elevforhold]
+    eksamen: Eksamen
+    fag: Fag!
+    skole: Skole!
+    termin: Termin!
+    eksamensform: Eksamensform
+    skolear: Skolear
+    undervisningsforhold: [Undervisningsforhold]
+    gruppemedlemskap: [Eksamensgruppemedlemskap]
+    sensor: [Sensor]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
+}

@@ -1,0 +1,14 @@
+
+type Eksamen {
+	#  Attributes
+    beskrivelse: String
+    navn: String!
+    oppmotetidspunkt: Date
+    systemId: Identifikator!
+    tidsrom: Periode!
+
+
+	# Relations
+    rom: [Rom]
+    eksamensgruppe: [Eksamensgruppe]
+}
