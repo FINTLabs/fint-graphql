@@ -7,8 +7,8 @@ on:
 
 env:
   REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 3.20.0
-  LIB_VERSION: 3.20.0
+  MODEL_VERSION: 3.21.10
+  LIB_VERSION: 3.21.10
 
 jobs:
   build-and-publish:
