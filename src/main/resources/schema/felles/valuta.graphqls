@@ -1,8 +1,0 @@
-
-type Valuta {
-	#  Attributes
-    bokstavkode: Identifikator!
-    navn: String!
-    nummerkode: Identifikator!
-
-}

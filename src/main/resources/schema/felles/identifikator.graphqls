@@ -1,7 +1,0 @@
-
-type Identifikator {
-	#  Attributes
-    gyldighetsperiode: Periode
-    identifikatorverdi: String!
-
-}

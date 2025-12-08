@@ -19,7 +19,7 @@ public class AvlagtProveQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AvlagtProveService service;
 
-    public CompletionStage<AvlagtProveResource> getAvlagtprove(
+    public CompletionStage<AvlagtProveResource> getAvlagtProve(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for AvlagtProve");
