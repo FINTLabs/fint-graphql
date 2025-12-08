@@ -1,4 +1,4 @@
-FROM gradle:6.9-jdk11-alpine as builder
+FROM gradle:6.9.4-jdk11 as builder
 USER root
 COPY . .
 RUN gradle --no-daemon build
