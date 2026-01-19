@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Include Spring Boot defaults: patterns (CONSOLE_LOG_PATTERN), converters, common loggers -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- Optional: Spring props for app metadata in JSON -->
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <!-- JSON Console Appender (overrides default CONSOLE) -->
+    <appender name="CONSOLE-JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <!-- Standard fields: timestamp (ISO), level, logger, thread, message -->
+                <timestamp/>
+                <logLevel/>
+                <loggerName fieldName="logger"/>
+                <threadName fieldName="thread"/>
+                <message/>
+                <!-- MDC (e.g., traceId from WebFlux/Sleuth if added) -->
+                <mdc/>
+                <!-- Context: app name, pid -->
+                <contextName/>
+                <version/>
+                <!-- Stack traces (shortened) -->
+                <stackTrace>
+                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                        <maxDepthPerThrowable>20</maxDepthPerThrowable>
+                        <rootCauseFirst>true</rootCauseFirst>
+                    </throwableConverter>
+                </stackTrace>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!-- Root logger to JSON console (INFO default; override via application.properties e.g. logging.level.root=DEBUG) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE-JSON"/>
+    </root>
+</configuration>
