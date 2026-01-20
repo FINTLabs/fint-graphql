@@ -1,0 +1,14 @@
+
+type Sluttordensvurdering {
+
+	# Inherited Attributes
+    kommentar: String! # Ordensvurdering
+    systemId: Identifikator! # Ordensvurdering
+    vurderingsdato: Date! # Ordensvurdering
+
+	# Relations
+    elevvurdering: Elevvurdering!
+    atferd: Karakterverdi!
+    orden: Karakterverdi!
+    skolear: Skolear
+}

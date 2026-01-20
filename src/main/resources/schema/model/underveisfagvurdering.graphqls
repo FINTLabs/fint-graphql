@@ -1,0 +1,14 @@
+
+type Underveisfagvurdering {
+
+	# Inherited Attributes
+    kommentar: String! # Fagvurdering
+    systemId: Identifikator! # Fagvurdering
+    vurderingsdato: Date! # Fagvurdering
+
+	# Relations
+    elevvurdering: Elevvurdering!
+    fag: Fag!
+    skolear: Skolear
+    karakter: Karakterverdi
+}

@@ -1,0 +1,19 @@
+
+type Undervisningsforhold {
+	#  Attributes
+    hovedskole: Boolean
+
+	# Inherited Attributes
+    beskrivelse: String! # Utdanningsforhold
+    systemId: Identifikator! # Utdanningsforhold
+
+	# Relations
+    arbeidsforhold: Arbeidsforhold!
+    klasse: [Klasse]
+    kontaktlarergruppe: [Kontaktlarergruppe]
+    undervisningsgruppe: [Undervisningsgruppe]
+    eksamensgruppe: [Eksamensgruppe]
+    time: [Time]
+    skole: Skole!
+    skoleressurs: Skoleressurs!
+}

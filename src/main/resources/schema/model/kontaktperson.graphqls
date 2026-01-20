@@ -1,0 +1,12 @@
+
+type Kontaktperson {
+	#  Attributes
+    kontaktinformasjon: Kontaktinformasjon
+    navn: Personnavn
+    systemId: Identifikator!
+    type: String!
+
+
+	# Relations
+    kontaktperson: [Person]
+}

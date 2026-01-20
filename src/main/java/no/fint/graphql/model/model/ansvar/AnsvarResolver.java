@@ -1,0 +1,65 @@
+
+package no.fint.graphql.model.model.ansvar;
+
+import com.coxautodev.graphql.tools.GraphQLResolver;
+import graphql.schema.DataFetchingEnvironment;
+
+import no.fint.graphql.model.model.ansvar.AnsvarService;
+import no.fint.graphql.model.model.organisasjonselement.OrganisasjonselementService;
+
+
+import no.novari.fint.model.resource.Link;
+import no.novari.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
+import no.novari.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
+import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.concurrent.CompletionStage;
+
+@Component("modelAnsvarResolver")
+public class AnsvarResolver implements GraphQLResolver<AnsvarResource> {
+
+    @Autowired
+    private AnsvarService ansvarService;
+
+    @Autowired
+    private OrganisasjonselementService organisasjonselementService;
+
+
+    public CompletionStage<AnsvarResource> getOverordnet(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(ansvar.getOverordnet()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> ansvarService.getAnsvarResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
+    }
+
+    public CompletionStage<List<AnsvarResource>> getUnderordnet(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(ansvar.getUnderordnet()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> ansvarService.getAnsvarResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
+    }
+
+    public CompletionStage<List<OrganisasjonselementResource>> getOrganisasjonselement(AnsvarResource ansvar, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(ansvar.getOrganisasjonselement()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
+                .toFuture();
+    }
+
+}
+

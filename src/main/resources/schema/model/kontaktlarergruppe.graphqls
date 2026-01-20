@@ -1,0 +1,16 @@
+
+type Kontaktlarergruppe {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    klasse: [Klasse]!
+    termin: [Termin]
+    skole: Skole!
+    skolear: Skolear
+    undervisningsforhold: [Undervisningsforhold]
+    gruppemedlemskap: [Kontaktlarergruppemedlemskap]
+}

@@ -1,0 +1,14 @@
+
+type Arstrinn {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    vigoreferanse: [String]
+    grepreferanse: [String]
+    programomrade: [Programomrade]
+    klasse: [Klasse]
+}

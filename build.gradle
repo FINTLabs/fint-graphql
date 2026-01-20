@@ -24,8 +24,8 @@ dependencies {
 
     implementation 'commons-beanutils:commons-beanutils:1.9.4'
     implementation 'no.fint:fint-model-resource:0.4.1'
-    implementation("no.fint:fint-utdanning-resource-model-java:${apiVersion}")
-    implementation("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
+    implementation("no.novari:fint-utdanning-resource-model-java:${apiVersion}")
+    implementation("no.novari:fint-administrasjon-resource-model-java:${apiVersion}")
 
     implementation 'com.graphql-java-kickstart:graphql-kickstart-spring-boot-starter-tools:6.0.1'
     implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:6.0.1'
