@@ -1,0 +1,17 @@
+
+type Klasse {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    skolear: Skolear
+    termin: [Termin]
+    trinn: Arstrinn!
+    skole: Skole!
+    undervisningsforhold: [Undervisningsforhold]
+    klassemedlemskap: [Klassemedlemskap]
+    kontaktlarergruppe: [Kontaktlarergruppe]
+}

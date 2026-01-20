@@ -1,0 +1,14 @@
+
+type Faggruppe {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    fag: Fag!
+    skole: Skole
+    skolear: Skolear
+    faggruppemedlemskap: [Faggruppemedlemskap]
+}

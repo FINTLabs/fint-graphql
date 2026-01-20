@@ -1,0 +1,17 @@
+
+type Undervisningsgruppe {
+
+	# Inherited Attributes
+    beskrivelse: String! # Gruppe
+    navn: String! # Gruppe
+    systemId: Identifikator! # Gruppe
+
+	# Relations
+    fag: [Fag]!
+    termin: [Termin]
+    skole: Skole!
+    skolear: Skolear
+    undervisningsforhold: [Undervisningsforhold]
+    time: [Time]
+    gruppemedlemskap: [Undervisningsgruppemedlemskap]
+}

@@ -8,8 +8,6 @@ type Query {
 	arbeidslokasjon(lokasjonskode: String, organisasjonsnummer: String): Arbeidslokasjon
 	arstrinn(systemId: String): Arstrinn
 	avlagtprove(systemId: String): AvlagtProve
-	basisgruppe(systemId: String): Basisgruppe
-	basisgruppemedlemskap(systemId: String): Basisgruppemedlemskap
 	eksamen(systemId: String): Eksamen
 	eksamensgruppe(systemId: String): Eksamensgruppe
 	eksamensgruppemedlemskap(systemId: String): Eksamensgruppemedlemskap
@@ -29,11 +27,12 @@ type Query {
 	halvarsordensvurdering(systemId: String): Halvarsordensvurdering
 	karakterhistorie(systemId: String): Karakterhistorie
 	karakterverdi(systemId: String): Karakterverdi
+	klasse(systemId: String): Klasse
+	klassemedlemskap(systemId: String): Klassemedlemskap
 	kontaktlarergruppe(systemId: String): Kontaktlarergruppe
 	kontaktlarergruppemedlemskap(systemId: String): Kontaktlarergruppemedlemskap
 	kontaktperson(systemId: String): Kontaktperson
 	larling(systemId: String): Larling
-	medlemskap(systemId: String): Medlemskap
 	organisasjonselement(organisasjonsId: String, organisasjonsKode: String, organisasjonsnummer: String): Organisasjonselement
 	otungdom(systemId: String): OtUngdom
 	person(fodselsnummer: String): Person
@@ -58,5 +57,4 @@ type Query {
 	utdanningsprogram(systemId: String): Utdanningsprogram
 	varsel(systemId: String): Varsel
 	virksomhet(virksomhetsId: String, organisasjonsnummer: String): Virksomhet
-	vurdering(systemId: String): Vurdering
 }

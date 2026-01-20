@@ -1,0 +1,31 @@
+
+type Elevforhold {
+	#  Attributes
+    anmerkninger: [Anmerkninger]!
+    avbruddsdato: Date
+    gyldighetsperiode: Periode
+    hovedskole: Boolean
+    tosprakligFagopplaring: Boolean
+
+	# Inherited Attributes
+    beskrivelse: String! # Utdanningsforhold
+    systemId: Identifikator! # Utdanningsforhold
+
+	# Relations
+    elev: Elev!
+    kategori: Elevkategori
+    skole: Skole!
+    avbruddsarsak: [Avbruddsarsak]
+    fravarsregistreringer: Elevfravar
+    faggruppemedlemskap: [Faggruppemedlemskap]
+    skolear: Skolear
+    undervisningsgruppemedlemskap: [Undervisningsgruppemedlemskap]
+    persongruppemedlemskap: [Persongruppemedlemskap]
+    eksamensgruppemedlemskap: [Eksamensgruppemedlemskap]
+    kontaktlarergruppemedlemskap: [Kontaktlarergruppemedlemskap]
+    elevfravar: [Fravarsoversikt]
+    tilrettelegging: [Elevtilrettelegging]
+    elevvurdering: Elevvurdering
+    programomrademedlemskap: [Programomrademedlemskap]
+    klassemedlemskap: [Klassemedlemskap]
+}
