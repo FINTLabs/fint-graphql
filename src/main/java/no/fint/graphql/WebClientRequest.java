@@ -73,9 +73,18 @@ public class WebClientRequest {
                 .onErrorResume(WebClientResponseException.class, ex -> {
                     log.error("WebClient response error: Status Code {}, URI {}, Message {}",
                             ex.getRawStatusCode(), ex.getRequest().getURI(), ex.getMessage());
-                    return ex.getRawStatusCode() == 404 ? Mono.empty() : Mono.error(ex);
+                    return Mono.error(ex);
                 })
-                .retryWhen(Retry.backoff(5, Duration.ofMillis(500)));
+                .retryWhen(Retry.backoff(5, Duration.ofMillis(500))
+                        .filter(WebClientResponseException.class::isInstance)
+                        .filter(ex -> shouldRetry(((WebClientResponseException) ex).getRawStatusCode())));
+    }
+
+    private boolean shouldRetry(int status) {
+        if (status < 400) {
+            return false;
+        }
+        return status != 401 && status != 403 && status != 404;
     }
 
     private String getToken(GraphQLServletContext context) {
