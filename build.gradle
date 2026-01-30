@@ -7,7 +7,18 @@ plugins {
 }
 
 group = 'no.fintlabs'
-sourceCompatibility = 11
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
 
 repositories {
     mavenLocal()
@@ -43,6 +54,9 @@ dependencies {
     testImplementation 'cglib:cglib-nodep:3.3.0'
     testImplementation 'org.spockframework:spock-spring:2.2-groovy-4.0'
     testImplementation 'org.spockframework:spock-core:2.2-groovy-4.0'
+    testImplementation 'org.junit.platform:junit-platform-commons:1.9.3'
+    testImplementation 'org.junit.platform:junit-platform-engine:1.9.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.9.3'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.12.1'
 }
@@ -53,4 +67,8 @@ jar {
 
 bootJar {
     enabled = true
+}
+
+test {
+    useJUnitPlatform()
 }
