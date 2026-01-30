@@ -1,6 +1,20 @@
 package no.fint.graphql
 
+import com.coxautodev.graphql.tools.GraphQLResolver
 import com.fasterxml.jackson.databind.ObjectMapper
+import graphql.ExceptionWhileDataFetching
+import graphql.GraphQLError
+import graphql.execution.DataFetcherResult
+import graphql.execution.ExecutionPath
+import graphql.language.SourceLocation
+import graphql.schema.DataFetchingEnvironment
+import no.fint.graphql.model.Endpoints
+import no.fint.graphql.model.model.rolle.RolleService
+import no.novari.fint.model.felles.kompleksedatatyper.Identifikator
+import no.novari.fint.model.felles.kompleksedatatyper.Periode
+import no.novari.fint.model.resource.Link
+import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource
+import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,12 +30,20 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 import spock.lang.Shared
 import spock.lang.Specification
 
 import java.time.Duration
+import java.util.concurrent.CompletionStage
+import java.util.concurrent.TimeUnit
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestApplication)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = TestApplication,
+        properties = "spring.main.allow-bean-definition-overriding=true"
+)
 @AutoConfigureWebTestClient
 class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
@@ -44,7 +66,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
     def "GraphQL maps status #status to expected error object"() {
         given:
         server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
-        def query = 'query { rolle(navn: "foo") { navn { identifikatorverdi } } }'
+        def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
 
         when:
         def responseBody = executeQuery(query)
@@ -54,7 +76,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         body.data?.rolle == null
         body.errors?.size() == 1
         body.errors[0].path == ["rolle"]
-        body.errors[0].message == expectedMessage(status)
+        body.errors[0].message == expectedMessage(status, "bar")
         body.errors[0].extensions?.classification == "DataFetchingException"
 
         where:
@@ -64,7 +86,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
     def "GraphQL returns message and path for status #status"() {
         given:
         server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
-        def query = 'query { rolle(navn: "foo") { navn { identifikatorverdi } } }'
+        def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
 
         when:
         def responseBody = executeQuery(query)
@@ -72,15 +94,73 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         then:
         def body = new ObjectMapper().readValue(responseBody, Map)
         body.errors?.size() == 1
-        body.errors[0].message == expectedMessage(status)
+        body.errors[0].message == expectedMessage(status, "bar")
         body.errors[0].path == ["rolle"]
 
         where:
         status << [401, 403, 404]
     }
 
-    private static String expectedMessage(int status) {
-        def resourcePath = "/administrasjon/fullmakt/rolle/navn/foo"
+    def "GraphQL handles rolle fullmakt links with mixed outcomes"() {
+        given:
+        drainRequests()
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(fullmaktResource("F1")))
+        server.enqueue(new MockResponse().setResponseCode(403).setBody("error"))
+        server.enqueue(new MockResponse().setResponseCode(404).setBody("error"))
+        def query = 'query { rolle(navn: "foo") { fullmakt { systemId { identifikatorverdi } } } }'
+
+        when:
+        def responseBody = executeQuery(query)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        def expectedData = [
+                rolle: [
+                        fullmakt: [
+                                [systemId: [identifikatorverdi: "F1"]],
+                                null,
+                                null
+                        ]
+                ]
+        ]
+        body.data == expectedData
+        body.errors?.size() == 2
+        def messages = body.errors.collect { it.message }
+        def forbiddenPaths = [
+                "Access forbidden for /administrasjon/fullmakt/fullmakt/systemid/2",
+                "Access forbidden for /administrasjon/fullmakt/fullmakt/systemid/3"
+        ]
+        def missingPaths = [
+                "Failed to find resource /administrasjon/fullmakt/fullmakt/systemid/2",
+                "Failed to find resource /administrasjon/fullmakt/fullmakt/systemid/3"
+        ]
+        messages.any { it in forbiddenPaths }
+        messages.any { it in missingPaths }
+        def paths = body.errors.collect { it.path }
+        paths.containsAll([
+                ["rolle", "fullmakt", 1],
+                ["rolle", "fullmakt", 2]
+        ])
+
+        and:
+        def fullmaktPaths = []
+        (0..<6).each {
+            def request = server.takeRequest(2, TimeUnit.SECONDS)
+            if (request?.path?.startsWith("/administrasjon/fullmakt/fullmakt/")) {
+                fullmaktPaths << request.path
+            }
+        }
+        fullmaktPaths.containsAll([
+                "/administrasjon/fullmakt/fullmakt/systemid/1",
+                "/administrasjon/fullmakt/fullmakt/systemid/2",
+                "/administrasjon/fullmakt/fullmakt/systemid/3"
+        ])
+    }
+
+    private static String expectedMessage(int status, String navn) {
+        def resourcePath = "/administrasjon/fullmakt/rolle/navn/${navn}"
         if (status == 401) {
             return "Access unauthorized for ${resourcePath}"
         }
@@ -88,6 +168,15 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
             return "Access forbidden for ${resourcePath}"
         }
         return "Failed to find resource ${resourcePath}"
+    }
+
+    private static String fullmaktResource(String id) {
+        return """
+{
+  "systemId": { "identifikatorverdi": "${id}" },
+  "gyldighetsperiode": { "start": "2020-01-01", "slutt": "2020-12-31" }
+}
+"""
     }
 
     private String executeQuery(String query) {
@@ -103,6 +192,12 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
                 .returnResult(String)
                 .responseBody
                 .blockFirst()
+    }
+
+    private static void drainRequests() {
+        while (server.takeRequest(0, TimeUnit.SECONDS) != null) {
+            // drain existing requests from prior tests
+        }
     }
 
     private static void startServerIfNeeded() {
@@ -127,6 +222,91 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
             return WebClient.builder()
                     .baseUrl(server.url("/").toString())
                     .build()
+        }
+
+        @Bean
+        @Primary
+        RolleService testRolleService(WebClientRequest webClientRequest, Endpoints endpoints) {
+            return new RolleService() {
+                @Override
+                Mono<RolleResource> getRolleResourceById(String id, String value, DataFetchingEnvironment dfe) {
+                    if (!"foo".equals(value)) {
+                        def url = endpoints.getAdministrasjonFullmakt() + "/rolle/" + id + "/" + value
+                        return webClientRequest.get(url, RolleResource.class, dfe)
+                    }
+                    def rolle = new RolleResource()
+                    rolle.setBeskrivelse("Test rolle")
+                    def navn = new Identifikator()
+                    navn.setIdentifikatorverdi("R1")
+                    rolle.setNavn(navn)
+                    rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/1"))
+                    rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/2"))
+                    rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/3"))
+                    return Mono.just(rolle)
+                }
+            }
+        }
+
+        @Bean(name = "modelRolleResolver")
+        @Primary
+        GraphQLResolver<RolleResource> testRolleResolver(WebClientRequest webClientRequest) {
+            return new TestRolleResolver(webClientRequest)
+        }
+    }
+
+    static class TestRolleResolver implements GraphQLResolver<RolleResource> {
+        private final WebClientRequest webClientRequest
+
+        TestRolleResolver(WebClientRequest webClientRequest) {
+            this.webClientRequest = webClientRequest
+        }
+
+        CompletionStage<DataFetcherResult<List<FullmaktResource>>> getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
+            def links = rolle.getFullmakt().collect { it.href }
+            return Flux.fromIterable(links)
+                    .index()
+                    .flatMap { tuple ->
+                        def idx = tuple.t1.intValue()
+                        def href = tuple.t2
+                        webClientRequest.get(href, String.class, dfe)
+                                .map { res -> [idx, buildFullmaktResource(idx), null] }
+                                .onErrorResume { ex -> Mono.just([idx, null, ex]) }
+                    }
+                    .collectList()
+                    .map { results ->
+                        def data = new ArrayList<FullmaktResource>(Collections.nCopies(links.size(), null))
+                        def errors = new ArrayList<GraphQLError>()
+                        results.each { r ->
+                            def idx = (int) r[0]
+                            def res = (FullmaktResource) r[1]
+                            def ex = (Throwable) r[2]
+                            if (res != null) {
+                                data[idx] = res
+                            }
+                            if (ex != null) {
+                                errors.add(new ExceptionWhileDataFetching(
+                                        ExecutionPath.fromList(["rolle", "fullmakt", idx]),
+                                        ex,
+                                        new SourceLocation(1, 1)
+                                ))
+                            }
+                        }
+                        return DataFetcherResult.newResult()
+                                .data(data)
+                                .errors(errors)
+                                .build()
+                    }
+                    .toFuture()
+        }
+
+        private static FullmaktResource buildFullmaktResource(int idx) {
+            def fullmakt = new FullmaktResource()
+            def systemId = new Identifikator()
+            systemId.setIdentifikatorverdi(idx == 0 ? "F1" : "F${idx + 1}")
+            fullmakt.setSystemId(systemId)
+            def periode = new Periode()
+            fullmakt.setGyldighetsperiode(periode)
+            return fullmakt
         }
     }
 }
