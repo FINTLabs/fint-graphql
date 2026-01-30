@@ -1,15 +1,16 @@
 package no.fint.graphql;
 
-import graphql.ErrorType;
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
-import graphql.GraphqlErrorBuilder;
 import graphql.kickstart.execution.error.DefaultGraphQLErrorHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -55,12 +56,42 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         } else {
             message = "Remote resource access failed with status " + status + " for " + resourcePath;
         }
-        return GraphqlErrorBuilder.newError()
-                .message(message)
-                .path(error.getPath())
-                .locations(error.getLocations())
-                .errorType(ErrorType.DataFetchingException)
-                .build();
+        return new RemoteAccessGraphQLError(
+                message,
+                error.getLocations(),
+                error.getPath(),
+                buildExtensions(status, resourcePath)
+        );
+    }
+
+    private Map<String, Object> buildExtensions(int status, String resourcePath) {
+        Map<String, Object> extensions = new LinkedHashMap<>();
+        extensions.put("code", status);
+        String[] parts = resourcePath != null ? resourcePath.split("/") : new String[0];
+        if (hasResourcePattern(parts)) {
+            // parts[0] is empty when path starts with '/'
+            extensions.put("domain", getPart(parts, 1));
+            extensions.put("package", getPart(parts, 2));
+            extensions.put("resource", getPart(parts, 3));
+            extensions.put("idkey", getPart(parts, 4));
+            extensions.put("idvalue", getPart(parts, 5));
+        } else {
+            extensions.put("code", status);
+        }
+        return extensions;
+    }
+
+    private boolean hasResourcePattern(String[] parts) {
+        return getPart(parts, 1) != null
+                && getPart(parts, 2) != null
+                && getPart(parts, 3) != null
+                && getPart(parts, 4) != null
+                && getPart(parts, 5) != null
+                && parts.length <= 6;
+    }
+
+    private String getPart(String[] parts, int index) {
+        return parts.length > index && !parts[index].isEmpty() ? parts[index] : null;
     }
 
     private Throwable unwrap(Throwable exception) {
@@ -72,5 +103,49 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
             current = current.getCause();
         }
         return exception;
+    }
+
+    private static final class RemoteAccessGraphQLError implements GraphQLError {
+        private final String message;
+        private final List<graphql.language.SourceLocation> locations;
+        private final List<Object> path;
+        private final Map<String, Object> extensions;
+
+        private RemoteAccessGraphQLError(
+                String message,
+                List<graphql.language.SourceLocation> locations,
+                List<Object> path,
+                Map<String, Object> extensions
+        ) {
+            this.message = message;
+            this.locations = locations;
+            this.path = path;
+            this.extensions = extensions != null ? Collections.unmodifiableMap(extensions) : null;
+        }
+
+        @Override
+        public String getMessage() {
+            return message;
+        }
+
+        @Override
+        public List<graphql.language.SourceLocation> getLocations() {
+            return locations;
+        }
+
+        @Override
+        public List<Object> getPath() {
+            return path;
+        }
+
+        @Override
+        public Map<String, Object> getExtensions() {
+            return extensions;
+        }
+
+        @Override
+        public graphql.ErrorClassification getErrorType() {
+            return null;
+        }
     }
 }

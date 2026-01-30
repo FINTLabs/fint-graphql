@@ -77,7 +77,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         body.errors?.size() == 1
         body.errors[0].path == ["rolle"]
         body.errors[0].message == expectedMessage(status, "bar")
-        body.errors[0].extensions?.classification == "DataFetchingException"
+        assertExtensionsMatch(body.errors[0].extensions, expectedExtensions(status, "/administrasjon/fullmakt/rolle/navn/bar"))
 
         where:
         status << [401, 403, 404]
@@ -143,6 +143,13 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
                 ["rolle", "fullmakt", 1],
                 ["rolle", "fullmakt", 2]
         ])
+        def extensions = body.errors.collect { it.extensions }
+        def expectedOne = expectedExtensions(403, "/administrasjon/fullmakt/fullmakt/systemid/2")
+        def expectedTwo = expectedExtensions(404, "/administrasjon/fullmakt/fullmakt/systemid/3")
+        def expectedAltOne = expectedExtensions(403, "/administrasjon/fullmakt/fullmakt/systemid/3")
+        def expectedAltTwo = expectedExtensions(404, "/administrasjon/fullmakt/fullmakt/systemid/2")
+        assertExtensionsMatch(extensions[0], expectedOne) || assertExtensionsMatch(extensions[0], expectedAltOne)
+        assertExtensionsMatch(extensions[1], expectedTwo) || assertExtensionsMatch(extensions[1], expectedAltTwo)
 
         and:
         def fullmaktPaths = []
@@ -168,6 +175,25 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
             return "Access forbidden for ${resourcePath}"
         }
         return "Failed to find resource ${resourcePath}"
+    }
+
+    private static Map<String, Object> expectedExtensions(int status, String resourcePath) {
+        def parts = resourcePath.split("/")
+        if (parts.size() == 6 && parts[1..5].every { it }) {
+            return [
+                    code: status,
+                    domain: parts[1],
+                    package: parts[2],
+                    resource: parts[3],
+                    idkey: parts[4],
+                    idvalue: parts[5]
+            ]
+        }
+        return [code: status]
+    }
+
+    private static boolean assertExtensionsMatch(Map actual, Map expected) {
+        expected.every { key, value -> actual[key] == value }
     }
 
     private static String fullmaktResource(String id) {
