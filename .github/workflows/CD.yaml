@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 4.0.0
+  MODEL_VERSION: 4.0.0-error-handler-test
   LIB_VERSION: 4.0.0
 
 jobs:
