@@ -3,7 +3,7 @@ on: push
 
 env:
   REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 4.0.0-error-handler-test
+  MODEL_VERSION: 4.0.0
   LIB_VERSION: 4.0.0
 
 jobs:
