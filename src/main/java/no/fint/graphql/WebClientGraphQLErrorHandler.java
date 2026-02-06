@@ -51,7 +51,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         } else if (status == 403) {
             message = "Access forbidden for " + resourcePath;
         } else if (status == 404) {
-            message = "Failed to find resource " + resourcePath;
+            message = "Resource not found at " + resourcePath;
         } else {
             message = HttpStatus.resolve(status).getReasonPhrase() + " for " + resourcePath;
         }

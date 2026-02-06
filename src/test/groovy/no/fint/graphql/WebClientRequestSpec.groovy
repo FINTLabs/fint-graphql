@@ -85,7 +85,7 @@ class WebClientRequestSpec extends Specification {
             return "Access forbidden for ${resourcePath}"
         }
         if (status == 404) {
-            return "Failed to find resource ${resourcePath}"
+            return "Resource not found at ${resourcePath}"
         }
         throw IllegalArgumentException("Message for status code " + status + " is not defined yet")
     }

@@ -156,8 +156,8 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
                 "Access forbidden for /administrasjon/fullmakt/fullmakt/systemid/3"
         ]
         def missingPaths = [
-                "Failed to find resource /administrasjon/fullmakt/fullmakt/systemid/2",
-                "Failed to find resource /administrasjon/fullmakt/fullmakt/systemid/3"
+                "Resource not found at /administrasjon/fullmakt/fullmakt/systemid/2",
+                "Resource not found at /administrasjon/fullmakt/fullmakt/systemid/3"
         ]
         messages.any { it in forbiddenPaths }
         messages.any { it in missingPaths }
@@ -196,7 +196,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         } else if (status == 403) {
             return "Access forbidden for ${resourcePath}"
         } else if (status == 404) {
-            return "Failed to find resource ${resourcePath}"
+            return "Resource not found at ${resourcePath}"
         } else {
             return HttpStatus.resolve(status).getReasonPhrase() + " for " + resourcePath
         }
