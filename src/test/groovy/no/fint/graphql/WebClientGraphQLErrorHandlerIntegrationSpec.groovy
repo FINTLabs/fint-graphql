@@ -25,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Primary
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -81,6 +82,28 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
         where:
         status << [401, 403, 404]
+    }
+
+    def "GraphQL maps status #status to expected error object for retried requests"() {
+        given:
+        4.times {
+            server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
+        }
+        def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
+
+        when:
+        def responseBody = executeQuery(query)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.data?.rolle == null
+        body.errors?.size() == 1
+        body.errors[0].path == ["rolle"]
+        body.errors[0].message == expectedMessage(status, "bar")
+        assertExtensionsMatch(body.errors[0].extensions, expectedExtensions(status, "/administrasjon/fullmakt/rolle/navn/bar"))
+
+        where:
+        status << [500, 503]
     }
 
     def "GraphQL returns message and path for status #status"() {
@@ -170,11 +193,13 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         def resourcePath = "/administrasjon/fullmakt/rolle/navn/${navn}"
         if (status == 401) {
             return "Access unauthorized for ${resourcePath}"
-        }
-        if (status == 403) {
+        } else if (status == 403) {
             return "Access forbidden for ${resourcePath}"
+        } else if (status == 404) {
+            return "Failed to find resource ${resourcePath}"
+        } else {
+            return HttpStatus.resolve(status).getReasonPhrase() + " for " + resourcePath
         }
-        return "Failed to find resource ${resourcePath}"
     }
 
     private static Map<String, Object> expectedExtensions(int status, String resourcePath) {

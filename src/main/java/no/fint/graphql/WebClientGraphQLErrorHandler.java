@@ -3,6 +3,7 @@ package no.fint.graphql;
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.kickstart.execution.error.DefaultGraphQLErrorHandler;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -35,10 +36,8 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         if (exception instanceof WebClientResponseException) {
             WebClientResponseException webClientException = (WebClientResponseException) exception;
             int status = webClientException.getRawStatusCode();
-            if (status == 401 || status == 403 || status == 404) {
-                URI uri = webClientException.getRequest() != null ? webClientException.getRequest().getURI() : null;
-                return toRemoteAccessError(dataFetchingError, status, uri);
-            }
+            URI uri = webClientException.getRequest() != null ? webClientException.getRequest().getURI() : null;
+            return toRemoteAccessError(dataFetchingError, status, uri);
         }
 
         return error;
@@ -54,7 +53,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         } else if (status == 404) {
             message = "Failed to find resource " + resourcePath;
         } else {
-            message = "Remote resource access failed with status " + status + " for " + resourcePath;
+            message = HttpStatus.resolve(status).getReasonPhrase() + " for " + resourcePath;
         }
         return new RemoteAccessGraphQLError(
                 message,
