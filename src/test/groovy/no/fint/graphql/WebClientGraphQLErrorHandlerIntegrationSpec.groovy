@@ -17,6 +17,7 @@ import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.QueueDispatcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -62,6 +63,11 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
     def cleanupSpec() {
         server.shutdown()
+    }
+
+    def setup() {
+        // Reset queued responses between tests to avoid cross-test contamination.
+        server.setDispatcher(new QueueDispatcher())
     }
 
     def "GraphQL maps status #status to expected error object"() {
