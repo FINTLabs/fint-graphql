@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
+import reactor.core.scheduler.Schedulers;
 
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 
 @Slf4j
 @Component
@@ -30,15 +30,18 @@ public class WebClientRequest {
     private final HashFunction hashFunction;
     private final BlacklistService blacklistService;
     private final Set<String> remoteAddresses = new HashSet<>();
+    private final Semaphore concurrencyLimiter;
 
     public WebClientRequest(
             WebClient webClient,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
+            @Value("${fint.webclient.max-concurrent:100}") int maxConcurrent,
             BlacklistService blacklistService) {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
         this.blacklistService = blacklistService;
         hashFunction = Hashing.murmur3_128();
+        concurrencyLimiter = new Semaphore(maxConcurrent, true);
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
@@ -68,23 +71,34 @@ public class WebClientRequest {
     }
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type) {
-        return request.retrieve()
-                .bodyToMono(type)
-                .onErrorResume(WebClientResponseException.class, ex -> {
-                    log.error("WebClient response error: Status Code {}, URI {}, Message {}",
-                            ex.getRawStatusCode(), ex.getRequest().getURI(), ex.getMessage());
-                    return Mono.error(ex);
-                })
-                .retryWhen(Retry.backoff(3, Duration.ofMillis(500))
-                        .filter(this::shouldRetry));
+        return withPermit(
+                request.retrieve()
+                        .bodyToMono(type)
+                        .onErrorResume(WebClientResponseException.class, ex -> {
+                            log.error("WebClient response error: Status Code {}, URI {}, Message {}",
+                                    ex.getRawStatusCode(), ex.getRequest().getURI(), ex.getMessage());
+                            return Mono.error(ex);
+                        })
+        );
     }
 
-    private boolean shouldRetry(Throwable throwable) {
-        if (throwable instanceof WebClientResponseException) {
-            int status = ((WebClientResponseException) throwable).getRawStatusCode();
-            return status != 401 && status != 403 && status != 404 && status >= 400;
-        }
-        return true;
+    private <T> Mono<T> withPermit(Mono<T> mono) {
+        return Mono.usingWhen(
+                Mono.fromCallable(() -> {
+                            try {
+                                concurrencyLimiter.acquire();
+                                return concurrencyLimiter;
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                throw new IllegalStateException("Interrupted while waiting for WebClient concurrency permit", e);
+                            }
+                        })
+                        .subscribeOn(Schedulers.boundedElastic()),
+                ignored -> mono,
+                semaphore -> Mono.fromRunnable(semaphore::release),
+                (semaphore, error) -> Mono.fromRunnable(semaphore::release),
+                semaphore -> Mono.fromRunnable(semaphore::release)
+        );
     }
 
     private String getToken(GraphQLServletContext context) {

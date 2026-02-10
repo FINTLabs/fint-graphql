@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import spock.lang.Specification
 
 import javax.servlet.http.HttpServletRequest
+import java.util.concurrent.TimeUnit
 
 class WebClientRequestSpec extends Specification {
 
@@ -23,6 +24,7 @@ class WebClientRequestSpec extends Specification {
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
             'maximumSize=1,expireAfterWrite=1s',
+            100,
             blacklistService)
 
     def "Get request with token"() {
@@ -74,6 +76,43 @@ class WebClientRequestSpec extends Specification {
 
         where:
         status << [401, 403, 404]
+    }
+
+    def "Limiter allows only one concurrent request when max-concurrent is 1"() {
+        given:
+        def limitedRequest = new WebClientRequest(
+                webClient,
+                'maximumSize=1,expireAfterWrite=1s',
+                1,
+                blacklistService)
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("one")
+                .setBodyDelay(500, TimeUnit.MILLISECONDS))
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("two"))
+
+        when:
+        def future1 = limitedRequest.get(url, String, dfe).toFuture()
+        def future2 = limitedRequest.get(url, String, dfe).toFuture()
+
+        then:
+        def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
+        firstRequest != null
+        def secondRequest = server.takeRequest(200, TimeUnit.MILLISECONDS)
+        secondRequest == null
+
+        when:
+        def firstResponse = future1.get(2, TimeUnit.SECONDS)
+        def secondRequestAfter = server.takeRequest(2, TimeUnit.SECONDS)
+        def secondResponse = future2.get(2, TimeUnit.SECONDS)
+
+        then:
+        secondRequestAfter != null
+        firstResponse == "one"
+        secondResponse == "two"
     }
 
     private static String expectedMessage(int status, String requestUrl) {
