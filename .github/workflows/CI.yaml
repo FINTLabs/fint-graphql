@@ -15,6 +15,9 @@ jobs:
       - name: Get repo name
         run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
 
+      - name: Compute image tag
+        run: echo "IMAGE_TAG=${MODEL_VERSION}-${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Connect to Azure Container Registry (ACR)
         uses: azure/docker-login@v1
         with:
@@ -24,4 +27,4 @@ jobs:
 
       - name: Building the container
         run: |
-          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
+          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.IMAGE_TAG}} --build-arg VERSION=${{env.LIB_VERSION}} .
