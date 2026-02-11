@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import spock.lang.Specification
+import no.fint.graphql.config.ConnectionProviderSettings
 
 import javax.servlet.http.HttpServletRequest
 import java.util.concurrent.TimeUnit
@@ -21,10 +22,11 @@ class WebClientRequestSpec extends Specification {
     private String url = server.url('/').toString()
     private WebClient webClient = WebClient.create(url)
     private BlacklistService blacklistService = Mock(BlacklistService)
+    private ConnectionProviderSettings connectionProviderSettings = new ConnectionProviderSettings(maxConnections: 100)
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
+            connectionProviderSettings,
             'maximumSize=1,expireAfterWrite=1s',
-            100,
             blacklistService)
 
     def "Get request with token"() {
@@ -80,10 +82,11 @@ class WebClientRequestSpec extends Specification {
 
     def "Limiter allows only one concurrent request when max-concurrent is 1"() {
         given:
+        def limitedSettings = new ConnectionProviderSettings(maxConnections: 1)
         def limitedRequest = new WebClientRequest(
                 webClient,
+                limitedSettings,
                 'maximumSize=1,expireAfterWrite=1s',
-                1,
                 blacklistService)
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
         server.enqueue(new MockResponse()

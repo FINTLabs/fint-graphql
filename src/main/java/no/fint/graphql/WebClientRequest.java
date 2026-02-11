@@ -8,6 +8,7 @@ import com.google.common.hash.Hashing;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.servlet.context.GraphQLServletContext;
 import lombok.extern.slf4j.Slf4j;
+import no.fint.graphql.config.ConnectionProviderSettings;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -34,14 +35,14 @@ public class WebClientRequest {
 
     public WebClientRequest(
             WebClient webClient,
+            ConnectionProviderSettings connectionProviderSettings,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
-            @Value("${fint.webclient.max-concurrent:100}") int maxConcurrent,
             BlacklistService blacklistService) {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
         this.blacklistService = blacklistService;
         hashFunction = Hashing.murmur3_128();
-        concurrencyLimiter = new Semaphore(maxConcurrent, true);
+        concurrencyLimiter = new Semaphore(connectionProviderSettings.getMaxConnections(), true);
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
