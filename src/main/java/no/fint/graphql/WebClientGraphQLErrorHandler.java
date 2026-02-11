@@ -3,6 +3,7 @@ package no.fint.graphql;
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.kickstart.execution.error.DefaultGraphQLErrorHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
 
     @Override
@@ -27,6 +29,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
 
     private GraphQLError mapWebClientError(GraphQLError error) {
         if (!(error instanceof ExceptionWhileDataFetching)) {
+            log.info("Unmapped GraphQLError: {}", error);
             return error;
         }
 
