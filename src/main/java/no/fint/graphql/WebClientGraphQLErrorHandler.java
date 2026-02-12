@@ -29,7 +29,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
 
     private GraphQLError mapWebClientError(GraphQLError error) {
         if (!(error instanceof ExceptionWhileDataFetching)) {
-            log.info("Unmapped GraphQLError: {}", error);
+            log.warn("Unmapped GraphQLError: {}", error);
             return error;
         }
 
@@ -43,6 +43,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
             return toRemoteAccessError(dataFetchingError, status, uri);
         }
 
+        log.warn("Unmapped ExceptionWhileDataFetching: {}", error);
         return error;
     }
 
