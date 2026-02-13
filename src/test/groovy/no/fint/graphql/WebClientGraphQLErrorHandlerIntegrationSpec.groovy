@@ -18,6 +18,7 @@ import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.QueueDispatcher
+import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -112,6 +113,39 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         status << [500, 503]
     }
 
+    def "DataLoader dedupes identical resource requests within a query"() {
+        given:
+        drainRequests()
+        // Always return 200 so the only thing we're validating is request count,
+        // not any particular error mapping.
+        server.setDispatcher(new QueueDispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                return new MockResponse().setResponseCode(200).setBody("ok")
+            }
+        })
+        // The "dedupe" path returns 3 links, two of which are identical.
+        // If DataLoader dedupe works, only two backend requests should be made.
+        def query = 'query { rolle(navn: "dedupe") { fullmakt { systemId { identifikatorverdi } } } }'
+
+        when:
+        def responseBody = executeQuery(query)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.rolle?.fullmakt?.size() == 3
+
+        // We expect two requests (systemid/1 and systemid/2). A third request would mean
+        // duplicate links were not deduped within the same GraphQL execution.
+        def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
+        firstRequest != null
+        def secondRequest = server.takeRequest(1, TimeUnit.SECONDS)
+        secondRequest != null
+        def thirdRequest = server.takeRequest(200, TimeUnit.MILLISECONDS)
+        thirdRequest == null
+    }
+
     def "GraphQL returns message and path for status #status"() {
         given:
         server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
@@ -133,11 +167,23 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
     def "GraphQL handles rolle fullmakt links with mixed outcomes"() {
         given:
         drainRequests()
-        server.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody(fullmaktResource("F1")))
-        server.enqueue(new MockResponse().setResponseCode(403).setBody("error"))
-        server.enqueue(new MockResponse().setResponseCode(404).setBody("error"))
+        server.setDispatcher(new QueueDispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/1")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setBody(fullmaktResource("F1"))
+                }
+                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/2")) {
+                    return new MockResponse().setResponseCode(403).setBody("error")
+                }
+                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/3")) {
+                    return new MockResponse().setResponseCode(404).setBody("error")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
         def query = 'query { rolle(navn: "foo") { fullmakt { systemId { identifikatorverdi } } } }'
 
         when:
@@ -287,6 +333,17 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
             return new RolleService() {
                 @Override
                 Mono<RolleResource> getRolleResourceById(String id, String value, DataFetchingEnvironment dfe) {
+                    if ("dedupe".equals(value)) {
+                        def rolle = new RolleResource()
+                        rolle.setBeskrivelse("Dedupe rolle")
+                        def navn = new Identifikator()
+                        navn.setIdentifikatorverdi("D1")
+                        rolle.setNavn(navn)
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/1"))
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/1"))
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/2"))
+                        return Mono.just(rolle)
+                    }
                     if (!"foo".equals(value)) {
                         def url = endpoints.getAdministrasjonFullmakt() + "/rolle/" + id + "/" + value
                         return webClientRequest.get(url, RolleResource.class, dfe)

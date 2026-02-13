@@ -9,15 +9,19 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.servlet.context.GraphQLServletContext;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.graphql.config.ConnectionProviderSettings;
+import no.fint.graphql.dataloader.ResourceDataLoader;
+import no.fint.graphql.dataloader.ResourceRequestKey;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.dataloader.DataLoader;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
@@ -32,6 +36,7 @@ public class WebClientRequest {
     private final BlacklistService blacklistService;
     private final Set<String> remoteAddresses = new HashSet<>();
     private final Semaphore concurrencyLimiter;
+    private final Cache<String, DataLoader<ResourceRequestKey, Object>> requestScopedLoaders;
 
     public WebClientRequest(
             WebClient webClient,
@@ -43,10 +48,36 @@ public class WebClientRequest {
         this.blacklistService = blacklistService;
         hashFunction = Hashing.murmur3_128();
         concurrencyLimiter = new Semaphore(connectionProviderSettings.getMaxConnections(), true);
+        requestScopedLoaders = Caffeine.newBuilder()
+                .maximumSize(10000)
+                .expireAfterWrite(Duration.ofMinutes(5))
+                .build();
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
         GraphQLServletContext context = getContext(dfe);
+        DataLoader<ResourceRequestKey, Object> dataLoader = getDataLoader(dfe);
+        boolean manualDispatch = false;
+        if (dataLoader == null) {
+            dataLoader = getRequestScopedDataLoader(dfe, context);
+            manualDispatch = dataLoader != null;
+        }
+        if (dataLoader != null) {
+            Mono<T> mono = Mono.fromFuture(dataLoader.load(new ResourceRequestKey(uri, type)))
+                    .cast(type);
+            if (manualDispatch) {
+                dataLoader.dispatch();
+            }
+            return mono;
+        }
+        return getDirect(uri, type, context);
+    }
+
+    public <T> Mono<T> get(String uri, Class<T> type, GraphQLServletContext context) {
+        return getDirect(uri, type, context);
+    }
+
+    public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLServletContext context) {
         String token = getToken(context);
         logRemoteIp(context);
         logTokenPresence(uri, token);
@@ -104,6 +135,26 @@ public class WebClientRequest {
 
     private String getToken(GraphQLServletContext context) {
         return context != null ? context.getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION) : null;
+    }
+
+    private DataLoader<ResourceRequestKey, Object> getDataLoader(DataFetchingEnvironment dfe) {
+        if (dfe == null) {
+            return null;
+        }
+        try {
+            return dfe.getDataLoader(ResourceDataLoader.NAME);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private DataLoader<ResourceRequestKey, Object> getRequestScopedDataLoader(DataFetchingEnvironment dfe,
+                                                                              GraphQLServletContext context) {
+        if (dfe == null || dfe.getExecutionId() == null) {
+            return null;
+        }
+        return requestScopedLoaders.get(dfe.getExecutionId().toString(),
+                key -> ResourceDataLoader.newDataLoader(this, context));
     }
 
     private void logTokenPresence(String uri, String token) {
