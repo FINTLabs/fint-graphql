@@ -20,6 +20,11 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.dataloader.DataLoader;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
+import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
+import io.netty.channel.ConnectTimeoutException;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.WriteTimeoutException;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -111,6 +116,11 @@ public class WebClientRequest {
                                     ex.getRawStatusCode(), ex.getRequest().getURI(), ex.getMessage());
                             return Mono.error(ex);
                         })
+                        .doOnError(ex -> {
+                            if (!(ex instanceof WebClientResponseException)) {
+                                logRequestFailure(ex);
+                            }
+                        })
         );
     }
 
@@ -155,6 +165,38 @@ public class WebClientRequest {
         }
         return requestScopedLoaders.get(dfe.getExecutionId().toString(),
                 key -> ResourceDataLoader.newDataLoader(this, context));
+    }
+
+    private void logRequestFailure(Throwable exception) {
+        Throwable root = findRelevantCause(exception);
+        if (root instanceof PoolAcquireTimeoutException || root instanceof PoolAcquirePendingLimitException) {
+            log.warn("WebClient connection pool exhausted (pending acquire timeout). {}", root.getMessage());
+            return;
+        }
+        if (root instanceof ConnectTimeoutException) {
+            log.warn("WebClient connect timeout. {}", root.getMessage());
+            return;
+        }
+        if (root instanceof ReadTimeoutException || root instanceof WriteTimeoutException) {
+            log.warn("WebClient response timeout. {}", root.getMessage());
+            return;
+        }
+        log.error("WebClient request error: {}", root.getMessage(), root);
+    }
+
+    private Throwable findRelevantCause(Throwable exception) {
+        Throwable current = exception;
+        while (current != null) {
+            if (current instanceof PoolAcquireTimeoutException
+                    || current instanceof PoolAcquirePendingLimitException
+                    || current instanceof ConnectTimeoutException
+                    || current instanceof ReadTimeoutException
+                    || current instanceof WriteTimeoutException) {
+                return current;
+            }
+            current = current.getCause();
+        }
+        return exception;
     }
 
     private void logTokenPresence(String uri, String token) {
