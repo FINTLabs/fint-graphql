@@ -83,9 +83,17 @@ public class WebClientRequest {
     }
 
     public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLServletContext context) {
+        Long queryId = GraphQLRequestAttributes.getQueryId(context);
+        long requestSequence = GraphQLRequestAttributes.nextRequestSequence(context);
+        String queryIdValue = formatQueryId(queryId);
+        String requestIdValue = formatRequestId(requestSequence);
+        long startNanos = System.nanoTime();
+
         String token = getToken(context);
         logRemoteIp(context);
         logTokenPresence(uri, token);
+
+        log.info("WebClient request start queryId={} requestId={} uri={}", queryIdValue, requestIdValue, uri);
 
         blacklistService.failIfBlacklisted(getRemoteIp(context), token);
 
@@ -101,13 +109,16 @@ public class WebClientRequest {
                 return Mono.just(result);
             }
             log.trace("Cache miss on {}", uri);
-            return get(request, type)
-                    .doOnNext(value -> cache.put(key, value));
+            return get(request, type, queryIdValue, requestIdValue)
+                    .doOnNext(value -> cache.put(key, value))
+                    .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
         }
-        return get(request, type);
+        return get(request, type, queryIdValue, requestIdValue)
+                .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
     }
 
-    private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type) {
+    private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
+                            String queryIdValue, String requestIdValue) {
         return withPermit(
                 request.retrieve()
                         .bodyToMono(type)
@@ -120,15 +131,24 @@ public class WebClientRequest {
                             if (!(ex instanceof WebClientResponseException)) {
                                 logRequestFailure(ex);
                             }
-                        })
+                        }),
+                queryIdValue,
+                requestIdValue
         );
     }
 
-    private <T> Mono<T> withPermit(Mono<T> mono) {
+    private <T> Mono<T> withPermit(Mono<T> mono, String queryIdValue, String requestIdValue) {
         return Mono.usingWhen(
                 Mono.fromCallable(() -> {
                             try {
-                                concurrencyLimiter.acquire();
+                                if (!concurrencyLimiter.tryAcquire()) {
+                                    long parkedAt = System.nanoTime();
+                                    log.info("WebClient request queued queryId={} requestId={}", queryIdValue, requestIdValue);
+                                    concurrencyLimiter.acquire();
+                                    long waitMs = (System.nanoTime() - parkedAt) / 1_000_000;
+                                    log.info("WebClient request resumed queryId={} requestId={} waitMs={}",
+                                            queryIdValue, requestIdValue, waitMs);
+                                }
                                 return concurrencyLimiter;
                             } catch (InterruptedException e) {
                                 Thread.currentThread().interrupt();
@@ -167,6 +187,12 @@ public class WebClientRequest {
                 key -> ResourceDataLoader.newDataLoader(this, context));
     }
 
+    private void logRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
+        long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
+        log.info("WebClient request end queryId={} requestId={} durationMs={} uri={}",
+                queryIdValue, requestIdValue, durationMs, uri);
+    }
+
     private void logRequestFailure(Throwable exception) {
         Throwable root = findRelevantCause(exception);
         if (root instanceof PoolAcquireTimeoutException || root instanceof PoolAcquirePendingLimitException) {
@@ -197,6 +223,14 @@ public class WebClientRequest {
             current = current.getCause();
         }
         return exception;
+    }
+
+    private String formatQueryId(Long queryId) {
+        return queryId != null ? queryId.toString() : "unknown";
+    }
+
+    private String formatRequestId(long requestSequence) {
+        return requestSequence > 0 ? Long.toString(requestSequence) : "unknown";
     }
 
     private void logTokenPresence(String uri, String token) {
