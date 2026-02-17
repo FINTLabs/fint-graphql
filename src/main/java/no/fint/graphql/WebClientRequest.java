@@ -81,14 +81,10 @@ public class WebClientRequest {
             }
             return mono;
         }
-        return getDirect(uri, type, context);
+        return getDirect(uri, type, context, null);
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, GraphQLServletContext context) {
-        return getDirect(uri, type, context);
-    }
-
-    public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLServletContext context) {
         return getDirect(uri, type, context, null);
     }
 
