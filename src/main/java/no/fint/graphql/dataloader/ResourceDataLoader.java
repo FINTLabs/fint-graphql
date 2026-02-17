@@ -29,7 +29,7 @@ public final class ResourceDataLoader {
                     .flatMapSequential(key -> {
                         @SuppressWarnings("unchecked")
                         Class<Object> type = (Class<Object>) key.getType();
-                        return webClientRequest.getDirect(key.getUri(), type, context)
+                        return webClientRequest.getDirect(key.getUri(), type, context, key.getAuthorization())
                                 .cast(Object.class)
                                 .map(Try::succeeded)
                                 .onErrorResume(ex -> Mono.just(Try.failed(ex)));
@@ -41,7 +41,11 @@ public final class ResourceDataLoader {
                 .setCachingEnabled(true)
                 .setCacheKeyFunction(key -> {
                     ResourceRequestKey requestKey = (ResourceRequestKey) key;
-                    return requestKey.getUri() + "::" + requestKey.getType().getName();
+                    return requestKey.getUri()
+                            + "::"
+                            + requestKey.getType().getName()
+                            + "::"
+                            + requestKey.getAuthorization();
                 });
         if (servletContext != null) {
             options.setBatchLoaderContextProvider(() -> servletContext);

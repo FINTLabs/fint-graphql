@@ -29,6 +29,7 @@ import io.netty.handler.timeout.WriteTimeoutException;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.Semaphore;
 
 @Slf4j
@@ -42,15 +43,19 @@ public class WebClientRequest {
     private final Set<String> remoteAddresses = new HashSet<>();
     private final Semaphore concurrencyLimiter;
     private final Cache<String, DataLoader<ResourceRequestKey, Object>> requestScopedLoaders;
+    private final GraphQLQueryIdProvider queryIdProvider;
+    private final AtomicLong fallbackRequestCounter = new AtomicLong();
 
     public WebClientRequest(
             WebClient webClient,
             ConnectionProviderSettings connectionProviderSettings,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
-            BlacklistService blacklistService) {
+            BlacklistService blacklistService,
+            GraphQLQueryIdProvider queryIdProvider) {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
         this.blacklistService = blacklistService;
+        this.queryIdProvider = queryIdProvider;
         hashFunction = Hashing.murmur3_128();
         concurrencyLimiter = new Semaphore(connectionProviderSettings.getMaxConnections(), true);
         requestScopedLoaders = Caffeine.newBuilder()
@@ -61,6 +66,7 @@ public class WebClientRequest {
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
         GraphQLServletContext context = getContext(dfe);
+        String authorization = getToken(context);
         DataLoader<ResourceRequestKey, Object> dataLoader = getDataLoader(dfe);
         boolean manualDispatch = false;
         if (dataLoader == null) {
@@ -68,7 +74,7 @@ public class WebClientRequest {
             manualDispatch = dataLoader != null;
         }
         if (dataLoader != null) {
-            Mono<T> mono = Mono.fromFuture(dataLoader.load(new ResourceRequestKey(uri, type)))
+            Mono<T> mono = Mono.fromFuture(dataLoader.load(new ResourceRequestKey(uri, type, authorization)))
                     .cast(type);
             if (manualDispatch) {
                 dataLoader.dispatch();
@@ -83,13 +89,26 @@ public class WebClientRequest {
     }
 
     public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLServletContext context) {
+        return getDirect(uri, type, context, null);
+    }
+
+    public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLServletContext context, String authorization) {
         Long queryId = GraphQLRequestAttributes.getQueryId(context);
+        if (queryId == null) {
+            queryId = queryIdProvider.nextId();
+        }
         long requestSequence = GraphQLRequestAttributes.nextRequestSequence(context);
+        if (requestSequence < 1) {
+            requestSequence = fallbackRequestCounter.incrementAndGet();
+        }
         String queryIdValue = formatQueryId(queryId);
         String requestIdValue = formatRequestId(requestSequence);
         long startNanos = System.nanoTime();
 
         String token = getToken(context);
+        if (token == null) {
+            token = authorization;
+        }
         logRemoteIp(context);
         logTokenPresence(uri, token);
 

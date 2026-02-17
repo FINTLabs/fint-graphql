@@ -5,10 +5,16 @@ import java.util.Objects;
 public final class ResourceRequestKey {
     private final String uri;
     private final Class<?> type;
+    private final String authorization;
 
     public ResourceRequestKey(String uri, Class<?> type) {
+        this(uri, type, null);
+    }
+
+    public ResourceRequestKey(String uri, Class<?> type, String authorization) {
         this.uri = uri;
         this.type = type;
+        this.authorization = authorization;
     }
 
     public String getUri() {
@@ -17,6 +23,10 @@ public final class ResourceRequestKey {
 
     public Class<?> getType() {
         return type;
+    }
+
+    public String getAuthorization() {
+        return authorization;
     }
 
     @Override
@@ -28,11 +38,13 @@ public final class ResourceRequestKey {
             return false;
         }
         ResourceRequestKey that = (ResourceRequestKey) o;
-        return Objects.equals(uri, that.uri) && Objects.equals(type, that.type);
+        return Objects.equals(uri, that.uri)
+                && Objects.equals(type, that.type)
+                && Objects.equals(authorization, that.authorization);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uri, type);
+        return Objects.hash(uri, type, authorization);
     }
 }
