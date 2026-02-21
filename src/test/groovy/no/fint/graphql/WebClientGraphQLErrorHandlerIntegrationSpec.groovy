@@ -146,6 +146,21 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         thirdRequest == null
     }
 
+    def "GraphQL completes when DataLoader loads are enqueued late"() {
+        given:
+        drainRequests()
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("ok"))
+        def query = 'query { rolle(navn: "late") { fullmakt { systemId { identifikatorverdi } } } }'
+
+        when:
+        def responseBody = executeQuery(query)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.rolle?.fullmakt?.size() == 1
+    }
+
     def "GraphQL returns message and path for status #status"() {
         given:
         server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
@@ -344,6 +359,15 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
                         rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/2"))
                         return Mono.just(rolle)
                     }
+                    if ("late".equals(value)) {
+                        def rolle = new RolleResource()
+                        rolle.setBeskrivelse("late")
+                        def navn = new Identifikator()
+                        navn.setIdentifikatorverdi("late")
+                        rolle.setNavn(navn)
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/1"))
+                        return Mono.just(rolle)
+                    }
                     if (!"foo".equals(value)) {
                         def url = endpoints.getAdministrasjonFullmakt() + "/rolle/" + id + "/" + value
                         return webClientRequest.get(url, RolleResource.class, dfe)
@@ -377,12 +401,17 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
         CompletionStage<DataFetcherResult<List<FullmaktResource>>> getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
             def links = rolle.getFullmakt().collect { it.href }
+            def delayed = "late".equals(rolle?.getBeskrivelse())
             return Flux.fromIterable(links)
                     .index()
                     .flatMap { tuple ->
                         def idx = tuple.t1.intValue()
                         def href = tuple.t2
-                        webClientRequest.get(href, String.class, dfe)
+                        def request = webClientRequest.get(href, String.class, dfe)
+                        if (delayed) {
+                            request = Mono.delay(Duration.ofMillis(50)).then(request)
+                        }
+                        request
                                 .map { res -> [idx, buildFullmaktResource(idx), null] }
                                 .onErrorResume { ex -> Mono.just([idx, null, ex]) }
                     }

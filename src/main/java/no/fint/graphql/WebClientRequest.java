@@ -62,6 +62,8 @@ public class WebClientRequest {
                 .maximumSize(10000)
                 .expireAfterWrite(Duration.ofMinutes(5))
                 .build();
+
+        log.info("Max outgoing HTTP connections: {}", connectionProviderSettings.getMaxConnections());
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
@@ -74,10 +76,12 @@ public class WebClientRequest {
             manualDispatch = dataLoader != null;
         }
         if (dataLoader != null) {
-            Mono<T> mono = Mono.fromFuture(dataLoader.load(new ResourceRequestKey(uri, type, authorization)))
-                    .cast(type);
+            ResourceRequestKey key = new ResourceRequestKey(uri, type, authorization);
+            Mono<T> mono = Mono.fromFuture(dataLoader.load(key)).cast(type);
             if (manualDispatch) {
                 dataLoader.dispatch();
+            } else {
+                dispatchIfQueued(dataLoader);
             }
             return mono;
         }
@@ -108,7 +112,7 @@ public class WebClientRequest {
         logRemoteIp(context);
         logTokenPresence(uri, token);
 
-        log.info("WebClient request start queryId={} requestId={} uri={}", queryIdValue, requestIdValue, uri);
+        log.debug("WebClient request start queryId={} requestId={} uri={}", queryIdValue, requestIdValue, uri);
 
         blacklistService.failIfBlacklisted(getRemoteIp(context), token);
 
@@ -124,28 +128,41 @@ public class WebClientRequest {
                 return Mono.just(result);
             }
             log.trace("Cache miss on {}", uri);
-            return get(request, type, queryIdValue, requestIdValue)
+            return get(request, type, queryIdValue, requestIdValue, uri)
                     .doOnNext(value -> cache.put(key, value))
                     .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
         }
-        return get(request, type, queryIdValue, requestIdValue)
+        return get(request, type, queryIdValue, requestIdValue, uri)
                 .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
     }
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
-                            String queryIdValue, String requestIdValue) {
+                            String queryIdValue, String requestIdValue, String uri) {
         return withPermit(
                 request.retrieve()
                         .bodyToMono(type)
                         .onErrorResume(WebClientResponseException.class, ex -> {
-                            log.error("WebClient response error: Status Code {}, URI {}, Message {}",
-                                    ex.getRawStatusCode(), ex.getRequest().getURI(), ex.getMessage());
+                            log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
+                                    ex.getRawStatusCode(), ex.getRequest().getURI(), queryIdValue, requestIdValue, ex.getMessage());
                             return Mono.error(ex);
                         })
-                        .doOnError(ex -> {
-                            if (!(ex instanceof WebClientResponseException)) {
-                                logRequestFailure(ex);
+                        .onErrorMap(ex -> {
+                            if (ex instanceof WebClientResponseException) {
+                                return ex;
                             }
+                            return new WebClientRequestException(
+                                    "WebClient request failed",
+                                    ex,
+                                    uri,
+                                    queryIdValue,
+                                    requestIdValue
+                            );
+                        })
+                        .doOnError(ex -> {
+                            if (ex instanceof WebClientResponseException) {
+                                return;
+                            }
+                            logRequestFailure(ex, queryIdValue, requestIdValue, uri);
                         }),
                 queryIdValue,
                 requestIdValue
@@ -158,10 +175,10 @@ public class WebClientRequest {
                             try {
                                 if (!concurrencyLimiter.tryAcquire()) {
                                     long parkedAt = System.nanoTime();
-                                    log.info("WebClient request queued queryId={} requestId={}", queryIdValue, requestIdValue);
+                                    log.debug("WebClient request queued queryId={} requestId={}", queryIdValue, requestIdValue);
                                     concurrencyLimiter.acquire();
                                     long waitMs = (System.nanoTime() - parkedAt) / 1_000_000;
-                                    log.info("WebClient request resumed queryId={} requestId={} waitMs={}",
+                                    log.debug("WebClient request resumed queryId={} requestId={} waitMs={}",
                                             queryIdValue, requestIdValue, waitMs);
                                 }
                                 return concurrencyLimiter;
@@ -202,27 +219,37 @@ public class WebClientRequest {
                 key -> ResourceDataLoader.newDataLoader(this, context));
     }
 
+    private void dispatchIfQueued(DataLoader<ResourceRequestKey, Object> dataLoader) {
+        if (dataLoader.dispatchDepth() > 0) {
+            dataLoader.dispatch();
+        }
+    }
+
     private void logRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
         long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
-        log.info("WebClient request end queryId={} requestId={} durationMs={} uri={}",
+        log.debug("WebClient request end queryId={} requestId={} durationMs={} uri={}",
                 queryIdValue, requestIdValue, durationMs, uri);
     }
 
-    private void logRequestFailure(Throwable exception) {
+    private void logRequestFailure(Throwable exception, String queryIdValue, String requestIdValue, String uri) {
         Throwable root = findRelevantCause(exception);
         if (root instanceof PoolAcquireTimeoutException || root instanceof PoolAcquirePendingLimitException) {
-            log.warn("WebClient connection pool exhausted (pending acquire timeout). {}", root.getMessage());
+            log.warn("WebClient connection pool exhausted (pending acquire timeout). queryId={} requestId={} uri={} {}",
+                    queryIdValue, requestIdValue, uri, root.getMessage());
             return;
         }
         if (root instanceof ConnectTimeoutException) {
-            log.warn("WebClient connect timeout. {}", root.getMessage());
+            log.warn("WebClient connect timeout. queryId={} requestId={} uri={} {}",
+                    queryIdValue, requestIdValue, uri, root.getMessage());
             return;
         }
         if (root instanceof ReadTimeoutException || root instanceof WriteTimeoutException) {
-            log.warn("WebClient response timeout. {}", root.getMessage());
+            log.warn("WebClient response timeout. queryId={} requestId={} uri={} {}",
+                    queryIdValue, requestIdValue, uri, root.getMessage());
             return;
         }
-        log.error("WebClient request error: {}", root.getMessage(), root);
+        log.error("WebClient request error: queryId={} requestId={} uri={} {}",
+                queryIdValue, requestIdValue, uri, root.getMessage(), root);
     }
 
     private Throwable findRelevantCause(Throwable exception) {
@@ -260,7 +287,7 @@ public class WebClientRequest {
         String ip = getRemoteIp(context);
 
         if (remoteAddresses.add(ip)) {
-            log.info("Request-id: " + ip);
+            log.debug("Remote IP: {}", ip);
         }
     }
 

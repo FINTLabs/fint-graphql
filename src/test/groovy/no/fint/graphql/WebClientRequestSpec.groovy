@@ -12,8 +12,10 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import spock.lang.Specification
 import no.fint.graphql.config.ConnectionProviderSettings
+import no.fint.graphql.dataloader.ResourceDataLoader
 
 import javax.servlet.http.HttpServletRequest
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 class WebClientRequestSpec extends Specification {
@@ -23,11 +25,13 @@ class WebClientRequestSpec extends Specification {
     private WebClient webClient = WebClient.create(url)
     private BlacklistService blacklistService = Mock(BlacklistService)
     private ConnectionProviderSettings connectionProviderSettings = new ConnectionProviderSettings(maxConnections: 100)
+    private GraphQLQueryIdProvider queryIdProvider = new GraphQLQueryIdProvider()
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
             connectionProviderSettings,
             'maximumSize=1,expireAfterWrite=1s',
-            blacklistService)
+            blacklistService,
+            queryIdProvider)
 
     def "Get request with token"() {
         given:
@@ -87,7 +91,8 @@ class WebClientRequestSpec extends Specification {
                 webClient,
                 limitedSettings,
                 'maximumSize=1,expireAfterWrite=1s',
-                blacklistService)
+                blacklistService,
+                queryIdProvider)
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -116,6 +121,29 @@ class WebClientRequestSpec extends Specification {
         secondRequestAfter != null
         firstResponse == "one"
         secondResponse == "two"
+    }
+
+    def "DataLoader dispatches queued load without instrumentation"() {
+        given:
+        def servletContext = Mock(GraphQLServletContext) {
+            getHttpServletRequest() >> Mock(HttpServletRequest) {
+                getHeader(HttpHeaders.AUTHORIZATION) >> 'Bearer abc123'
+            }
+        }
+        def dataLoader = ResourceDataLoader.newDataLoader(webClientRequest, servletContext)
+        def dfe = Mock(DataFetchingEnvironment) {
+            getDataLoader(ResourceDataLoader.NAME) >> dataLoader
+            getContext() >> servletContext
+        }
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+
+        when:
+        def response = webClientRequest.get(url, String, dfe).block(Duration.ofSeconds(1))
+        def request = server.takeRequest(1, TimeUnit.SECONDS)
+
+        then:
+        response == 'response'
+        request != null
     }
 
     private static String expectedMessage(int status, String requestUrl) {

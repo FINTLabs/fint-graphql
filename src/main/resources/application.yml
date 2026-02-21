@@ -2,3 +2,8 @@ fint:
   webclient:
     connect-timeout-ms: 20000
     response-timeout: PT30S
+  graphql:
+    query-timeout: PT1M50S
+graphql:
+  servlet:
+    exception-handlers-enabled: true
