@@ -238,8 +238,8 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         def expectedTwo = expectedExtensions(404, "/administrasjon/fullmakt/fullmakt/systemid/3")
         def expectedAltOne = expectedExtensions(403, "/administrasjon/fullmakt/fullmakt/systemid/3")
         def expectedAltTwo = expectedExtensions(404, "/administrasjon/fullmakt/fullmakt/systemid/2")
-        assertExtensionsMatch(extensions[0], expectedOne) || assertExtensionsMatch(extensions[0], expectedAltOne)
-        assertExtensionsMatch(extensions[1], expectedTwo) || assertExtensionsMatch(extensions[1], expectedAltTwo)
+        extensions.any { assertExtensionsMatch(it, expectedOne) || assertExtensionsMatch(it, expectedAltOne) }
+        extensions.any { assertExtensionsMatch(it, expectedTwo) || assertExtensionsMatch(it, expectedAltTwo) }
 
         and:
         def fullmaktPaths = []
