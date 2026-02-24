@@ -8,11 +8,11 @@ type Fag {
 
 	# Relations
     grepreferanse: [String]
-    programomrade: [Programomrade]
+    skole: [Skole]
     vigoreferanse: [String]
     tilrettelegging: [Elevtilrettelegging]
+    programomrade: [Programomrade]
     faggruppe: [Faggruppe]
-    skole: [Skole]
     undervisningsgruppe: [Undervisningsgruppe]
     eksamensgruppe: [Eksamensgruppe]
 }

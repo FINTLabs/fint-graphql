@@ -19,7 +19,7 @@ public class OtStatusQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private OtStatusService service;
 
-    public CompletionStage<OtStatusResource> getOtStatus(
+    public CompletionStage<OtStatusResource> otstatus(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for OtStatus");

@@ -19,7 +19,7 @@ public class KlassemedlemskapQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KlassemedlemskapService service;
 
-    public CompletionStage<KlassemedlemskapResource> getKlassemedlemskap(
+    public CompletionStage<KlassemedlemskapResource> klassemedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Klassemedlemskap");

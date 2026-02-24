@@ -19,7 +19,7 @@ public class FastlonnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FastlonnService service;
 
-    public CompletionStage<FastlonnResource> getFastlonn(
+    public CompletionStage<FastlonnResource> fastlonn(
             String kildesystemId,
             String systemId,
             DataFetchingEnvironment dfe) {

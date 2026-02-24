@@ -19,7 +19,7 @@ public class FagmerknadQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FagmerknadService service;
 
-    public CompletionStage<FagmerknadResource> getFagmerknad(
+    public CompletionStage<FagmerknadResource> fagmerknad(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fagmerknad");

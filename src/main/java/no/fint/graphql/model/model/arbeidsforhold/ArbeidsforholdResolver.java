@@ -3,63 +3,45 @@ package no.fint.graphql.model.model.arbeidsforhold;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
 import no.fint.graphql.model.model.aktivitet.AktivitetService;
 import no.fint.graphql.model.model.anlegg.AnleggService;
 import no.fint.graphql.model.model.ansvar.AnsvarService;
 import no.fint.graphql.model.model.arbeidsforholdstype.ArbeidsforholdstypeService;
+import no.fint.graphql.model.model.arbeidslokasjon.ArbeidslokasjonService;
 import no.fint.graphql.model.model.art.ArtService;
 import no.fint.graphql.model.model.diverse.DiverseService;
+import no.fint.graphql.model.model.fastlonn.FastlonnService;
+import no.fint.graphql.model.model.fasttillegg.FasttilleggService;
 import no.fint.graphql.model.model.formal.FormalService;
 import no.fint.graphql.model.model.funksjon.FunksjonService;
 import no.fint.graphql.model.model.kontrakt.KontraktService;
 import no.fint.graphql.model.model.lopenummer.LopenummerService;
 import no.fint.graphql.model.model.objekt.ObjektService;
+import no.fint.graphql.model.model.organisasjonselement.OrganisasjonselementService;
+import no.fint.graphql.model.model.personalressurs.PersonalressursService;
 import no.fint.graphql.model.model.prosjekt.ProsjektService;
 import no.fint.graphql.model.model.ramme.RammeService;
 import no.fint.graphql.model.model.stillingskode.StillingskodeService;
 import no.fint.graphql.model.model.uketimetall.UketimetallService;
-import no.fint.graphql.model.model.arbeidslokasjon.ArbeidslokasjonService;
-import no.fint.graphql.model.model.organisasjonselement.OrganisasjonselementService;
-import no.fint.graphql.model.model.personalressurs.PersonalressursService;
-import no.fint.graphql.model.model.fastlonn.FastlonnService;
-import no.fint.graphql.model.model.fasttillegg.FasttilleggService;
-import no.fint.graphql.model.model.variabellonn.VariabellonnService;
 import no.fint.graphql.model.model.undervisningsforhold.UndervisningsforholdService;
-
-
+import no.fint.graphql.model.model.variabellonn.VariabellonnService;
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AktivitetResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnleggResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ArbeidsforholdstypeResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ArtResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.DiverseResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FormalResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FunksjonResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.KontraktResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.LopenummerResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ObjektResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ProsjektResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.RammeResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.StillingskodeResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.UketimetallResource;
+import no.novari.fint.model.resource.administrasjon.kodeverk.*;
 import no.novari.fint.model.resource.administrasjon.organisasjon.ArbeidslokasjonResource;
 import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.novari.fint.model.resource.administrasjon.personal.FastlonnResource;
-import no.novari.fint.model.resource.administrasjon.personal.FasttilleggResource;
-import no.novari.fint.model.resource.administrasjon.personal.VariabellonnResource;
+import no.novari.fint.model.resource.administrasjon.personal.*;
 import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Component("modelArbeidsforholdResolver")
 public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdResource> {
@@ -312,32 +294,59 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
     }
 
     public CompletionStage<List<FastlonnResource>> getFastlonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(arbeidsforhold.getFastlonn()
-                .stream()
+        var links = Optional.ofNullable(arbeidsforhold.getFastlonn()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> fastlonnService.getFastlonnResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> fastlonnService.getFastlonnResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<FasttilleggResource>> getFasttillegg(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(arbeidsforhold.getFasttillegg()
-                .stream()
+        var links = Optional.ofNullable(arbeidsforhold.getFasttillegg()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> fasttilleggService.getFasttilleggResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> fasttilleggService.getFasttilleggResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<VariabellonnResource>> getVariabellonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(arbeidsforhold.getVariabellonn()
-                .stream()
+        var links = Optional.ofNullable(arbeidsforhold.getVariabellonn()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> variabellonnService.getVariabellonnResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> variabellonnService.getVariabellonnResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 

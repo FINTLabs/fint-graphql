@@ -3,23 +3,23 @@ package no.fint.graphql.model.model.utdanningsprogram;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
-import no.fint.graphql.model.model.skole.SkoleService;
 import no.fint.graphql.model.model.programomrade.ProgramomradeService;
-
-
+import no.fint.graphql.model.model.skole.SkoleService;
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
-
+import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.novari.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Component("modelUtdanningsprogramResolver")
 public class UtdanningsprogramResolver implements GraphQLResolver<UtdanningsprogramResource> {
@@ -32,22 +32,40 @@ public class UtdanningsprogramResolver implements GraphQLResolver<Utdanningsprog
 
 
     public CompletionStage<List<SkoleResource>> getSkole(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(utdanningsprogram.getSkole()
-                .stream()
+        var links = Optional.ofNullable(utdanningsprogram.getSkole()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> skoleService.getSkoleResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> skoleService.getSkoleResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<ProgramomradeResource>> getProgramomrade(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(utdanningsprogram.getProgramomrade()
-                .stream()
+        var links = Optional.ofNullable(utdanningsprogram.getProgramomrade()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> programomradeService.getProgramomradeResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> programomradeService.getProgramomradeResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 

@@ -19,7 +19,7 @@ public class SluttfagvurderingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SluttfagvurderingService service;
 
-    public CompletionStage<SluttfagvurderingResource> getSluttfagvurdering(
+    public CompletionStage<SluttfagvurderingResource> sluttfagvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Sluttfagvurdering");

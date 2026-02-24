@@ -19,7 +19,7 @@ public class SluttordensvurderingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SluttordensvurderingService service;
 
-    public CompletionStage<SluttordensvurderingResource> getSluttordensvurdering(
+    public CompletionStage<SluttordensvurderingResource> sluttordensvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Sluttordensvurdering");

@@ -19,7 +19,7 @@ public class KontraktQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KontraktService service;
 
-    public CompletionStage<KontraktResource> getKontrakt(
+    public CompletionStage<KontraktResource> kontrakt(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Kontrakt");

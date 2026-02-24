@@ -19,7 +19,7 @@ public class AnsvarQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AnsvarService service;
 
-    public CompletionStage<AnsvarResource> getAnsvar(
+    public CompletionStage<AnsvarResource> ansvar(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Ansvar");

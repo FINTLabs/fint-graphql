@@ -19,7 +19,7 @@ public class ArbeidsforholdstypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ArbeidsforholdstypeService service;
 
-    public CompletionStage<ArbeidsforholdstypeResource> getArbeidsforholdstype(
+    public CompletionStage<ArbeidsforholdstypeResource> arbeidsforholdstype(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Arbeidsforholdstype");

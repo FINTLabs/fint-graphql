@@ -19,7 +19,7 @@ public class OrganisasjonstypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private OrganisasjonstypeService service;
 
-    public CompletionStage<OrganisasjonstypeResource> getOrganisasjonstype(
+    public CompletionStage<OrganisasjonstypeResource> organisasjonstype(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Organisasjonstype");

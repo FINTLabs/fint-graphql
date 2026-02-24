@@ -19,7 +19,7 @@ public class DiverseQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private DiverseService service;
 
-    public CompletionStage<DiverseResource> getDiverse(
+    public CompletionStage<DiverseResource> diverse(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Diverse");

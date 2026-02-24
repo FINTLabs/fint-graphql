@@ -7,11 +7,11 @@ type Undervisningsgruppe {
     systemId: Identifikator! # Gruppe
 
 	# Relations
+    undervisningsforhold: [Undervisningsforhold]
     fag: [Fag]!
     termin: [Termin]
     skole: Skole!
     skolear: Skolear
-    undervisningsforhold: [Undervisningsforhold]
     time: [Time]
     gruppemedlemskap: [Undervisningsgruppemedlemskap]
 }

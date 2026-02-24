@@ -19,7 +19,7 @@ public class UndervisningsgruppemedlemskapQueryResolver implements GraphQLQueryR
     @Autowired
     private UndervisningsgruppemedlemskapService service;
 
-    public CompletionStage<UndervisningsgruppemedlemskapResource> getUndervisningsgruppemedlemskap(
+    public CompletionStage<UndervisningsgruppemedlemskapResource> undervisningsgruppemedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Undervisningsgruppemedlemskap");

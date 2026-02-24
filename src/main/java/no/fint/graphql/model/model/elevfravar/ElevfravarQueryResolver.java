@@ -19,7 +19,7 @@ public class ElevfravarQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevfravarService service;
 
-    public CompletionStage<ElevfravarResource> getElevfravar(
+    public CompletionStage<ElevfravarResource> elevfravar(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Elevfravar");

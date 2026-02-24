@@ -19,7 +19,7 @@ public class UndervisningsforholdQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private UndervisningsforholdService service;
 
-    public CompletionStage<UndervisningsforholdResource> getUndervisningsforhold(
+    public CompletionStage<UndervisningsforholdResource> undervisningsforhold(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Undervisningsforhold");

@@ -3,31 +3,29 @@ package no.fint.graphql.model.model.organisasjonselement;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
 import no.fint.graphql.model.model.ansvar.AnsvarService;
+import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.model.organisasjonstype.OrganisasjonstypeService;
 import no.fint.graphql.model.model.personalressurs.PersonalressursService;
-import no.fint.graphql.model.model.organisasjonselement.OrganisasjonselementService;
 import no.fint.graphql.model.model.skole.SkoleService;
-import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.novari.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
 import no.novari.fint.model.resource.administrasjon.kodeverk.OrganisasjonstypeResource;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
-
+import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Component("modelOrganisasjonselementResolver")
 public class OrganisasjonselementResolver implements GraphQLResolver<OrganisasjonselementResource> {
@@ -52,12 +50,21 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
 
 
     public CompletionStage<List<AnsvarResource>> getAnsvar(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(organisasjonselement.getAnsvar()
-                .stream()
+        var links = Optional.ofNullable(organisasjonselement.getAnsvar()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> ansvarService.getAnsvarResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> ansvarService.getAnsvarResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
@@ -92,12 +99,21 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
     }
 
     public CompletionStage<List<OrganisasjonselementResource>> getUnderordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(organisasjonselement.getUnderordnet()
-                .stream()
+        var links = Optional.ofNullable(organisasjonselement.getUnderordnet()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> organisasjonselementService.getOrganisasjonselementResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
@@ -112,12 +128,21 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
     }
 
     public CompletionStage<List<ArbeidsforholdResource>> getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(organisasjonselement.getArbeidsforhold()
-                .stream()
+        var links = Optional.ofNullable(organisasjonselement.getArbeidsforhold()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> arbeidsforholdService.getArbeidsforholdResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 

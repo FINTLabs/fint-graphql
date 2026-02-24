@@ -3,51 +3,46 @@ package no.fint.graphql.model.model.elevforhold;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
-import no.fint.graphql.model.model.elev.ElevService;
-import no.fint.graphql.model.model.elevkategori.ElevkategoriService;
-import no.fint.graphql.model.model.skole.SkoleService;
 import no.fint.graphql.model.model.avbruddsarsak.AvbruddsarsakService;
-import no.fint.graphql.model.model.elevfravar.ElevfravarService;
-import no.fint.graphql.model.model.faggruppemedlemskap.FaggruppemedlemskapService;
-import no.fint.graphql.model.model.skolear.SkolearService;
-import no.fint.graphql.model.model.undervisningsgruppemedlemskap.UndervisningsgruppemedlemskapService;
-import no.fint.graphql.model.model.persongruppemedlemskap.PersongruppemedlemskapService;
 import no.fint.graphql.model.model.eksamensgruppemedlemskap.EksamensgruppemedlemskapService;
-import no.fint.graphql.model.model.kontaktlarergruppemedlemskap.KontaktlarergruppemedlemskapService;
-import no.fint.graphql.model.model.fravarsoversikt.FravarsoversiktService;
+import no.fint.graphql.model.model.elev.ElevService;
+import no.fint.graphql.model.model.elevfravar.ElevfravarService;
+import no.fint.graphql.model.model.elevkategori.ElevkategoriService;
 import no.fint.graphql.model.model.elevtilrettelegging.ElevtilretteleggingService;
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
-import no.fint.graphql.model.model.programomrademedlemskap.ProgramomrademedlemskapService;
+import no.fint.graphql.model.model.faggruppemedlemskap.FaggruppemedlemskapService;
+import no.fint.graphql.model.model.fravarsoversikt.FravarsoversiktService;
 import no.fint.graphql.model.model.klassemedlemskap.KlassemedlemskapService;
-
-
+import no.fint.graphql.model.model.kontaktlarergruppemedlemskap.KontaktlarergruppemedlemskapService;
+import no.fint.graphql.model.model.persongruppemedlemskap.PersongruppemedlemskapService;
+import no.fint.graphql.model.model.programomrademedlemskap.ProgramomrademedlemskapService;
+import no.fint.graphql.model.model.skole.SkoleService;
+import no.fint.graphql.model.model.skolear.SkolearService;
+import no.fint.graphql.model.model.undervisningsgruppemedlemskap.UndervisningsgruppemedlemskapService;
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.ElevkategoriResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.novari.fint.model.resource.utdanning.elev.*;
 import no.novari.fint.model.resource.utdanning.kodeverk.AvbruddsarsakResource;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevfravarResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FaggruppemedlemskapResource;
+import no.novari.fint.model.resource.utdanning.kodeverk.ElevkategoriResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
+import no.novari.fint.model.resource.utdanning.timeplan.FaggruppemedlemskapResource;
 import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.elev.PersongruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.vurdering.FravarsoversiktResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevtilretteleggingResource;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomrademedlemskapResource;
-import no.novari.fint.model.resource.utdanning.elev.KlassemedlemskapResource;
-
+import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
+import no.novari.fint.model.resource.utdanning.vurdering.ElevfravarResource;
+import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
+import no.novari.fint.model.resource.utdanning.vurdering.FravarsoversiktResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Component("modelElevforholdResolver")
 public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource> {
@@ -132,12 +127,21 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
     }
 
     public CompletionStage<List<AvbruddsarsakResource>> getAvbruddsarsak(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getAvbruddsarsak()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getAvbruddsarsak()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> avbruddsarsakService.getAvbruddsarsakResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> avbruddsarsakService.getAvbruddsarsakResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
@@ -152,12 +156,21 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
     }
 
     public CompletionStage<List<FaggruppemedlemskapResource>> getFaggruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getFaggruppemedlemskap()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getFaggruppemedlemskap()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> faggruppemedlemskapService.getFaggruppemedlemskapResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> faggruppemedlemskapService.getFaggruppemedlemskapResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
@@ -172,62 +185,116 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
     }
 
     public CompletionStage<List<UndervisningsgruppemedlemskapResource>> getUndervisningsgruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getUndervisningsgruppemedlemskap()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getUndervisningsgruppemedlemskap()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> undervisningsgruppemedlemskapService.getUndervisningsgruppemedlemskapResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> undervisningsgruppemedlemskapService.getUndervisningsgruppemedlemskapResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<PersongruppemedlemskapResource>> getPersongruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getPersongruppemedlemskap()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getPersongruppemedlemskap()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> persongruppemedlemskapService.getPersongruppemedlemskapResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> persongruppemedlemskapService.getPersongruppemedlemskapResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<EksamensgruppemedlemskapResource>> getEksamensgruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getEksamensgruppemedlemskap()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getEksamensgruppemedlemskap()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> eksamensgruppemedlemskapService.getEksamensgruppemedlemskapResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> eksamensgruppemedlemskapService.getEksamensgruppemedlemskapResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<KontaktlarergruppemedlemskapResource>> getKontaktlarergruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getKontaktlarergruppemedlemskap()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getKontaktlarergruppemedlemskap()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> kontaktlarergruppemedlemskapService.getKontaktlarergruppemedlemskapResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> kontaktlarergruppemedlemskapService.getKontaktlarergruppemedlemskapResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<FravarsoversiktResource>> getElevfravar(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getElevfravar()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getElevfravar()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> fravarsoversiktService.getFravarsoversiktResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> fravarsoversiktService.getFravarsoversiktResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<ElevtilretteleggingResource>> getTilrettelegging(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getTilrettelegging()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getTilrettelegging()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> elevtilretteleggingService.getElevtilretteleggingResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> elevtilretteleggingService.getElevtilretteleggingResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
@@ -242,22 +309,40 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
     }
 
     public CompletionStage<List<ProgramomrademedlemskapResource>> getProgramomrademedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getProgramomrademedlemskap()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getProgramomrademedlemskap()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> programomrademedlemskapService.getProgramomrademedlemskapResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> programomrademedlemskapService.getProgramomrademedlemskapResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<KlassemedlemskapResource>> getKlassemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(elevforhold.getKlassemedlemskap()
-                .stream()
+        var links = Optional.ofNullable(elevforhold.getKlassemedlemskap()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> klassemedlemskapService.getKlassemedlemskapResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> klassemedlemskapService.getKlassemedlemskapResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 

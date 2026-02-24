@@ -19,7 +19,7 @@ public class BrevtypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private BrevtypeService service;
 
-    public CompletionStage<BrevtypeResource> getBrevtype(
+    public CompletionStage<BrevtypeResource> brevtype(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Brevtype");

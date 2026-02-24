@@ -9,6 +9,6 @@ type Arstrinn {
 	# Relations
     vigoreferanse: [String]
     grepreferanse: [String]
-    programomrade: [Programomrade]
     klasse: [Klasse]
+    programomrade: [Programomrade]
 }

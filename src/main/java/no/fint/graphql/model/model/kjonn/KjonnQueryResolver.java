@@ -19,7 +19,7 @@ public class KjonnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KjonnService service;
 
-    public CompletionStage<KjonnResource> getKjonn(
+    public CompletionStage<KjonnResource> kjonn(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Kjonn");

@@ -19,7 +19,7 @@ public class EksamensgruppemedlemskapQueryResolver implements GraphQLQueryResolv
     @Autowired
     private EksamensgruppemedlemskapService service;
 
-    public CompletionStage<EksamensgruppemedlemskapResource> getEksamensgruppemedlemskap(
+    public CompletionStage<EksamensgruppemedlemskapResource> eksamensgruppemedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Eksamensgruppemedlemskap");

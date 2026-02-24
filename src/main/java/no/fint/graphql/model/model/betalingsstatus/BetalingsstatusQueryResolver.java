@@ -19,7 +19,7 @@ public class BetalingsstatusQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private BetalingsstatusService service;
 
-    public CompletionStage<BetalingsstatusResource> getBetalingsstatus(
+    public CompletionStage<BetalingsstatusResource> betalingsstatus(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Betalingsstatus");

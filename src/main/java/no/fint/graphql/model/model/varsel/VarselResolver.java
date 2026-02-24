@@ -3,26 +3,21 @@ package no.fint.graphql.model.model.varsel;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
+import no.fint.graphql.model.model.faggruppemedlemskap.FaggruppemedlemskapService;
 import no.fint.graphql.model.model.skoleressurs.SkoleressursService;
 import no.fint.graphql.model.model.undervisningsforhold.UndervisningsforholdService;
 import no.fint.graphql.model.model.varseltype.VarseltypeService;
-import no.fint.graphql.model.model.faggruppemedlemskap.FaggruppemedlemskapService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.VarselResource;
 import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
 import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.novari.fint.model.resource.utdanning.elev.VarselResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.VarseltypeResource;
 import no.novari.fint.model.resource.utdanning.timeplan.FaggruppemedlemskapResource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelVarselResolver")

@@ -19,7 +19,7 @@ public class FaggruppemedlemskapQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FaggruppemedlemskapService service;
 
-    public CompletionStage<FaggruppemedlemskapResource> getFaggruppemedlemskap(
+    public CompletionStage<FaggruppemedlemskapResource> faggruppemedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Faggruppemedlemskap");

@@ -19,7 +19,7 @@ public class FormalQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FormalService service;
 
-    public CompletionStage<FormalResource> getFormal(
+    public CompletionStage<FormalResource> formal(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Formal");

@@ -19,7 +19,7 @@ public class FylkeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FylkeService service;
 
-    public CompletionStage<FylkeResource> getFylke(
+    public CompletionStage<FylkeResource> fylke(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fylke");

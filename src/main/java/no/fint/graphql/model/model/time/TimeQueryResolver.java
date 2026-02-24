@@ -19,7 +19,7 @@ public class TimeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private TimeService service;
 
-    public CompletionStage<TimeResource> getTime(
+    public CompletionStage<TimeResource> time(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Time");

@@ -19,7 +19,7 @@ public class ElevQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevService service;
 
-    public CompletionStage<ElevResource> getElev(
+    public CompletionStage<ElevResource> elev(
             String brukernavn,
             String elevnummer,
             String feidenavn,

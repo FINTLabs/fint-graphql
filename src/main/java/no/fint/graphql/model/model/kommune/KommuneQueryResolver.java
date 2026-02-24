@@ -19,7 +19,7 @@ public class KommuneQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KommuneService service;
 
-    public CompletionStage<KommuneResource> getKommune(
+    public CompletionStage<KommuneResource> kommune(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Kommune");

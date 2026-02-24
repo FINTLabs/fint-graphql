@@ -3,48 +3,32 @@ package no.fint.graphql.model.model.fullmakt;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
-import no.fint.graphql.model.model.ramme.RammeService;
+import no.fint.graphql.model.model.aktivitet.AktivitetService;
+import no.fint.graphql.model.model.anlegg.AnleggService;
+import no.fint.graphql.model.model.ansvar.AnsvarService;
+import no.fint.graphql.model.model.art.ArtService;
+import no.fint.graphql.model.model.diverse.DiverseService;
+import no.fint.graphql.model.model.formal.FormalService;
 import no.fint.graphql.model.model.funksjon.FunksjonService;
+import no.fint.graphql.model.model.kontrakt.KontraktService;
+import no.fint.graphql.model.model.lopenummer.LopenummerService;
 import no.fint.graphql.model.model.objekt.ObjektService;
 import no.fint.graphql.model.model.organisasjonselement.OrganisasjonselementService;
-import no.fint.graphql.model.model.art.ArtService;
-import no.fint.graphql.model.model.anlegg.AnleggService;
-import no.fint.graphql.model.model.diverse.DiverseService;
-import no.fint.graphql.model.model.aktivitet.AktivitetService;
-import no.fint.graphql.model.model.ansvar.AnsvarService;
 import no.fint.graphql.model.model.personalressurs.PersonalressursService;
-import no.fint.graphql.model.model.kontrakt.KontraktService;
 import no.fint.graphql.model.model.prosjekt.ProsjektService;
-import no.fint.graphql.model.model.formal.FormalService;
+import no.fint.graphql.model.model.ramme.RammeService;
 import no.fint.graphql.model.model.rolle.RolleService;
-import no.fint.graphql.model.model.lopenummer.LopenummerService;
-
-
 import no.novari.fint.model.resource.Link;
 import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.RammeResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FunksjonResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ObjektResource;
-import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ArtResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnleggResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.DiverseResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AktivitetResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.KontraktResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ProsjektResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FormalResource;
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.LopenummerResource;
-
+import no.novari.fint.model.resource.administrasjon.kodeverk.*;
+import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
+import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelFullmaktResolver")

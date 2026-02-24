@@ -19,7 +19,7 @@ public class UketimetallQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private UketimetallService service;
 
-    public CompletionStage<UketimetallResource> getUketimetall(
+    public CompletionStage<UketimetallResource> uketimetall(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Uketimetall");

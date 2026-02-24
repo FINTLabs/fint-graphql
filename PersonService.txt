@@ -1,10 +1,10 @@
-package no.fint.graphql.model.felles.person;
+package no.fint.graphql.model.model.person;
 
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.FintPropertyUtils;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
-import no.fint.model.resource.felles.PersonResource;
+import no.novari.fint.model.resource.felles.PersonResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service("fellesPersonService")
+@Service("modelPersonService")
 public class PersonService {
 
     @Autowired

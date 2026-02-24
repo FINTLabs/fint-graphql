@@ -19,7 +19,7 @@ public class LopenummerQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private LopenummerService service;
 
-    public CompletionStage<LopenummerResource> getLopenummer(
+    public CompletionStage<LopenummerResource> lopenummer(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Lopenummer");

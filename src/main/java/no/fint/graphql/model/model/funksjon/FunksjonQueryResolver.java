@@ -19,7 +19,7 @@ public class FunksjonQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FunksjonService service;
 
-    public CompletionStage<FunksjonResource> getFunksjon(
+    public CompletionStage<FunksjonResource> funksjon(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Funksjon");

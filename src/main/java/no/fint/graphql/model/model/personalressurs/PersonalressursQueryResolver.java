@@ -19,7 +19,7 @@ public class PersonalressursQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PersonalressursService service;
 
-    public CompletionStage<PersonalressursResource> getPersonalressurs(
+    public CompletionStage<PersonalressursResource> personalressurs(
             String ansattnummer,
             String brukernavn,
             String systemId,
