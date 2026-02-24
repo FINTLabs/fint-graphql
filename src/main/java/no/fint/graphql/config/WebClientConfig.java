@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${fint.endpoint.root:https://beta.felleskomponent.no}")
+    @Value("${fint.endpoint.root:https://play-with-fint.felleskomponent.no}")
     private String rootUrl;
 
     @Value("${fint.webclient.connect-timeout-ms:20000}")
