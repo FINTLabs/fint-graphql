@@ -20,10 +20,10 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Primary
@@ -329,7 +329,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         }
     }
 
-    @SpringBootConfiguration
+    @TestConfiguration
     @EnableAutoConfiguration
     @ComponentScan(basePackages = "no.fint.graphql")
     static class TestApplication {
@@ -401,7 +401,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
         CompletionStage<DataFetcherResult<List<FullmaktResource>>> getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
             def links = rolle.getFullmakt().collect { it.href }
-            def delayed = "late".equals(rolle?.getBeskrivelse())
+            def delayed = "late" == rolle?.getBeskrivelse()
             return Flux.fromIterable(links)
                     .index()
                     .flatMap { tuple ->

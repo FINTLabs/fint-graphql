@@ -2,8 +2,6 @@ package no.fint.graphql.config;
 
 import graphql.ExecutionResult;
 import graphql.ExecutionResultImpl;
-import graphql.GraphQL;
-import graphql.GraphQLError;
 import graphql.execution.instrumentation.ChainedInstrumentation;
 import graphql.execution.instrumentation.Instrumentation;
 import graphql.execution.instrumentation.SimpleInstrumentation;
@@ -27,7 +25,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -124,46 +121,5 @@ public class GraphQLQueryTimeoutConfig {
         }
     }
 
-    private static final class QueryTimeoutGraphQLError implements GraphQLError {
-        private final String message;
-        private final Map<String, Object> extensions;
-
-        private QueryTimeoutGraphQLError(long timeoutMillis) {
-            if (timeoutMillis > 0L) {
-                this.message = "GraphQL query timed out after " + timeoutMillis + "ms";
-                this.extensions = Map.of(
-                        "code", "QUERY_TIMEOUT",
-                        "timeoutMs", timeoutMillis
-                );
-            } else {
-                this.message = "GraphQL query timed out";
-                this.extensions = Collections.singletonMap("code", "QUERY_TIMEOUT");
-            }
-        }
-
-        @Override
-        public String getMessage() {
-            return message;
-        }
-
-        @Override
-        public List<graphql.language.SourceLocation> getLocations() {
-            return null;
-        }
-
-        @Override
-        public List<Object> getPath() {
-            return null;
-        }
-
-        @Override
-        public Map<String, Object> getExtensions() {
-            return extensions;
-        }
-
-        @Override
-        public graphql.ErrorClassification getErrorType() {
-            return null;
-        }
-    }
+    // QueryTimeoutGraphQLError is shared in config package for servlet async timeout handling.
 }

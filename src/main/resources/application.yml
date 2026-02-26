@@ -3,7 +3,9 @@ fint:
     connect-timeout-ms: 20000
     response-timeout: PT30S
   graphql:
+    async-request-timeout: PT2M
     query-timeout: PT1M50S
 graphql:
   servlet:
     exception-handlers-enabled: true
+    async-mode-enabled: true
