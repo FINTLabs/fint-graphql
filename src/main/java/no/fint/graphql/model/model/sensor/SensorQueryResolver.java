@@ -19,7 +19,7 @@ public class SensorQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SensorService service;
 
-    public CompletionStage<SensorResource> getSensor(
+    public CompletionStage<SensorResource> sensor(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Sensor");

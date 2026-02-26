@@ -3,24 +3,19 @@ package no.fint.graphql.model.model.underveisordensvurdering;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
 import no.fint.graphql.model.model.karakterverdi.KarakterverdiService;
 import no.fint.graphql.model.model.skolear.SkolearService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.UnderveisordensvurderingResource;
+import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
 import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
-
+import no.novari.fint.model.resource.utdanning.vurdering.UnderveisordensvurderingResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelUnderveisordensvurderingResolver")

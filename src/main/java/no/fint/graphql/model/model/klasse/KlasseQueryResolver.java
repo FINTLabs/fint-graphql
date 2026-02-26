@@ -19,7 +19,7 @@ public class KlasseQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KlasseService service;
 
-    public CompletionStage<KlasseResource> getKlasse(
+    public CompletionStage<KlasseResource> klasse(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Klasse");

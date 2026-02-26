@@ -19,7 +19,7 @@ public class KarakterskalaQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KarakterskalaService service;
 
-    public CompletionStage<KarakterskalaResource> getKarakterskala(
+    public CompletionStage<KarakterskalaResource> karakterskala(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Karakterskala");

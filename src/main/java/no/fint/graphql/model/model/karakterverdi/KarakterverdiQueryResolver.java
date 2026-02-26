@@ -19,7 +19,7 @@ public class KarakterverdiQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KarakterverdiService service;
 
-    public CompletionStage<KarakterverdiResource> getKarakterverdi(
+    public CompletionStage<KarakterverdiResource> karakterverdi(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Karakterverdi");

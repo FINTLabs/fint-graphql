@@ -19,7 +19,7 @@ public class TilretteleggingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private TilretteleggingService service;
 
-    public CompletionStage<TilretteleggingResource> getTilrettelegging(
+    public CompletionStage<TilretteleggingResource> tilrettelegging(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Tilrettelegging");

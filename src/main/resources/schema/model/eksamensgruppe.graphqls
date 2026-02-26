@@ -9,13 +9,13 @@ type Eksamensgruppe {
     systemId: Identifikator! # Gruppe
 
 	# Relations
+    undervisningsforhold: [Undervisningsforhold]
     eksamen: Eksamen
     fag: Fag!
     skole: Skole!
     termin: Termin!
     eksamensform: Eksamensform
     skolear: Skolear
-    undervisningsforhold: [Undervisningsforhold]
     gruppemedlemskap: [Eksamensgruppemedlemskap]
     sensor: [Sensor]
 }

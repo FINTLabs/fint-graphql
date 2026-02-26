@@ -3,22 +3,17 @@ package no.fint.graphql.model.model.kontaktlarergruppemedlemskap;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.kontaktlarergruppe.KontaktlarergruppeService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppemedlemskapResource;
 import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
-
+import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppemedlemskapResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelKontaktlarergruppemedlemskapResolver")

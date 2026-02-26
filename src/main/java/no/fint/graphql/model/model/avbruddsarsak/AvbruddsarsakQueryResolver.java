@@ -19,7 +19,7 @@ public class AvbruddsarsakQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AvbruddsarsakService service;
 
-    public CompletionStage<AvbruddsarsakResource> getAvbruddsarsak(
+    public CompletionStage<AvbruddsarsakResource> avbruddsarsak(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Avbruddsarsak");

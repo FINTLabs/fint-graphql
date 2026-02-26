@@ -19,7 +19,7 @@ public class FravarsgrunnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FravarsgrunnService service;
 
-    public CompletionStage<FravarsgrunnResource> getFravarsgrunn(
+    public CompletionStage<FravarsgrunnResource> fravarsgrunn(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fravarsgrunn");

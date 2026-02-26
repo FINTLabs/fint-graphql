@@ -3,31 +3,31 @@ package no.fint.graphql.model.model.personalressurs;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
-import no.fint.graphql.model.model.personalressurskategori.PersonalressurskategoriService;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
-import no.fint.graphql.model.model.person.PersonService;
 import no.fint.graphql.model.model.fullmakt.FullmaktService;
 import no.fint.graphql.model.model.organisasjonselement.OrganisasjonselementService;
+import no.fint.graphql.model.model.person.PersonService;
+import no.fint.graphql.model.model.personalressurskategori.PersonalressurskategoriService;
 import no.fint.graphql.model.model.skoleressurs.SkoleressursService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriResource;
-import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
-import no.novari.fint.model.resource.felles.PersonResource;
 import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
+import no.novari.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriResource;
 import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
+import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.novari.fint.model.resource.felles.PersonResource;
 import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Component("modelPersonalressursResolver")
 public class PersonalressursResolver implements GraphQLResolver<PersonalressursResource> {
@@ -62,12 +62,21 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
     }
 
     public CompletionStage<List<ArbeidsforholdResource>> getArbeidsforhold(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(personalressurs.getArbeidsforhold()
-                .stream()
+        var links = Optional.ofNullable(personalressurs.getArbeidsforhold()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> arbeidsforholdService.getArbeidsforholdResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
@@ -82,42 +91,78 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
     }
 
     public CompletionStage<List<FullmaktResource>> getStedfortreder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(personalressurs.getStedfortreder()
-                .stream()
+        var links = Optional.ofNullable(personalressurs.getStedfortreder()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> fullmaktService.getFullmaktResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> fullmaktService.getFullmaktResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<FullmaktResource>> getFullmakt(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(personalressurs.getFullmakt()
-                .stream()
+        var links = Optional.ofNullable(personalressurs.getFullmakt()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> fullmaktService.getFullmaktResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> fullmaktService.getFullmaktResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<OrganisasjonselementResource>> getLeder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(personalressurs.getLeder()
-                .stream()
+        var links = Optional.ofNullable(personalressurs.getLeder()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> organisasjonselementService.getOrganisasjonselementResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> organisasjonselementService.getOrganisasjonselementResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<ArbeidsforholdResource>> getPersonalansvar(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
-        return Flux.fromStream(personalressurs.getPersonalansvar()
-                .stream()
+        var links = Optional.ofNullable(personalressurs.getPersonalansvar()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .map(l -> arbeidsforholdService.getArbeidsforholdResource(l, dfe)))
-                .flatMap(Mono::flux)
+                .flatMapSequential(href -> arbeidsforholdService.getArbeidsforholdResource(href, dfe)
+                        .map(Optional::of)
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
                 .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
                 .toFuture();
     }
 

@@ -3,7 +3,6 @@ package no.fint.graphql.model.model.kontostreng;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
 import no.fint.graphql.model.model.aktivitet.AktivitetService;
 import no.fint.graphql.model.model.anlegg.AnleggService;
 import no.fint.graphql.model.model.ansvar.AnsvarService;
@@ -17,30 +16,14 @@ import no.fint.graphql.model.model.objekt.ObjektService;
 import no.fint.graphql.model.model.prosjekt.ProsjektService;
 import no.fint.graphql.model.model.prosjektart.ProsjektartService;
 import no.fint.graphql.model.model.ramme.RammeService;
-
-
 import no.novari.fint.model.resource.Link;
+import no.novari.fint.model.resource.administrasjon.kodeverk.*;
 import no.novari.fint.model.resource.administrasjon.kompleksedatatyper.KontostrengResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AktivitetResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnleggResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ArtResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.DiverseResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FormalResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FunksjonResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.KontraktResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.LopenummerResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ObjektResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ProsjektResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ProsjektartResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.RammeResource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelKontostrengResolver")

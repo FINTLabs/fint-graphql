@@ -10,10 +10,10 @@ type Undervisningsforhold {
 	# Relations
     arbeidsforhold: Arbeidsforhold!
     klasse: [Klasse]
-    kontaktlarergruppe: [Kontaktlarergruppe]
-    undervisningsgruppe: [Undervisningsgruppe]
-    eksamensgruppe: [Eksamensgruppe]
     time: [Time]
     skole: Skole!
+    kontaktlarergruppe: [Kontaktlarergruppe]
     skoleressurs: Skoleressurs!
+    undervisningsgruppe: [Undervisningsgruppe]
+    eksamensgruppe: [Eksamensgruppe]
 }

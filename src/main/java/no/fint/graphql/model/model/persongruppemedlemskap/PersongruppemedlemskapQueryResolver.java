@@ -19,7 +19,7 @@ public class PersongruppemedlemskapQueryResolver implements GraphQLQueryResolver
     @Autowired
     private PersongruppemedlemskapService service;
 
-    public CompletionStage<PersongruppemedlemskapResource> getPersongruppemedlemskap(
+    public CompletionStage<PersongruppemedlemskapResource> persongruppemedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Persongruppemedlemskap");

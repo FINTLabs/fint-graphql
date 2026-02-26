@@ -19,7 +19,7 @@ public class ElevtilretteleggingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevtilretteleggingService service;
 
-    public CompletionStage<ElevtilretteleggingResource> getElevtilrettelegging(
+    public CompletionStage<ElevtilretteleggingResource> elevtilrettelegging(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Elevtilrettelegging");

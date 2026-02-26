@@ -19,7 +19,7 @@ public class PersonalressurskategoriQueryResolver implements GraphQLQueryResolve
     @Autowired
     private PersonalressurskategoriService service;
 
-    public CompletionStage<PersonalressurskategoriResource> getPersonalressurskategori(
+    public CompletionStage<PersonalressurskategoriResource> personalressurskategori(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Personalressurskategori");

@@ -19,7 +19,7 @@ public class KarakterhistorieQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KarakterhistorieService service;
 
-    public CompletionStage<KarakterhistorieResource> getKarakterhistorie(
+    public CompletionStage<KarakterhistorieResource> karakterhistorie(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Karakterhistorie");

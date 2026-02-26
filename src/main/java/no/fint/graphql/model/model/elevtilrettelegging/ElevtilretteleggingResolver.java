@@ -3,26 +3,21 @@ package no.fint.graphql.model.model.elevtilrettelegging;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
+import no.fint.graphql.model.model.eksamensform.EksamensformService;
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.fag.FagService;
 import no.fint.graphql.model.model.tilrettelegging.TilretteleggingService;
-import no.fint.graphql.model.model.eksamensform.EksamensformService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.ElevtilretteleggingResource;
 import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.TilretteleggingResource;
+import no.novari.fint.model.resource.utdanning.elev.ElevtilretteleggingResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.EksamensformResource;
-
+import no.novari.fint.model.resource.utdanning.kodeverk.TilretteleggingResource;
+import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelElevtilretteleggingResolver")

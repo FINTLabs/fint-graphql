@@ -19,7 +19,7 @@ public class KontaktlarergruppemedlemskapQueryResolver implements GraphQLQueryRe
     @Autowired
     private KontaktlarergruppemedlemskapService service;
 
-    public CompletionStage<KontaktlarergruppemedlemskapResource> getKontaktlarergruppemedlemskap(
+    public CompletionStage<KontaktlarergruppemedlemskapResource> kontaktlarergruppemedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Kontaktlarergruppemedlemskap");

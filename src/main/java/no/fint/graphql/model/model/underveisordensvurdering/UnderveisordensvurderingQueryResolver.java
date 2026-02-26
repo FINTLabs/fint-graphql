@@ -19,7 +19,7 @@ public class UnderveisordensvurderingQueryResolver implements GraphQLQueryResolv
     @Autowired
     private UnderveisordensvurderingService service;
 
-    public CompletionStage<UnderveisordensvurderingResource> getUnderveisordensvurdering(
+    public CompletionStage<UnderveisordensvurderingResource> underveisordensvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Underveisordensvurdering");

@@ -19,7 +19,7 @@ public class ArstrinnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ArstrinnService service;
 
-    public CompletionStage<ArstrinnResource> getArstrinn(
+    public CompletionStage<ArstrinnResource> arstrinn(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Arstrinn");

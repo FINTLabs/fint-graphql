@@ -19,7 +19,7 @@ public class VarseltypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private VarseltypeService service;
 
-    public CompletionStage<VarseltypeResource> getVarseltype(
+    public CompletionStage<VarseltypeResource> varseltype(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Varseltype");

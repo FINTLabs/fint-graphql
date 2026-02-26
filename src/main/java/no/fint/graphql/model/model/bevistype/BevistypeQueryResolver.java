@@ -19,7 +19,7 @@ public class BevistypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private BevistypeService service;
 
-    public CompletionStage<BevistypeResource> getBevistype(
+    public CompletionStage<BevistypeResource> bevistype(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Bevistype");

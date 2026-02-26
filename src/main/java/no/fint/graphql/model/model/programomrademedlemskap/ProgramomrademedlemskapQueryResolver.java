@@ -19,7 +19,7 @@ public class ProgramomrademedlemskapQueryResolver implements GraphQLQueryResolve
     @Autowired
     private ProgramomrademedlemskapService service;
 
-    public CompletionStage<ProgramomrademedlemskapResource> getProgramomrademedlemskap(
+    public CompletionStage<ProgramomrademedlemskapResource> programomrademedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Programomrademedlemskap");

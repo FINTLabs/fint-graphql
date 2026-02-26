@@ -19,7 +19,7 @@ public class KontaktlarergruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KontaktlarergruppeService service;
 
-    public CompletionStage<KontaktlarergruppeResource> getKontaktlarergruppe(
+    public CompletionStage<KontaktlarergruppeResource> kontaktlarergruppe(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Kontaktlarergruppe");

@@ -3,24 +3,19 @@ package no.fint.graphql.model.model.variabellonn;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
-import no.fint.graphql.model.model.lonnsart.LonnsartService;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
+import no.fint.graphql.model.model.lonnsart.LonnsartService;
 import no.fint.graphql.model.model.personalressurs.PersonalressursService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.personal.VariabellonnResource;
 import no.novari.fint.model.resource.administrasjon.kodeverk.LonnsartResource;
 import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
-
+import no.novari.fint.model.resource.administrasjon.personal.VariabellonnResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelVariabellonnResolver")

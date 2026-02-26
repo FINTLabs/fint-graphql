@@ -19,7 +19,7 @@ public class FagstatusQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FagstatusService service;
 
-    public CompletionStage<FagstatusResource> getFagstatus(
+    public CompletionStage<FagstatusResource> fagstatus(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fagstatus");

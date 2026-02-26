@@ -19,7 +19,7 @@ public class SkolearQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SkolearService service;
 
-    public CompletionStage<SkolearResource> getSkolear(
+    public CompletionStage<SkolearResource> skolear(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Skolear");

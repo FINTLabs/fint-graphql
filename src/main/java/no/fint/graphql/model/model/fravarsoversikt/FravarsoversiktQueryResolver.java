@@ -19,7 +19,7 @@ public class FravarsoversiktQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FravarsoversiktService service;
 
-    public CompletionStage<FravarsoversiktResource> getFravarsoversikt(
+    public CompletionStage<FravarsoversiktResource> fravarsoversikt(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fravarsoversikt");

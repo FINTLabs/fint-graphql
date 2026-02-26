@@ -19,7 +19,7 @@ public class OrganisasjonselementQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private OrganisasjonselementService service;
 
-    public CompletionStage<OrganisasjonselementResource> getOrganisasjonselement(
+    public CompletionStage<OrganisasjonselementResource> organisasjonselement(
             String organisasjonsId,
             String organisasjonsKode,
             String organisasjonsnummer,

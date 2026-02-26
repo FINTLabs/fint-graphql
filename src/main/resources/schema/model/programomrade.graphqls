@@ -7,10 +7,10 @@ type Programomrade {
     systemId: Identifikator! # Gruppe
 
 	# Relations
+    fag: [Fag]
+    trinn: [Arstrinn]
     grepreferanse: [String]
     utdanningsprogram: [Utdanningsprogram]!
     vigoreferanse: [String]
-    fag: [Fag]
-    trinn: [Arstrinn]
     gruppemedlemskap: [Programomrademedlemskap]
 }

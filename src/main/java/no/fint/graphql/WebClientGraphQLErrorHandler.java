@@ -3,9 +3,15 @@ package no.fint.graphql;
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.kickstart.execution.error.DefaultGraphQLErrorHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
+import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
+import io.netty.channel.ConnectTimeoutException;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.WriteTimeoutException;
 
 import java.net.URI;
 import java.util.Collections;
@@ -15,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
 
     @Override
@@ -27,11 +34,13 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
 
     private GraphQLError mapWebClientError(GraphQLError error) {
         if (!(error instanceof ExceptionWhileDataFetching)) {
+            log.warn("Unmapped GraphQLError: {}", error);
             return error;
         }
 
         ExceptionWhileDataFetching dataFetchingError = (ExceptionWhileDataFetching) error;
         Throwable exception = unwrap(dataFetchingError.getException());
+        logDataFetchingError(dataFetchingError, exception);
 
         if (exception instanceof WebClientResponseException) {
             WebClientResponseException webClientException = (WebClientResponseException) exception;
@@ -39,7 +48,13 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
             URI uri = webClientException.getRequest() != null ? webClientException.getRequest().getURI() : null;
             return toRemoteAccessError(dataFetchingError, status, uri);
         }
+        if (exception instanceof WebClientRequestException) {
+            WebClientRequestException requestException = (WebClientRequestException) exception;
+            String resourcePath = resourcePath(requestException.getUri());
+            return toRemoteFailureError(dataFetchingError, requestException, resourcePath);
+        }
 
+        log.warn("Unmapped ExceptionWhileDataFetching: {}", error);
         return error;
     }
 
@@ -63,6 +78,18 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         );
     }
 
+    private GraphQLError toRemoteFailureError(ExceptionWhileDataFetching error,
+                                              WebClientRequestException exception,
+                                              String resourcePath) {
+        String message = failureMessage(exception, resourcePath);
+        return new RemoteAccessGraphQLError(
+                message,
+                error.getLocations(),
+                error.getPath(),
+                buildExtensions(resourcePath, exception)
+        );
+    }
+
     private Map<String, Object> buildExtensions(int status, String resourcePath) {
         Map<String, Object> extensions = new LinkedHashMap<>();
         extensions.put("code", status);
@@ -77,6 +104,30 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         } else {
             extensions.put("code", status);
         }
+        return extensions;
+    }
+
+    private Map<String, Object> buildExtensions(String resourcePath, WebClientRequestException exception) {
+        Map<String, Object> extensions = new LinkedHashMap<>();
+        String[] parts = resourcePath != null ? resourcePath.split("/") : new String[0];
+        if (hasResourcePattern(parts)) {
+            extensions.put("domain", getPart(parts, 1));
+            extensions.put("package", getPart(parts, 2));
+            extensions.put("resource", getPart(parts, 3));
+            extensions.put("idkey", getPart(parts, 4));
+            extensions.put("idvalue", getPart(parts, 5));
+        }
+        if (exception.getQueryId() != null) {
+            extensions.put("queryId", exception.getQueryId());
+        }
+        if (exception.getRequestId() != null) {
+            extensions.put("requestId", exception.getRequestId());
+        }
+        if (exception.getUri() != null) {
+            extensions.put("uri", exception.getUri());
+        }
+        Throwable root = findRelevantCause(exception);
+        extensions.put("cause", root.getClass().getSimpleName());
         return extensions;
     }
 
@@ -97,6 +148,68 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         Throwable current = exception;
         while (current != null) {
             if (current instanceof WebClientResponseException) {
+                return current;
+            }
+            if (current instanceof WebClientRequestException) {
+                return current;
+            }
+            current = current.getCause();
+        }
+        return exception;
+    }
+
+    private void logDataFetchingError(ExceptionWhileDataFetching error, Throwable exception) {
+        if (exception instanceof WebClientRequestException) {
+            WebClientRequestException requestException = (WebClientRequestException) exception;
+            log.error("GraphQL data fetch failed path={} uri={} queryId={} requestId={} message={}",
+                    error.getPath(),
+                    requestException.getUri(),
+                    requestException.getQueryId(),
+                    requestException.getRequestId(),
+                    requestException.getMessage(),
+                    requestException);
+            return;
+        }
+        log.error("GraphQL data fetch failed path={} message={}",
+                error.getPath(),
+                exception.getMessage(),
+                exception);
+    }
+
+    private String failureMessage(WebClientRequestException exception, String resourcePath) {
+        String target = resourcePath != null ? resourcePath : "unknown resource";
+        Throwable root = findRelevantCause(exception);
+        if (root instanceof PoolAcquireTimeoutException || root instanceof PoolAcquirePendingLimitException) {
+            return "Web request delayed by connection pool exhaustion for " + target;
+        }
+        if (root instanceof ConnectTimeoutException) {
+            return "Web request connection timeout for " + target;
+        }
+        if (root instanceof ReadTimeoutException || root instanceof WriteTimeoutException) {
+            return "Web request response timeout for " + target;
+        }
+        return "Web request failed for " + target;
+    }
+
+    private String resourcePath(String uri) {
+        if (uri == null) {
+            return "unknown resource";
+        }
+        try {
+            return URI.create(uri).getPath();
+        } catch (IllegalArgumentException ex) {
+            return uri;
+        }
+    }
+
+    private Throwable findRelevantCause(Throwable exception) {
+        Throwable current = exception;
+        while (current != null) {
+            if (current instanceof PoolAcquireTimeoutException
+                    || current instanceof PoolAcquirePendingLimitException
+                    || current instanceof ConnectTimeoutException
+                    || current instanceof ReadTimeoutException
+                    || current instanceof WriteTimeoutException) {
                 return current;
             }
             current = current.getCause();

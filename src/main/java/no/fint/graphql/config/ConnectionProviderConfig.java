@@ -18,6 +18,7 @@ public class ConnectionProviderConfig {
             case "FIXED":
                 return ConnectionProvider.builder("graphql")
                         .maxConnections(settings.getMaxConnections())
+                        .pendingAcquireMaxCount(1000)
                         .pendingAcquireTimeout(Duration.ofMillis(settings.getAcquireTimeout()))
                         .maxIdleTime(settings.getMaxIdleTime())
                         .maxLifeTime(settings.getMaxLifeTime())

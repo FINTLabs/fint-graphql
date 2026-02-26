@@ -19,7 +19,7 @@ public class LonnsartQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private LonnsartService service;
 
-    public CompletionStage<LonnsartResource> getLonnsart(
+    public CompletionStage<LonnsartResource> lonnsart(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Lonnsart");

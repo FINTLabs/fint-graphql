@@ -19,7 +19,7 @@ public class ProvestatusQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ProvestatusService service;
 
-    public CompletionStage<ProvestatusResource> getProvestatus(
+    public CompletionStage<ProvestatusResource> provestatus(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Provestatus");

@@ -17,11 +17,13 @@ import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.QueueDispatcher
+import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.SpringBootConfiguration
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Primary
@@ -62,6 +64,11 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
     def cleanupSpec() {
         server.shutdown()
+    }
+
+    def setup() {
+        // Reset queued responses between tests to avoid cross-test contamination.
+        server.setDispatcher(new QueueDispatcher())
     }
 
     def "GraphQL maps status #status to expected error object"() {
@@ -106,6 +113,54 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         status << [500, 503]
     }
 
+    def "DataLoader dedupes identical resource requests within a query"() {
+        given:
+        drainRequests()
+        // Always return 200 so the only thing we're validating is request count,
+        // not any particular error mapping.
+        server.setDispatcher(new QueueDispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                return new MockResponse().setResponseCode(200).setBody("ok")
+            }
+        })
+        // The "dedupe" path returns 3 links, two of which are identical.
+        // If DataLoader dedupe works, only two backend requests should be made.
+        def query = 'query { rolle(navn: "dedupe") { fullmakt { systemId { identifikatorverdi } } } }'
+
+        when:
+        def responseBody = executeQuery(query)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.rolle?.fullmakt?.size() == 3
+
+        // We expect two requests (systemid/1 and systemid/2). A third request would mean
+        // duplicate links were not deduped within the same GraphQL execution.
+        def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
+        firstRequest != null
+        def secondRequest = server.takeRequest(1, TimeUnit.SECONDS)
+        secondRequest != null
+        def thirdRequest = server.takeRequest(200, TimeUnit.MILLISECONDS)
+        thirdRequest == null
+    }
+
+    def "GraphQL completes when DataLoader loads are enqueued late"() {
+        given:
+        drainRequests()
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("ok"))
+        def query = 'query { rolle(navn: "late") { fullmakt { systemId { identifikatorverdi } } } }'
+
+        when:
+        def responseBody = executeQuery(query)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.rolle?.fullmakt?.size() == 1
+    }
+
     def "GraphQL returns message and path for status #status"() {
         given:
         server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
@@ -127,11 +182,23 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
     def "GraphQL handles rolle fullmakt links with mixed outcomes"() {
         given:
         drainRequests()
-        server.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody(fullmaktResource("F1")))
-        server.enqueue(new MockResponse().setResponseCode(403).setBody("error"))
-        server.enqueue(new MockResponse().setResponseCode(404).setBody("error"))
+        server.setDispatcher(new QueueDispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/1")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setBody(fullmaktResource("F1"))
+                }
+                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/2")) {
+                    return new MockResponse().setResponseCode(403).setBody("error")
+                }
+                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/3")) {
+                    return new MockResponse().setResponseCode(404).setBody("error")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
         def query = 'query { rolle(navn: "foo") { fullmakt { systemId { identifikatorverdi } } } }'
 
         when:
@@ -171,8 +238,8 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         def expectedTwo = expectedExtensions(404, "/administrasjon/fullmakt/fullmakt/systemid/3")
         def expectedAltOne = expectedExtensions(403, "/administrasjon/fullmakt/fullmakt/systemid/3")
         def expectedAltTwo = expectedExtensions(404, "/administrasjon/fullmakt/fullmakt/systemid/2")
-        assertExtensionsMatch(extensions[0], expectedOne) || assertExtensionsMatch(extensions[0], expectedAltOne)
-        assertExtensionsMatch(extensions[1], expectedTwo) || assertExtensionsMatch(extensions[1], expectedAltTwo)
+        extensions.any { assertExtensionsMatch(it, expectedOne) || assertExtensionsMatch(it, expectedAltOne) }
+        extensions.any { assertExtensionsMatch(it, expectedTwo) || assertExtensionsMatch(it, expectedAltTwo) }
 
         and:
         def fullmaktPaths = []
@@ -262,7 +329,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         }
     }
 
-    @SpringBootConfiguration
+    @TestConfiguration
     @EnableAutoConfiguration
     @ComponentScan(basePackages = "no.fint.graphql")
     static class TestApplication {
@@ -281,6 +348,26 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
             return new RolleService() {
                 @Override
                 Mono<RolleResource> getRolleResourceById(String id, String value, DataFetchingEnvironment dfe) {
+                    if ("dedupe".equals(value)) {
+                        def rolle = new RolleResource()
+                        rolle.setBeskrivelse("Dedupe rolle")
+                        def navn = new Identifikator()
+                        navn.setIdentifikatorverdi("D1")
+                        rolle.setNavn(navn)
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/1"))
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/1"))
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/2"))
+                        return Mono.just(rolle)
+                    }
+                    if ("late".equals(value)) {
+                        def rolle = new RolleResource()
+                        rolle.setBeskrivelse("late")
+                        def navn = new Identifikator()
+                        navn.setIdentifikatorverdi("late")
+                        rolle.setNavn(navn)
+                        rolle.addFullmakt(new Link("/administrasjon/fullmakt/fullmakt/systemid/1"))
+                        return Mono.just(rolle)
+                    }
                     if (!"foo".equals(value)) {
                         def url = endpoints.getAdministrasjonFullmakt() + "/rolle/" + id + "/" + value
                         return webClientRequest.get(url, RolleResource.class, dfe)
@@ -314,12 +401,17 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
         CompletionStage<DataFetcherResult<List<FullmaktResource>>> getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
             def links = rolle.getFullmakt().collect { it.href }
+            def delayed = "late" == rolle?.getBeskrivelse()
             return Flux.fromIterable(links)
                     .index()
                     .flatMap { tuple ->
                         def idx = tuple.t1.intValue()
                         def href = tuple.t2
-                        webClientRequest.get(href, String.class, dfe)
+                        def request = webClientRequest.get(href, String.class, dfe)
+                        if (delayed) {
+                            request = Mono.delay(Duration.ofMillis(50)).then(request)
+                        }
+                        request
                                 .map { res -> [idx, buildFullmaktResource(idx), null] }
                                 .onErrorResume { ex -> Mono.just([idx, null, ex]) }
                     }

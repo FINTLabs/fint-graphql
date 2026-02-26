@@ -16,7 +16,6 @@ type Skole {
 
 	# Relations
     organisasjon: Organisasjonselement
-    fag: [Fag]
     skoleeierType: Skoleeiertype
     vigoreferanse: [String]
     elevforhold: [Elevforhold]
@@ -24,6 +23,7 @@ type Skole {
     kontaktlarergruppe: [Kontaktlarergruppe]
     skoleressurs: [Skoleressurs]
     undervisningsforhold: [Undervisningsforhold]
+    fag: [Fag]
     faggruppe: [Faggruppe]
     undervisningsgruppe: [Undervisningsgruppe]
     eksamensgruppe: [Eksamensgruppe]

@@ -3,26 +3,21 @@ package no.fint.graphql.model.model.otungdom;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-
-import no.fint.graphql.model.model.person.PersonService;
-import no.fint.graphql.model.model.otstatus.OtStatusService;
 import no.fint.graphql.model.model.otenhet.OtEnhetService;
+import no.fint.graphql.model.model.otstatus.OtStatusService;
+import no.fint.graphql.model.model.person.PersonService;
 import no.fint.graphql.model.model.programomrade.ProgramomradeService;
-
-
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.ot.OtUngdomResource;
 import no.novari.fint.model.resource.felles.PersonResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.OtStatusResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.OtEnhetResource;
+import no.novari.fint.model.resource.utdanning.kodeverk.OtStatusResource;
+import no.novari.fint.model.resource.utdanning.ot.OtUngdomResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelOtUngdomResolver")

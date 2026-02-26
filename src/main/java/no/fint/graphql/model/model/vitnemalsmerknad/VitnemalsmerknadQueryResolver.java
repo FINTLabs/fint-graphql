@@ -19,7 +19,7 @@ public class VitnemalsmerknadQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private VitnemalsmerknadService service;
 
-    public CompletionStage<VitnemalsmerknadResource> getVitnemalsmerknad(
+    public CompletionStage<VitnemalsmerknadResource> vitnemalsmerknad(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Vitnemalsmerknad");
