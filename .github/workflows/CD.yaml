@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 4.0.0-test-limit-requests
+  MODEL_VERSION: 1.0.0-4.0.0
   LIB_VERSION: 4.0.0
 
 jobs:
@@ -27,8 +27,8 @@ jobs:
           password: ${{secrets.REGISTRY_PASSWORD}}
 
       - name: Building the container
-        run: |
-          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
+        run: | # resulting tag e.g. 1.0.0-4.0.0. This is to differentiate between our versioning of this application and information model version.
+          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}}-${{env.LIB_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
 
       - name: Push the container to Azure Container Registry (ACR)
         run: |
