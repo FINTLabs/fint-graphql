@@ -1,5 +1,8 @@
 name: CI
-on: push
+on:
+  pull_request:
+  push:
+    branches: [main]
 
 env:
   REGISTRY_NAME: fintlabsacr
@@ -7,21 +10,46 @@ env:
   LIB_VERSION: 4.0.0
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.0.0
+      - name: Checkout repository
+        uses: actions/checkout@v5.0.0
 
       - name: Get repo name
-        run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+        id: get_repo
+        run: echo "REPO=${GITHUB_REPOSITORY#*/}" >> $GITHUB_OUTPUT
 
-      - name: Connect to Azure Container Registry (ACR)
-        uses: azure/docker-login@v1
+      - name: Setup Java
+        uses: actions/setup-java@v5
         with:
-          login-server: ${{env.REGISTRY_NAME}}.azurecr.io
-          username: ${{secrets.REGISTRY_USERNAME}}
-          password: ${{secrets.REGISTRY_PASSWORD}}
+          distribution: 'temurin'
+          java-version: '11'
 
-      - name: Building the container
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Gradle Setup
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: wrapper
+
+      - name: Gradle build
         run: |
-          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
+          ./gradlew build
+          mkdir data
+          cp ./build/libs/${{ steps.get_repo.outputs.REPO }}.jar ./data/app.jar
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{steps.get_repo.outputs.REPO}}
+          path: ./data/app.jar
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: test-reports
+          path: build/reports/tests/test/
+          retention-days: 3

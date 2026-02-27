@@ -1,35 +1,52 @@
 name: CD
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Semantic version of this app. E.g. 1.0.0"
+        required: true
+        type: string
+      information_model_version:
+        description: "Version of FINT informasjonsmodell. E.g. 4.0.0"
+        required: true
+        type: string
 
 env:
-  REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 1.0.0-4.0.0
-  LIB_VERSION: 4.0.0
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-publish:
+  build-and-push:
+    name: Build and push Docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
     steps:
-      - uses: actions/checkout@v4.0.0
+      - name: Checkout repository
+        uses: actions/checkout@v5.0.0
 
-      - name: Get repo name
-        run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
-
-      - name: Connect to Azure Container Registry (ACR)
-        uses: azure/docker-login@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          login-server: ${{env.REGISTRY_NAME}}.azurecr.io
-          username: ${{secrets.REGISTRY_USERNAME}}
-          password: ${{secrets.REGISTRY_PASSWORD}}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Building the container
-        run: | # resulting tag e.g. 1.0.0-4.0.0. This is to differentiate between our versioning of this application and information model version.
-          docker build --tag ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}}-${{env.LIB_VERSION}} --build-arg VERSION=${{env.LIB_VERSION}} .
+      - name: Extract metadata (tags, labels) for Docker
+        uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: type=raw,value=${{ inputs.version }}-${{ inputs.information_model_version }} # sets tag based on input from workflow_dispatch
 
-      - name: Push the container to Azure Container Registry (ACR)
-        run: |
-          docker push ${{env.REGISTRY_NAME}}.azurecr.io/${{env.REPO_NAME}}:${{env.MODEL_VERSION}}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: VERSION=${{ env.LIB_VERSION }}
