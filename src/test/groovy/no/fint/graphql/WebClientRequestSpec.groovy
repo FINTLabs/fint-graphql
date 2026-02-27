@@ -50,15 +50,13 @@ class WebClientRequestSpec extends Specification {
     def "Get request without token"() {
         given:
         def dfe = createDataFetchingEnvironmentMock()
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
-        def response = webClientRequest.get(url, String, dfe).block()
-        def request = server.takeRequest()
+        webClientRequest.get(url, String, dfe).block()
 
         then:
-        response == 'response'
-        !request.getHeader(HttpHeaders.AUTHORIZATION)
+        thrown(MissingAuthorizationException)
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 
     def "Get request returns status #status as WebClientResponseException"() {

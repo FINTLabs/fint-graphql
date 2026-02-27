@@ -7,30 +7,30 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.servlet.context.GraphQLServletContext;
+import io.netty.channel.ConnectTimeoutException;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.WriteTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.graphql.config.ConnectionProviderSettings;
 import no.fint.graphql.dataloader.ResourceDataLoader;
 import no.fint.graphql.dataloader.ResourceRequestKey;
 import org.apache.commons.lang3.StringUtils;
+import org.dataloader.DataLoader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.dataloader.DataLoader;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
-import io.netty.channel.ConnectTimeoutException;
-import io.netty.handler.timeout.ReadTimeoutException;
-import io.netty.handler.timeout.WriteTimeoutException;
 
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Component
@@ -109,17 +109,14 @@ public class WebClientRequest {
         if (token == null) {
             token = authorization;
         }
-        logRemoteIp(context);
-        logTokenPresence(uri, token);
+        if (StringUtils.isBlank(token)) {
+            throw new MissingAuthorizationException("Missing Authorization token");
+        }
 
-        log.debug("WebClient request start queryId={} requestId={} uri={}", queryIdValue, requestIdValue, uri);
-
-        blacklistService.failIfBlacklisted(getRemoteIp(context), token);
+        log.debug("WebClient request start queryId={} requestId={} uri={} remote-IP={}", queryIdValue, requestIdValue, uri, getRemoteIp(context));
 
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
-        if (token != null) {
-            request.header(HttpHeaders.AUTHORIZATION, token);
-        }
+        request.header(HttpHeaders.AUTHORIZATION, token);
         if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);
@@ -273,14 +270,6 @@ public class WebClientRequest {
 
     private String formatRequestId(long requestSequence) {
         return requestSequence > 0 ? Long.toString(requestSequence) : "unknown";
-    }
-
-    private void logTokenPresence(String uri, String token) {
-        if (token == null) {
-            log.warn("No token found for URI: {}", uri);
-        } else {
-            log.debug("Sending request to URI: {} with token", uri);
-        }
     }
 
     private void logRemoteIp(GraphQLServletContext context) {
