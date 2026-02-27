@@ -115,7 +115,7 @@ public class WebClientRequest {
             throw new MissingAuthorizationException("Missing Authorization token");
         }
 
-        log.info("WebClient request start queryId={} requestId={} uri={} remote-IP={}", queryIdValue, requestIdValue, uri, getRemoteIp(context));
+        log.debug("WebClient request start queryId={} requestId={} uri={} remote-IP={}", queryIdValue, requestIdValue, uri, getRemoteIp(context));
 
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
         request.header(HttpHeaders.AUTHORIZATION, token);
@@ -235,7 +235,7 @@ public class WebClientRequest {
 
     private void logRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
         long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
-        log.info("WebClient request end queryId={} requestId={} durationMs={} uri={}",
+        log.debug("WebClient request end queryId={} requestId={} durationMs={} uri={}",
                 queryIdValue, requestIdValue, durationMs, uri);
     }
 
