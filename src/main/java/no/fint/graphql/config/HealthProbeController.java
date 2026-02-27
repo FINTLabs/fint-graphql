@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("${server.servlet.context-path:}/actuator/health")
+@RequestMapping("/actuator/health")
 public class HealthProbeController {
 
     private final HealthEndpoint healthEndpoint;
@@ -30,6 +30,16 @@ public class HealthProbeController {
 
     @GetMapping("/readiness")
     public ResponseEntity<Map<String, Object>> readiness() {
+        return probeResponse();
+    }
+
+    @GetMapping("/startup")
+    public ResponseEntity<Map<String, Object>> startup() {
+        return probeResponse();
+    }
+
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> health() {
         return probeResponse();
     }
 
