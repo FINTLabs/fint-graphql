@@ -9,6 +9,8 @@ graphql:
   servlet:
     exception-handlers-enabled: true
     async-mode-enabled: true
+server:
+  forward-headers-strategy: framework
 management:
   endpoints:
     web:

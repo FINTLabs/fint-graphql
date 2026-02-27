@@ -53,6 +53,16 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
             String resourcePath = resourcePath(requestException.getUri());
             return toRemoteFailureError(dataFetchingError, requestException, resourcePath);
         }
+        if (exception instanceof MissingAuthorizationException) {
+            return new RemoteAccessGraphQLError(
+                    "Unauthorized",
+                    error.getLocations(),
+                    error.getPath(),
+                    Map.of(
+                            "code", 401
+                    )
+            );
+        }
 
         log.warn("Unmapped ExceptionWhileDataFetching: {}", error);
         return error;
