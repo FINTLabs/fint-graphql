@@ -114,7 +114,8 @@ class WebClientRequestSpec extends Specification {
         when:
         def future1 = limitedRequest.get(url + "one", String, dfe).toFuture()
         def future2 = limitedRequest.get(url + "two", String, dfe).toFuture()
-        dataLoader.dispatch()
+        // allow the internal dispatch debounce to fire
+        Thread.sleep(5)
 
         then:
         def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
