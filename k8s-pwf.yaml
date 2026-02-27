@@ -44,12 +44,27 @@ spec:
           image: fintlabs.azurecr.io/graphql:PR-13.1
           ports:
             - containerPort: 8080
-          readinessProbe:
-            initialDelaySeconds: 30
-            timeoutSeconds: 5
+          startupProbe:
             httpGet:
               port: 8080
               path: /graphql/actuator/health
+            failureThreshold: 30
+            periodSeconds: 5
+            timeoutSeconds: 2
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /graphql/actuator/health/readiness
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /graphql/actuator/health/liveness
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
           resources:
             limits:
               memory: "2Gi"

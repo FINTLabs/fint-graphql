@@ -9,3 +9,13 @@ graphql:
   servlet:
     exception-handlers-enabled: true
     async-mode-enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: "never"
