@@ -57,6 +57,7 @@ class GraphQLQueryTimeoutSpec extends Specification {
                 .build()
                 .post()
                 .uri("/graphql")
+                .header("Authorization", "Bearer header.payload.signature")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue([query: query])
                 .exchange()
