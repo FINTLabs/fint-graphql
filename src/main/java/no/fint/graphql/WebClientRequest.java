@@ -27,7 +27,8 @@ import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitExcepti
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
 
 import java.time.Duration;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -39,10 +40,11 @@ public class WebClientRequest {
     private final HashFunction hashFunction;
     private final BlacklistService blacklistService;
     private final Cache<String, DataLoader<ResourceRequestKey, Object>> requestScopedLoaders;
-    private final Cache<String, AtomicBoolean> dispatchMarkers;
     private final GraphQLQueryIdProvider queryIdProvider;
     private final AtomicLong fallbackRequestCounter = new AtomicLong();
     private final int maxInFlightRequests;
+    private final Semaphore inFlightLimiter;
+    private final long acquireTimeoutMs;
 
     public WebClientRequest(
             WebClient webClient,
@@ -55,12 +57,10 @@ public class WebClientRequest {
         this.blacklistService = blacklistService;
         this.queryIdProvider = queryIdProvider;
         hashFunction = Hashing.murmur3_128();
-        maxInFlightRequests = connectionProviderSettings.getMaxInFlightRequests();
+        maxInFlightRequests = Math.max(1, connectionProviderSettings.getMaxInFlightRequests());
+        inFlightLimiter = new Semaphore(maxInFlightRequests, true);
+        acquireTimeoutMs = connectionProviderSettings.getAcquireTimeout();
         requestScopedLoaders = Caffeine.newBuilder()
-                .maximumSize(10000)
-                .expireAfterWrite(Duration.ofMinutes(5))
-                .build();
-        dispatchMarkers = Caffeine.newBuilder()
                 .maximumSize(10000)
                 .expireAfterWrite(Duration.ofMinutes(5))
                 .build();
@@ -115,7 +115,8 @@ public class WebClientRequest {
             throw new MissingAuthorizationException("Missing Authorization token");
         }
 
-        log.debug("WebClient request start queryId={} requestId={} uri={} remote-IP={}", queryIdValue, requestIdValue, uri, getRemoteIp(context));
+        String client = GraphQLRequestAttributes.getClient(context);
+        log.debug("WebClient request start queryId={} requestId={} uri={} client={}", queryIdValue, requestIdValue, uri, client);
 
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
         request.header(HttpHeaders.AUTHORIZATION, token);
@@ -137,7 +138,8 @@ public class WebClientRequest {
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
                             String queryIdValue, String requestIdValue, String uri) {
-        return request.retrieve()
+        return withPermit(
+                request.retrieve()
                 .bodyToMono(type)
                 .onErrorResume(WebClientResponseException.class, ex -> {
                     log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
@@ -161,7 +163,44 @@ public class WebClientRequest {
                         return;
                     }
                     logRequestFailure(ex, queryIdValue, requestIdValue, uri);
-                });
+                }),
+                queryIdValue,
+                requestIdValue,
+                uri
+        );
+    }
+
+    private <T> Mono<T> withPermit(Mono<T> mono, String queryIdValue, String requestIdValue, String uri) {
+        return Mono.usingWhen(
+                Mono.fromCallable(() -> {
+                            boolean acquired;
+                            try {
+                                if (acquireTimeoutMs > 0) {
+                                    acquired = inFlightLimiter.tryAcquire(acquireTimeoutMs, TimeUnit.MILLISECONDS);
+                                } else {
+                                    acquired = inFlightLimiter.tryAcquire();
+                                }
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                throw new IllegalStateException("Interrupted while waiting for WebClient in-flight permit", e);
+                            }
+                            if (!acquired) {
+                                throw new WebClientRequestException(
+                                        "WebClient in-flight limit exceeded",
+                                        null,
+                                        uri,
+                                        queryIdValue,
+                                        requestIdValue
+                                );
+                            }
+                            return inFlightLimiter;
+                        })
+                        .subscribeOn(Schedulers.boundedElastic()),
+                ignored -> mono,
+                semaphore -> Mono.fromRunnable(semaphore::release),
+                (semaphore, error) -> Mono.fromRunnable(semaphore::release),
+                semaphore -> Mono.fromRunnable(semaphore::release)
+        );
     }
 
     private String getToken(GraphQLServletContext context) {
@@ -196,35 +235,16 @@ public class WebClientRequest {
         if (dataLoader.dispatchDepth() <= 0) {
             return;
         }
-        String executionId = dfe != null && dfe.getExecutionId() != null
-                ? dfe.getExecutionId().toString()
-                : null;
-        if (executionId == null) {
-            dataLoader.dispatch();
-            return;
-        }
-        AtomicBoolean marker = dispatchMarkers.get(executionId, key -> new AtomicBoolean());
-        if (!marker.compareAndSet(false, true)) {
-            return;
-        }
         Mono.delay(Duration.ofMillis(1))
-                .doOnNext(ignored -> {
-                    if (dataLoader.dispatchDepth() <= 0) {
-                        marker.set(false);
-                        return;
-                    }
-                    dispatchDrain(dataLoader, marker);
-                })
+                .doOnNext(ignored -> dispatchDrain(dataLoader))
                 .subscribeOn(Schedulers.parallel())
                 .subscribe();
     }
 
-    private void dispatchDrain(DataLoader<ResourceRequestKey, Object> dataLoader, AtomicBoolean marker) {
+    private void dispatchDrain(DataLoader<ResourceRequestKey, Object> dataLoader) {
         dataLoader.dispatch().whenComplete((result, error) -> {
             if (dataLoader.dispatchDepth() > 0) {
-                dispatchDrain(dataLoader, marker);
-            } else {
-                marker.set(false);
+                dispatchDrain(dataLoader);
             }
         });
     }
@@ -286,12 +306,5 @@ public class WebClientRequest {
     private GraphQLServletContext getContext(DataFetchingEnvironment dataFetchingEnvironment) {
         Object context = dataFetchingEnvironment.getContext();
         return context instanceof GraphQLServletContext ? (GraphQLServletContext) context : null;
-    }
-
-    private String getRemoteIp(GraphQLServletContext context) {
-        if (context == null) return null;
-        if (context.getHttpServletRequest() == null) return null;
-        if (context.getHttpServletRequest().getRemoteAddr() == null) return null;
-        return context.getHttpServletRequest().getRemoteAddr();
     }
 }

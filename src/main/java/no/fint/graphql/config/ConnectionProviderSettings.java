@@ -14,6 +14,7 @@ public class ConnectionProviderSettings {
     private String type = "fixed";
     private int maxConnections = ConnectionProvider.DEFAULT_POOL_MAX_CONNECTIONS;
     private Integer maxInFlightRequests = ConnectionProvider.DEFAULT_POOL_MAX_CONNECTIONS * 10;
+    private int acquireMaxCount = 200;
     private long acquireTimeout = ConnectionProvider.DEFAULT_POOL_ACQUIRE_TIMEOUT;
     private Duration maxIdleTime;
     private Duration maxLifeTime;

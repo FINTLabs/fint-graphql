@@ -1,9 +1,14 @@
 fint:
   webclient:
-    connect-timeout-ms: 20000
-    response-timeout: PT30S
+    connect-timeout-ms: 4000
+    response-timeout: PT4S
+    connection-provider:
+      maxConnections: 40
+      maxInFlightRequests: 40
+      acquireTimeout: 2000
+      acquireMaxCount: 200
   graphql:
-    async-request-timeout: PT2M
+    async-request-timeout: PT1M55S
     query-timeout: PT1M50S
 graphql:
   servlet:
