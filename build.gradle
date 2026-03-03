@@ -1,22 +1,22 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.7.RELEASE'
-    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '3.5.10'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
     id 'groovy'
-    id 'com.github.ben-manes.versions' version '0.27.0'
+    id 'com.github.ben-manes.versions' version '0.53.0'
 }
 
 group = 'no.fintlabs'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 tasks.withType(GroovyCompile).configureEach {
     javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -28,7 +28,17 @@ repositories {
     mavenCentral()
 }
 
+configurations.configureEach {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'com.graphql-java' && details.requested.name == 'graphql-java') {
+            details.useVersion '21.0'
+            details.because 'graphql-spring-boot-starter 15.1.0 targets graphql-java 21.x'
+        }
+    }
+}
+
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter'
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
@@ -38,16 +48,14 @@ dependencies {
     implementation("no.novari:fint-utdanning-resource-model-java:${apiVersion}")
     implementation("no.novari:fint-administrasjon-resource-model-java:${apiVersion}")
 
-    implementation 'com.graphql-java-kickstart:graphql-kickstart-spring-boot-starter-tools:6.0.1'
-    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:6.0.1'
-    implementation 'com.graphql-java-kickstart:graphiql-spring-boot-starter:6.0.1'
-    implementation 'com.graphql-java-kickstart:graphql-java-tools:5.7.1'
-    implementation 'com.zhokhov.graphql:graphql-datetime-spring-boot-starter:1.6.0'
+    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:15.1.0'
+    implementation 'com.graphql-java-kickstart:graphql-java-tools:13.0.3'
+    implementation 'com.google.guava:guava:33.4.7-jre'
     implementation 'com.github.ben-manes.caffeine:caffeine'
-    implementation 'net.logstash.logback:logstash-logback-encoder:6.6'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
 
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
@@ -57,7 +65,10 @@ dependencies {
     testImplementation 'org.junit.platform:junit-platform-commons:1.9.3'
     testImplementation 'org.junit.platform:junit-platform-engine:1.9.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.9.3'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.jupiter'
+        exclude group: 'org.junit.platform'
+    }
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.12.1'
 }
 

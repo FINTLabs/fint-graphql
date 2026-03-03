@@ -1,10 +1,11 @@
 package no.fint.graphql
 
 import graphql.ExceptionWhileDataFetching
-import graphql.execution.ExecutionPath
+import graphql.GraphQLContext
+import graphql.execution.ResultPath
+import graphql.kickstart.execution.context.GraphQLKickstartContext
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
-import graphql.servlet.context.GraphQLServletContext
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.http.HttpHeaders
@@ -14,7 +15,7 @@ import spock.lang.Specification
 import no.fint.graphql.config.ConnectionProviderSettings
 import no.fint.graphql.dataloader.ResourceDataLoader
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -29,8 +30,8 @@ class WebClientRequestSpec extends Specification {
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
             connectionProviderSettings,
-            'maximumSize=1,expireAfterWrite=1s',
-            blacklistService,
+            'maximumSize=1,expireAfterWrite=1s'
+            ,
             queryIdProvider)
 
     def "Get request with token"() {
@@ -72,7 +73,7 @@ class WebClientRequestSpec extends Specification {
         then:
         def ex = thrown(WebClientResponseException)
         ex.rawStatusCode == status
-        def error = new ExceptionWhileDataFetching(ExecutionPath.fromList(path), ex, new SourceLocation(1, 1))
+        def error = new ExceptionWhileDataFetching(ResultPath.fromList(path), ex, new SourceLocation(1, 1))
         def mapped = handler.processErrors([error])
         mapped.size() == 1
         mapped[0].path == path
@@ -88,8 +89,8 @@ class WebClientRequestSpec extends Specification {
         def limitedRequest = new WebClientRequest(
                 webClient,
                 limitedSettings,
-                'maximumSize=1,expireAfterWrite=1s',
-                blacklistService,
+                'maximumSize=1,expireAfterWrite=1s'
+                ,
                 queryIdProvider)
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
         server.enqueue(new MockResponse()
@@ -123,15 +124,16 @@ class WebClientRequestSpec extends Specification {
 
     def "DataLoader dispatches queued load without instrumentation"() {
         given:
-        def servletContext = Mock(GraphQLServletContext) {
-            getHttpServletRequest() >> Mock(HttpServletRequest) {
-                getHeader(HttpHeaders.AUTHORIZATION) >> 'Bearer abc123'
-            }
+        def httpServletRequest = Mock(HttpServletRequest) {
+            getHeader(HttpHeaders.AUTHORIZATION) >> 'Bearer abc123'
         }
-        def dataLoader = ResourceDataLoader.newDataLoader(webClientRequest, servletContext)
+        def context = Mock(GraphQLKickstartContext) {
+            getMapOfContext() >> [(HttpServletRequest.class): httpServletRequest]
+        }
+        def dataLoader = ResourceDataLoader.newDataLoader(webClientRequest, context)
         def dfe = Mock(DataFetchingEnvironment) {
             getDataLoader(ResourceDataLoader.NAME) >> dataLoader
-            getContext() >> servletContext
+            getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest.class): httpServletRequest])
         }
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
@@ -159,12 +161,12 @@ class WebClientRequestSpec extends Specification {
     }
 
     private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null) {
+        def request = Mock(HttpServletRequest)
+        if (token != null) {
+            request.getHeader(HttpHeaders.AUTHORIZATION) >> token
+        }
         Mock(DataFetchingEnvironment) {
-            getContext() >> Mock(GraphQLServletContext) {
-                getHttpServletRequest() >> Mock(HttpServletRequest) {
-                    if (token != null) getHeader(HttpHeaders.AUTHORIZATION) >> token
-                }
-            }
+            getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest.class): request])
         }
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import spock.lang.Specification
 
@@ -19,6 +20,7 @@ import java.time.Duration
                 "fint.graphql.blacklist=127.0.0.1,::1"
         ]
 )
+@ContextConfiguration
 @AutoConfigureWebTestClient
 class GraphQLAuthBlacklistedSpec extends Specification {
 

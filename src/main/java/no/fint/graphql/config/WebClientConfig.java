@@ -6,8 +6,8 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ReactorResourceFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.http.client.reactive.ReactorResourceFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
@@ -33,24 +33,31 @@ public class WebClientConfig {
         return builder
                 .clientConnector(new ReactorClientHttpConnector(factory, httpClient -> {
                     HttpClient client = httpClient.secure();
-                    return client.tcpConfiguration(tcp -> {
-                        if (connectTimeoutMs > 0) {
-                            tcp = tcp.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMs);
+                    if (connectTimeoutMs > 0) {
+                        client = client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMs);
+                    }
+                    if (responseTimeout != null && !responseTimeout.isZero() && !responseTimeout.isNegative()) {
+                        long timeoutMillis = responseTimeout.toMillis();
+                        if (timeoutMillis > 0) {
+                            client = client
+                                    .responseTimeout(Duration.ofMillis(timeoutMillis))
+                                    .doOnConnected(conn -> {
+                                        conn.addHandlerLast(new ReadTimeoutHandler(timeoutMillis, TimeUnit.MILLISECONDS));
+                                        conn.addHandlerLast(new WriteTimeoutHandler(timeoutMillis, TimeUnit.MILLISECONDS));
+                                    });
                         }
-                        if (responseTimeout != null && !responseTimeout.isZero() && !responseTimeout.isNegative()) {
-                            long timeoutMillis = responseTimeout.toMillis();
-                            if (timeoutMillis > 0) {
-                                tcp = tcp.doOnConnected(conn -> {
-                                    conn.addHandlerLast(new ReadTimeoutHandler(timeoutMillis, TimeUnit.MILLISECONDS));
-                                    conn.addHandlerLast(new WriteTimeoutHandler(timeoutMillis, TimeUnit.MILLISECONDS));
-                                });
-                            }
-                        }
-                        return tcp;
-                    });
+                    }
+                    return client;
                 }))
                 .baseUrl(rootUrl)
                 .build();
+    }
+
+    @Bean
+    public ReactorResourceFactory reactorResourceFactory() {
+        ReactorResourceFactory factory = new ReactorResourceFactory();
+        factory.setUseGlobalResources(false);
+        return factory;
     }
 
 }

@@ -5,8 +5,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import graphql.GraphQLContext;
+import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.schema.DataFetchingEnvironment;
-import graphql.servlet.context.GraphQLServletContext;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.WriteTimeoutException;
@@ -26,7 +27,9 @@ import reactor.core.scheduler.Schedulers;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
@@ -39,7 +42,6 @@ public class WebClientRequest {
     private final WebClient webClient;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
-    private final BlacklistService blacklistService;
     private final Set<String> remoteAddresses = new HashSet<>();
     private final Semaphore concurrencyLimiter;
     private final Cache<String, DataLoader<ResourceRequestKey, Object>> requestScopedLoaders;
@@ -50,11 +52,9 @@ public class WebClientRequest {
             WebClient webClient,
             ConnectionProviderSettings connectionProviderSettings,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
-            BlacklistService blacklistService,
             GraphQLQueryIdProvider queryIdProvider) {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
-        this.blacklistService = blacklistService;
         this.queryIdProvider = queryIdProvider;
         hashFunction = Hashing.murmur3_128();
         concurrencyLimiter = new Semaphore(connectionProviderSettings.getMaxConnections(), true);
@@ -67,7 +67,7 @@ public class WebClientRequest {
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        GraphQLServletContext context = getContext(dfe);
+        GraphQLKickstartContext context = getContext(dfe);
         String authorization = getToken(context);
         DataLoader<ResourceRequestKey, Object> dataLoader = getDataLoader(dfe);
         boolean manualDispatch = false;
@@ -88,11 +88,11 @@ public class WebClientRequest {
         return getDirect(uri, type, context, null);
     }
 
-    public <T> Mono<T> get(String uri, Class<T> type, GraphQLServletContext context) {
+    public <T> Mono<T> get(String uri, Class<T> type, GraphQLKickstartContext context) {
         return getDirect(uri, type, context, null);
     }
 
-    public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLServletContext context, String authorization) {
+    public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLKickstartContext context, String authorization) {
         Long queryId = GraphQLRequestAttributes.getQueryId(context);
         if (queryId == null) {
             queryId = queryIdProvider.nextId();
@@ -127,10 +127,10 @@ public class WebClientRequest {
             log.trace("Cache miss on {}", uri);
             return get(request, type, queryIdValue, requestIdValue, uri)
                     .doOnNext(value -> cache.put(key, value))
-                    .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
+                    .doFinally(_ -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
         }
         return get(request, type, queryIdValue, requestIdValue, uri)
-                .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
+                .doFinally(_ -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
     }
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
@@ -192,8 +192,9 @@ public class WebClientRequest {
         );
     }
 
-    private String getToken(GraphQLServletContext context) {
-        return context != null ? context.getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION) : null;
+    private String getToken(GraphQLKickstartContext context) {
+        HttpServletRequest request = getRequest(context);
+        return request != null ? request.getHeader(HttpHeaders.AUTHORIZATION) : null;
     }
 
     private DataLoader<ResourceRequestKey, Object> getDataLoader(DataFetchingEnvironment dfe) {
@@ -207,8 +208,10 @@ public class WebClientRequest {
         }
     }
 
-    private DataLoader<ResourceRequestKey, Object> getRequestScopedDataLoader(DataFetchingEnvironment dfe,
-                                                                              GraphQLServletContext context) {
+    private DataLoader<ResourceRequestKey, Object> getRequestScopedDataLoader(
+            DataFetchingEnvironment dfe,
+            GraphQLKickstartContext context
+    ) {
         if (dfe == null || dfe.getExecutionId() == null) {
             return null;
         }
@@ -272,7 +275,7 @@ public class WebClientRequest {
         return requestSequence > 0 ? Long.toString(requestSequence) : "unknown";
     }
 
-    private void logRemoteIp(GraphQLServletContext context) {
+    private void logRemoteIp(GraphQLKickstartContext context) {
         String ip = getRemoteIp(context);
 
         if (remoteAddresses.add(ip)) {
@@ -280,15 +283,30 @@ public class WebClientRequest {
         }
     }
 
-    private GraphQLServletContext getContext(DataFetchingEnvironment dataFetchingEnvironment) {
-        Object context = dataFetchingEnvironment.getContext();
-        return context instanceof GraphQLServletContext ? (GraphQLServletContext) context : null;
+    private GraphQLKickstartContext getContext(DataFetchingEnvironment dataFetchingEnvironment) {
+        if (dataFetchingEnvironment == null) {
+            return null;
+        }
+        GraphQLContext graphQLContext = dataFetchingEnvironment.getGraphQlContext();
+        if (graphQLContext == null) {
+            return null;
+        }
+        HashMap<Object, Object> contextMap = new HashMap<>();
+        graphQLContext.stream().forEach(entry -> contextMap.put(entry.getKey(), entry.getValue()));
+        return GraphQLKickstartContext.of(contextMap);
     }
 
-    private String getRemoteIp(GraphQLServletContext context) {
-        if (context == null) return null;
-        if (context.getHttpServletRequest() == null) return null;
-        if (context.getHttpServletRequest().getRemoteAddr() == null) return null;
-        return context.getHttpServletRequest().getRemoteAddr();
+    private String getRemoteIp(GraphQLKickstartContext context) {
+        HttpServletRequest request = getRequest(context);
+        if (request == null) return null;
+        return request.getRemoteAddr();
+    }
+
+    private HttpServletRequest getRequest(GraphQLKickstartContext context) {
+        if (context == null || context.getMapOfContext() == null) {
+            return null;
+        }
+        Object request = context.getMapOfContext().get(HttpServletRequest.class);
+        return request instanceof HttpServletRequest ? (HttpServletRequest) request : null;
     }
 }

@@ -16,18 +16,26 @@ public class ConnectionProviderConfig {
         log.info("Connection Provider settings: {}", settings);
         switch (StringUtils.upperCase(settings.getType())) {
             case "FIXED":
-                return ConnectionProvider.builder("graphql")
+                ConnectionProvider.Builder fixedBuilder = ConnectionProvider.builder("graphql")
                         .maxConnections(settings.getMaxConnections())
                         .pendingAcquireMaxCount(1000)
-                        .pendingAcquireTimeout(Duration.ofMillis(settings.getAcquireTimeout()))
-                        .maxIdleTime(settings.getMaxIdleTime())
-                        .maxLifeTime(settings.getMaxLifeTime())
-                        .build();
+                        .pendingAcquireTimeout(Duration.ofMillis(settings.getAcquireTimeout()));
+                if (settings.getMaxIdleTime() != null) {
+                    fixedBuilder.maxIdleTime(settings.getMaxIdleTime());
+                }
+                if (settings.getMaxLifeTime() != null) {
+                    fixedBuilder.maxLifeTime(settings.getMaxLifeTime());
+                }
+                return fixedBuilder.build();
             case "ELASTIC":
-                return ConnectionProvider.builder("graphql")
-                        .maxIdleTime(settings.getMaxIdleTime())
-                        .maxLifeTime(settings.getMaxLifeTime())
-                        .build();
+                ConnectionProvider.Builder elasticBuilder = ConnectionProvider.builder("graphql");
+                if (settings.getMaxIdleTime() != null) {
+                    elasticBuilder.maxIdleTime(settings.getMaxIdleTime());
+                }
+                if (settings.getMaxLifeTime() != null) {
+                    elasticBuilder.maxLifeTime(settings.getMaxLifeTime());
+                }
+                return elasticBuilder.build();
             case "NEW":
                 return ConnectionProvider.newConnection();
             default:

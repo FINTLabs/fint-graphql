@@ -1,9 +1,10 @@
 package no.fint.graphql.dataloader;
 
-import graphql.servlet.context.GraphQLServletContext;
+import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import no.fint.graphql.WebClientRequest;
 import org.dataloader.BatchLoaderWithContext;
 import org.dataloader.DataLoader;
+import org.dataloader.DataLoaderFactory;
 import org.dataloader.DataLoaderOptions;
 import org.dataloader.Try;
 import reactor.core.publisher.Flux;
@@ -20,16 +21,16 @@ public final class ResourceDataLoader {
     }
 
     public static DataLoader<ResourceRequestKey, Object> newDataLoader(WebClientRequest webClientRequest,
-                                                                       GraphQLServletContext servletContext) {
+                                                                        GraphQLKickstartContext context) {
         BatchLoaderWithContext<ResourceRequestKey, Try<Object>> loader = (keys, env) -> {
-            GraphQLServletContext context = servletContext != null
-                    ? servletContext
-                    : extractServletContext(env.getContext());
+            GraphQLKickstartContext graphQLContext = context != null
+                    ? context
+                    : extractContext(env.getContext());
             return Flux.fromIterable(keys)
                     .flatMapSequential(key -> {
                         @SuppressWarnings("unchecked")
                         Class<Object> type = (Class<Object>) key.getType();
-                        return webClientRequest.getDirect(key.getUri(), type, context, key.getAuthorization())
+                        return webClientRequest.getDirect(key.getUri(), type, graphQLContext, key.getAuthorization())
                                 .cast(Object.class)
                                 .map(Try::succeeded)
                                 .onErrorResume(ex -> Mono.just(Try.failed(ex)));
@@ -47,13 +48,13 @@ public final class ResourceDataLoader {
                             + "::"
                             + requestKey.getAuthorization();
                 });
-        if (servletContext != null) {
-            options.setBatchLoaderContextProvider(() -> servletContext);
+        if (context != null) {
+            options.setBatchLoaderContextProvider(() -> context);
         }
-        return DataLoader.newDataLoaderWithTry(loader, options);
+        return DataLoaderFactory.newDataLoaderWithTry(loader, options);
     }
 
-    private static GraphQLServletContext extractServletContext(Object context) {
-        return context instanceof GraphQLServletContext ? (GraphQLServletContext) context : null;
+    private static GraphQLKickstartContext extractContext(Object context) {
+        return context instanceof GraphQLKickstartContext ? (GraphQLKickstartContext) context : null;
     }
 }

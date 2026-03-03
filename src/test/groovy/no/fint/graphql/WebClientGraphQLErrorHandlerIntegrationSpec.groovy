@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.execution.DataFetcherResult
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import no.fint.graphql.model.Endpoints
@@ -29,6 +29,7 @@ import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -47,6 +48,7 @@ import java.util.concurrent.TimeUnit
         classes = TestApplication,
         properties = "spring.main.allow-bean-definition-overriding=true"
 )
+@ContextConfiguration
 @AutoConfigureWebTestClient
 class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
@@ -429,7 +431,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
                             }
                             if (ex != null) {
                                 errors.add(new ExceptionWhileDataFetching(
-                                        ExecutionPath.fromList(["rolle", "fullmakt", idx]),
+                                        ResultPath.fromList(["rolle", "fullmakt", idx]),
                                         ex,
                                         new SourceLocation(1, 1)
                                 ))

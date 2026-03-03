@@ -1,11 +1,11 @@
 package no.fint.graphql;
 
-import graphql.servlet.core.GraphQLServletListener;
+import graphql.kickstart.servlet.core.GraphQLServletListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Component
