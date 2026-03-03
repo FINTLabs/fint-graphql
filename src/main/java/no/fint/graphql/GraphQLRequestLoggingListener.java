@@ -21,18 +21,20 @@ public class GraphQLRequestLoggingListener implements GraphQLServletListener {
     public RequestCallback onRequest(HttpServletRequest request, HttpServletResponse response) {
         long queryId = queryIdProvider.nextId();
         long startNanos = System.nanoTime();
+        String client = request.getHeader(GraphQLRequestAttributes.CLIENT_HEADER);
         request.setAttribute(GraphQLRequestAttributes.QUERY_ID, queryId);
         request.setAttribute(GraphQLRequestAttributes.QUERY_START_NANOS, startNanos);
         request.setAttribute(GraphQLRequestAttributes.REQUEST_COUNTER, new AtomicLong());
 
-        log.info("GraphQL request received id={} path={} remote={}", queryId, request.getRequestURI(), request.getRemoteAddr());
+        log.info("GraphQL query received queryId={} path={} client={} remote={}",
+                queryId, request.getRequestURI(), client, request.getRemoteAddr());
 
         return new RequestCallback() {
             @Override
             public void onFinally(HttpServletRequest req, HttpServletResponse res) {
                 Long started = GraphQLRequestAttributes.getQueryStartNanos(req);
                 long durationMs = started != null ? (System.nanoTime() - started) / 1_000_000 : -1;
-                log.info("GraphQL request completed id={} durationMs={}", queryId, durationMs);
+                log.info("GraphQL query completed queryId={} durationMs={}", queryId, durationMs);
             }
         };
     }

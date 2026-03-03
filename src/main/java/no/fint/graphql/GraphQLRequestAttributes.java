@@ -6,11 +6,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class GraphQLRequestAttributes {
+    public static final String CLIENT_HEADER = "x-client";
     public static final String QUERY_ID = "graphql.query.id";
     public static final String QUERY_START_NANOS = "graphql.query.startNanos";
     public static final String REQUEST_COUNTER = "graphql.query.requestCounter";
 
     private GraphQLRequestAttributes() {
+    }
+
+    public static String getClient(GraphQLKickstartContext context) {
+        HttpServletRequest request = getRequest(context);
+        if (request == null) {
+            return null;
+        }
+        return request.getHeader(CLIENT_HEADER);
     }
 
     public static Long getQueryId(GraphQLKickstartContext context) {

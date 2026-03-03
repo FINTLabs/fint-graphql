@@ -85,7 +85,7 @@ class WebClientRequestSpec extends Specification {
 
     def "Limiter allows only one concurrent request when max-concurrent is 1"() {
         given:
-        def limitedSettings = new ConnectionProviderSettings(maxConnections: 1)
+        def limitedSettings = new ConnectionProviderSettings(maxConnections: 1, maxInFlightRequests: 1)
         def limitedRequest = new WebClientRequest(
                 webClient,
                 limitedSettings,
