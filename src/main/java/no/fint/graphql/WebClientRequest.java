@@ -29,6 +29,7 @@ import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
 import java.time.Duration;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
@@ -45,6 +46,7 @@ public class WebClientRequest {
     private final int maxInFlightRequests;
     private final Semaphore inFlightLimiter;
     private final long acquireTimeoutMs;
+    private final AtomicInteger concurrentRequests = new AtomicInteger();
 
     public WebClientRequest(
             WebClient webClient,
@@ -119,7 +121,10 @@ public class WebClientRequest {
         log.debug("WebClient request start queryId={} requestId={} uri={} client={}", queryIdValue, requestIdValue, uri, client);
 
         final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
+        String xRequestId = java.util.UUID.randomUUID().toString();
         request.header(HttpHeaders.AUTHORIZATION, token);
+        request.header("x-request-id", xRequestId);
+        log.debug("Outgoing request x-request-id={} queryId={} requestId={} uri={}", xRequestId, queryIdValue, requestIdValue, uri);
         if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);
@@ -128,47 +133,58 @@ public class WebClientRequest {
                 return Mono.just(result);
             }
             log.trace("Cache miss on {}", uri);
-            return get(request, type, queryIdValue, requestIdValue, uri)
+            return get(request, type, queryIdValue, requestIdValue, xRequestId, uri)
                     .doOnNext(value -> cache.put(key, value))
                     .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
         }
-        return get(request, type, queryIdValue, requestIdValue, uri)
+        return get(request, type, queryIdValue, requestIdValue, xRequestId, uri)
                 .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
     }
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
-                            String queryIdValue, String requestIdValue, String uri) {
+                            String queryIdValue, String requestIdValue, String xRequestId, String uri) {
         return withPermit(
-                request.retrieve()
-                .bodyToMono(type)
-                .onErrorResume(WebClientResponseException.class, ex -> {
-                    log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
-                            ex.getRawStatusCode(), ex.getRequest().getURI(), queryIdValue, requestIdValue, ex.getMessage());
-                    return Mono.error(ex);
-                })
-                .onErrorMap(ex -> {
-                    if (ex instanceof WebClientResponseException) {
-                        return ex;
-                    }
-                    return new WebClientRequestException(
-                            "WebClient request failed",
-                            ex,
-                            uri,
-                            queryIdValue,
-                            requestIdValue
-                    );
-                })
-                .doOnError(ex -> {
-                    if (ex instanceof WebClientResponseException) {
-                        return;
-                    }
-                    logRequestFailure(ex, queryIdValue, requestIdValue, uri);
+                Mono.defer(() -> {
+                    int current = concurrentRequests.incrementAndGet();
+                    log.info(">>> HTTP GET start: concurrent={} x-request-id={} queryId={} requestId={} uri={}",
+                            current, xRequestId, queryIdValue, requestIdValue, uri);
+                    return request.retrieve()
+                            .bodyToMono(type)
+                            .onErrorResume(WebClientResponseException.class, ex -> {
+                                log.error("WebClient response error: Status Code {}, URI {}, x-request-id={}, queryId={}, requestId={}, Message {}",
+                                        ex.getRawStatusCode(), ex.getRequest().getURI(), xRequestId, queryIdValue, requestIdValue, ex.getMessage());
+                                return Mono.error(ex);
+                            })
+                            .onErrorMap(ex -> {
+                                if (ex instanceof WebClientResponseException) {
+                                    return ex;
+                                }
+                                return new WebClientRequestException(
+                                        "WebClient request failed",
+                                        ex,
+                                        uri,
+                                        queryIdValue,
+                                        requestIdValue
+                                );
+                            })
+                            .doOnError(ex -> {
+                                if (ex instanceof WebClientResponseException) {
+                                    return;
+                                }
+                                logRequestFailure(ex, queryIdValue, requestIdValue, uri);
+                            })
+                            .doFinally(signal -> {
+                                int remaining = concurrentRequests.decrementAndGet();
+                                log.info("<<< HTTP GET end: concurrent={} x-request-id={} queryId={} requestId={} uri={}",
+                                        remaining, xRequestId, queryIdValue, requestIdValue, uri);
+                            });
                 }),
                 queryIdValue,
                 requestIdValue,
                 uri
         );
     }
+
 
     private <T> Mono<T> withPermit(Mono<T> mono, String queryIdValue, String requestIdValue, String uri) {
         return Mono.usingWhen(
