@@ -18,6 +18,14 @@ graphql:
     async-mode-enabled: true
 server:
   forward-headers-strategy: framework
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,prometheus
 logging:
   level:
     no.fint.graphql: INFO
