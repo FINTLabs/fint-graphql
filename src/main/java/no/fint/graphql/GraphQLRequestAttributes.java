@@ -1,7 +1,5 @@
 package no.fint.graphql;
 
-import graphql.kickstart.execution.context.GraphQLKickstartContext;
-
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -14,16 +12,14 @@ public final class GraphQLRequestAttributes {
     private GraphQLRequestAttributes() {
     }
 
-    public static String getClient(GraphQLKickstartContext context) {
-        HttpServletRequest request = getRequest(context);
+    public static String getClient(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
         return request.getHeader(CLIENT_HEADER);
     }
 
-    public static Long getQueryId(GraphQLKickstartContext context) {
-        HttpServletRequest request = getRequest(context);
+    public static Long getQueryId(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
@@ -31,8 +27,7 @@ public final class GraphQLRequestAttributes {
         return value instanceof Number ? ((Number) value).longValue() : null;
     }
 
-    public static long nextRequestSequence(GraphQLKickstartContext context) {
-        HttpServletRequest request = getRequest(context);
+    public static long nextRequestSequence(HttpServletRequest request) {
         if (request == null) {
             return -1;
         }
@@ -50,16 +45,5 @@ public final class GraphQLRequestAttributes {
         }
         Object value = request.getAttribute(QUERY_START_NANOS);
         return value instanceof Number ? ((Number) value).longValue() : null;
-    }
-
-    private static HttpServletRequest getRequest(GraphQLKickstartContext context) {
-        if (context == null) {
-            return null;
-        }
-        if (context.getMapOfContext() == null) {
-            return null;
-        }
-        Object request = context.getMapOfContext().get(HttpServletRequest.class);
-        return request instanceof HttpServletRequest ? (HttpServletRequest) request : null;
     }
 }

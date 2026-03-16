@@ -11,12 +11,11 @@ import graphql.schema.DataFetchingEnvironment;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.WriteTimeoutException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.graphql.config.ConnectionProviderSettings;
-import no.fint.graphql.dataloader.ResourceDataLoader;
 import no.fint.graphql.dataloader.ResourceRequestKey;
 import org.apache.commons.lang3.StringUtils;
-import org.dataloader.DataLoader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,6 @@ import reactor.core.scheduler.Schedulers;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
@@ -44,7 +42,7 @@ public class WebClientRequest {
     private final int maxInFlightRequests;
     private final Semaphore inFlightLimiter;
     private final long acquireTimeoutMs;
-    private final Cache<String, DataLoader<ResourceRequestKey, Object>> requestScopedLoaders;
+    private final Cache<String, Cache<ResourceRequestKey, Mono<Object>>> requestScopedLookups;
     private final GraphQLQueryIdProvider queryIdProvider;
     private final AtomicLong fallbackRequestCounter = new AtomicLong();
 
@@ -64,7 +62,7 @@ public class WebClientRequest {
         maxInFlightRequests = Math.max(1, configuredInFlightRequests);
         inFlightLimiter = new Semaphore(maxInFlightRequests, true);
         acquireTimeoutMs = connectionProviderSettings.getAcquireTimeout();
-        requestScopedLoaders = Caffeine.newBuilder()
+        requestScopedLookups = Caffeine.newBuilder()
                 .maximumSize(10000)
                 .expireAfterWrite(Duration.ofMinutes(5))
                 .build();
@@ -75,36 +73,34 @@ public class WebClientRequest {
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
         GraphQLKickstartContext context = getContext(dfe);
-        String authorization = getToken(context);
-        DataLoader<ResourceRequestKey, Object> dataLoader = getDataLoader(dfe);
-        boolean manualDispatch = false;
-        if (dataLoader == null) {
-            dataLoader = getRequestScopedDataLoader(dfe, context);
-            manualDispatch = dataLoader != null;
+        HttpServletRequest request = getRequest(context);
+        String authorization = getToken(request);
+        String requestScope = getRequestScope(dfe, request);
+        if (requestScope == null) {
+            return getDirect(uri, type, request, authorization);
         }
-        if (dataLoader != null) {
-            ResourceRequestKey key = new ResourceRequestKey(uri, type, authorization);
-            Mono<T> mono = Mono.fromFuture(dataLoader.load(key)).cast(type);
-            if (manualDispatch || hasNoExecutionId(dfe)) {
-                dataLoader.dispatch();
-            } else {
-                dispatchIfQueued(dataLoader);
-            }
-            return mono;
-        }
-        return getDirect(uri, type, context, null);
+        ResourceRequestKey key = new ResourceRequestKey(uri, type, authorization);
+        Cache<ResourceRequestKey, Mono<Object>> requestCache = requestScopedLookups.get(
+                requestScope,
+                ignored -> Caffeine.newBuilder().maximumSize(10000).build()
+        );
+        Mono<Object> mono = requestCache.get(key,
+                ignored -> getDirect(uri, type, request, authorization)
+                        .cast(Object.class)
+                        .cache());
+        return mono.cast(type);
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, GraphQLKickstartContext context) {
-        return getDirect(uri, type, context, null);
+        return getDirect(uri, type, getRequest(context), null);
     }
 
-    public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLKickstartContext context, String authorization) {
-        Long queryId = GraphQLRequestAttributes.getQueryId(context);
+    private <T> Mono<T> getDirect(String uri, Class<T> type, HttpServletRequest request, String authorization) {
+        Long queryId = GraphQLRequestAttributes.getQueryId(request);
         if (queryId == null) {
             queryId = queryIdProvider.nextId();
         }
-        long requestSequence = GraphQLRequestAttributes.nextRequestSequence(context);
+        long requestSequence = GraphQLRequestAttributes.nextRequestSequence(request);
         if (requestSequence < 1) {
             requestSequence = fallbackRequestCounter.incrementAndGet();
         }
@@ -112,7 +108,7 @@ public class WebClientRequest {
         String requestIdValue = formatRequestId(requestSequence);
         long startNanos = System.nanoTime();
 
-        String token = getToken(context);
+        String token = getToken(request);
         if (token == null) {
             token = authorization;
         }
@@ -120,12 +116,12 @@ public class WebClientRequest {
             throw new MissingAuthorizationException("Missing Authorization token");
         }
 
-        String client = GraphQLRequestAttributes.getClient(context);
+        String client = GraphQLRequestAttributes.getClient(request);
         log.debug("WebClient request start queryId={} requestId={} uri={} client={}",
                 queryIdValue, requestIdValue, uri, client);
 
-        final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
-        request.header(HttpHeaders.AUTHORIZATION, token);
+        final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);
+        webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
         if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);
@@ -134,11 +130,11 @@ public class WebClientRequest {
                 return Mono.just(result);
             }
             log.trace("Cache miss on {}", uri);
-            return get(request, type, queryIdValue, requestIdValue, uri)
+            return get(webClientRequest, type, queryIdValue, requestIdValue, uri)
                     .doOnNext(value -> cache.put(key, value))
                     .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
         }
-        return get(request, type, queryIdValue, requestIdValue, uri)
+        return get(webClientRequest, type, queryIdValue, requestIdValue, uri)
                 .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
     }
 
@@ -209,53 +205,19 @@ public class WebClientRequest {
         );
     }
 
-    private String getToken(GraphQLKickstartContext context) {
-        HttpServletRequest request = getRequest(context);
+    private String getToken(HttpServletRequest request) {
         return request != null ? request.getHeader(HttpHeaders.AUTHORIZATION) : null;
     }
 
-    private DataLoader<ResourceRequestKey, Object> getDataLoader(DataFetchingEnvironment dfe) {
-        if (dfe == null) {
-            return null;
+    private String getRequestScope(DataFetchingEnvironment dfe, HttpServletRequest request) {
+        if (dfe != null && dfe.getExecutionId() != null) {
+            return dfe.getExecutionId().toString();
         }
-        try {
-            return dfe.getDataLoader(ResourceDataLoader.NAME);
-        } catch (Exception ex) {
-            return null;
+        Long queryId = GraphQLRequestAttributes.getQueryId(request);
+        if (queryId != null) {
+            return "query:" + queryId;
         }
-    }
-
-    private DataLoader<ResourceRequestKey, Object> getRequestScopedDataLoader(
-            DataFetchingEnvironment dfe,
-            GraphQLKickstartContext context
-    ) {
-        if (dfe == null || dfe.getExecutionId() == null) {
-            return null;
-        }
-        return requestScopedLoaders.get(dfe.getExecutionId().toString(),
-                key -> ResourceDataLoader.newDataLoader(this, context));
-    }
-
-    private boolean hasNoExecutionId(DataFetchingEnvironment dfe) {
-        return dfe == null || dfe.getExecutionId() == null;
-    }
-
-    private void dispatchIfQueued(DataLoader<ResourceRequestKey, Object> dataLoader) {
-        if (dataLoader.dispatchDepth() <= 0) {
-            return;
-        }
-        Mono.delay(Duration.ofMillis(1))
-                .doOnNext(ignored -> dispatchDrain(dataLoader))
-                .subscribeOn(Schedulers.parallel())
-                .subscribe();
-    }
-
-    private void dispatchDrain(DataLoader<ResourceRequestKey, Object> dataLoader) {
-        dataLoader.dispatch().whenComplete((result, error) -> {
-            if (dataLoader.dispatchDepth() > 0) {
-                dispatchDrain(dataLoader);
-            }
-        });
+        return null;
     }
 
     public int getMaxInFlightRequests() {

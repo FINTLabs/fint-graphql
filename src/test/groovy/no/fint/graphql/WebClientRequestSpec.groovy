@@ -2,21 +2,21 @@ package no.fint.graphql
 
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLContext
+import graphql.execution.ExecutionId
 import graphql.execution.ResultPath
-import graphql.kickstart.execution.context.GraphQLKickstartContext
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.http.HttpHeaders
+import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import spock.lang.Specification
 import no.fint.graphql.config.ConnectionProviderSettings
-import no.fint.graphql.dataloader.ResourceDataLoader
 
 import jakarta.servlet.http.HttpServletRequest
-import java.time.Duration
+import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.TimeUnit
 
 class WebClientRequestSpec extends Specification {
@@ -92,7 +92,9 @@ class WebClientRequestSpec extends Specification {
                 'maximumSize=1,expireAfterWrite=1s'
                 ,
                 queryIdProvider)
-        def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1')
+        def firstUrl = server.url('/one').toString()
+        def secondUrl = server.url('/two').toString()
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("one")
@@ -102,8 +104,8 @@ class WebClientRequestSpec extends Specification {
                 .setBody("two"))
 
         when:
-        def future1 = limitedRequest.get(url, String, dfe).toFuture()
-        def future2 = limitedRequest.get(url, String, dfe).toFuture()
+        def future1 = limitedRequest.get(firstUrl, String, dfe).toFuture()
+        def future2 = limitedRequest.get(secondUrl, String, dfe).toFuture()
 
         then:
         def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
@@ -122,28 +124,45 @@ class WebClientRequestSpec extends Specification {
         secondResponse == "two"
     }
 
-    def "DataLoader dispatches queued load without instrumentation"() {
+    def "Request scoped cache deduplicates identical resource fetches"() {
         given:
-        def httpServletRequest = Mock(HttpServletRequest) {
-            getHeader(HttpHeaders.AUTHORIZATION) >> 'Bearer abc123'
-        }
-        def context = Mock(GraphQLKickstartContext) {
-            getMapOfContext() >> [(HttpServletRequest.class): httpServletRequest]
-        }
-        def dataLoader = ResourceDataLoader.newDataLoader(webClientRequest, context)
-        def dfe = Mock(DataFetchingEnvironment) {
-            getDataLoader(ResourceDataLoader.NAME) >> dataLoader
-            getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest.class): httpServletRequest])
-        }
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1')
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
-        def response = webClientRequest.get(url, String, dfe).block(Duration.ofSeconds(1))
+        def response = reactor.core.publisher.Mono.zip(
+                webClientRequest.get(url, String, dfe),
+                webClientRequest.get(url, String, dfe)
+        ).block()
         def request = server.takeRequest(1, TimeUnit.SECONDS)
 
         then:
-        response == 'response'
+        response.t1 == 'response'
+        response.t2 == 'response'
         request != null
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
+    }
+
+    def "Unique outbound requests keep the originating query request counter"() {
+        given:
+        def servletRequest = createServletRequest('Bearer abc123')
+        servletRequest.setAttribute(GraphQLRequestAttributes.QUERY_ID, 42L)
+        servletRequest.setAttribute(GraphQLRequestAttributes.REQUEST_COUNTER, new AtomicLong())
+        def dfe = createDataFetchingEnvironmentMock(servletRequest, 'query-1')
+        def firstUrl = server.url('/first').toString()
+        def secondUrl = server.url('/second').toString()
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("one"))
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("two"))
+
+        when:
+        def response = reactor.core.publisher.Mono.zip(
+                webClientRequest.get(firstUrl, String, dfe),
+                webClientRequest.get(secondUrl, String, dfe)
+        ).block()
+
+        then:
+        [response.t1, response.t2].toSet() == ['one', 'two'] as Set
+        ((AtomicLong) servletRequest.getAttribute(GraphQLRequestAttributes.REQUEST_COUNTER)).get() == 2
     }
 
     private static String expectedMessage(int status, String requestUrl) {
@@ -160,13 +179,24 @@ class WebClientRequestSpec extends Specification {
         throw IllegalArgumentException("Message for status code " + status + " is not defined yet")
     }
 
-    private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null) {
-        def request = Mock(HttpServletRequest)
-        if (token != null) {
-            request.getHeader(HttpHeaders.AUTHORIZATION) >> token
-        }
+    private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null, String executionId = null) {
+        return createDataFetchingEnvironmentMock(createServletRequest(token), executionId)
+    }
+
+    private DataFetchingEnvironment createDataFetchingEnvironmentMock(MockHttpServletRequest request, String executionId = null) {
         Mock(DataFetchingEnvironment) {
             getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest.class): request])
+            if (executionId != null) {
+                getExecutionId() >> ExecutionId.from(executionId)
+            }
         }
+    }
+
+    private MockHttpServletRequest createServletRequest(String token = null) {
+        def request = new MockHttpServletRequest()
+        if (token != null) {
+            request.addHeader(HttpHeaders.AUTHORIZATION, token)
+        }
+        request
     }
 }

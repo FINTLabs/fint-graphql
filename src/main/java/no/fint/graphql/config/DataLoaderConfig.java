@@ -1,12 +1,7 @@
 package no.fint.graphql.config;
 
-import graphql.execution.instrumentation.Instrumentation;
-import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
 import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
-import no.fint.graphql.WebClientRequest;
-import no.fint.graphql.dataloader.ResourceDataLoader;
-import org.dataloader.DataLoaderRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,40 +16,23 @@ import java.util.Map;
 public class DataLoaderConfig {
 
     @Bean
-    public Instrumentation dataLoaderDispatcherInstrumentation() {
-        return new DataLoaderDispatcherInstrumentation();
-    }
-
-    @Bean
-    public GraphQLServletContextBuilder graphQLServletContextBuilder(WebClientRequest webClientRequest) {
+    public GraphQLServletContextBuilder graphQLServletContextBuilder() {
         return new GraphQLServletContextBuilder() {
             @Override
             public GraphQLKickstartContext build(HttpServletRequest request, HttpServletResponse response) {
-                return GraphQLKickstartContext.of(
-                        buildRegistry(webClientRequest),
-                        createContextMap(request, response)
-                );
+                return GraphQLKickstartContext.of(createContextMap(request, response));
             }
 
             @Override
             public GraphQLKickstartContext build(Session session, HandshakeRequest request) {
-                return GraphQLKickstartContext.of(
-                        buildRegistry(webClientRequest),
-                        createContextMap(session, request)
-                );
+                return GraphQLKickstartContext.of(createContextMap(session, request));
             }
 
             @Override
             public GraphQLKickstartContext build() {
-                return GraphQLKickstartContext.of(buildRegistry(webClientRequest));
+                return GraphQLKickstartContext.of(new HashMap<>());
             }
         };
-    }
-
-    private DataLoaderRegistry buildRegistry(WebClientRequest webClientRequest) {
-        DataLoaderRegistry registry = new DataLoaderRegistry();
-        registry.register(ResourceDataLoader.NAME, ResourceDataLoader.newDataLoader(webClientRequest));
-        return registry;
     }
 
     private Map<Object, Object> createContextMap(HttpServletRequest request, HttpServletResponse response) {
