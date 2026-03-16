@@ -6,11 +6,20 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class GraphQLRequestAttributes {
+    public static final String CLIENT_HEADER = "x-client";
     public static final String QUERY_ID = "graphql.query.id";
     public static final String QUERY_START_NANOS = "graphql.query.startNanos";
     public static final String REQUEST_COUNTER = "graphql.query.requestCounter";
 
     private GraphQLRequestAttributes() {
+    }
+
+    public static String getClient(GraphQLServletContext context) {
+        HttpServletRequest request = getRequest(context);
+        if (request == null) {
+            return null;
+        }
+        return request.getHeader(CLIENT_HEADER);
     }
 
     public static Long getQueryId(GraphQLServletContext context) {
@@ -44,9 +53,9 @@ public final class GraphQLRequestAttributes {
     }
 
     private static HttpServletRequest getRequest(GraphQLServletContext context) {
-        if (context == null) {
-            return null;
+        if (context != null) {
+            return context.getHttpServletRequest();
         }
-        return context.getHttpServletRequest();
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package no.fint.graphql
 
 import graphql.ExceptionWhileDataFetching
 import graphql.execution.ExecutionPath
+import graphql.execution.ExecutionId
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import graphql.servlet.context.GraphQLServletContext
@@ -82,16 +83,26 @@ class WebClientRequestSpec extends Specification {
         status << [401, 403, 404]
     }
 
-    def "Limiter allows only one concurrent request when max-concurrent is 1"() {
+    def "DataLoader limits concurrent requests when max-concurrent is 1"() {
         given:
-        def limitedSettings = new ConnectionProviderSettings(maxConnections: 1)
+        def limitedSettings = new ConnectionProviderSettings(maxConnections: 1, maxInFlightRequests: 1)
         def limitedRequest = new WebClientRequest(
                 webClient,
                 limitedSettings,
                 'maximumSize=1,expireAfterWrite=1s',
                 blacklistService,
                 queryIdProvider)
-        def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
+        def servletContext = Mock(GraphQLServletContext) {
+            getHttpServletRequest() >> Mock(HttpServletRequest) {
+                getHeader(HttpHeaders.AUTHORIZATION) >> 'Bearer abc123'
+            }
+        }
+        def dataLoader = ResourceDataLoader.newDataLoader(limitedRequest, servletContext)
+        def dfe = Mock(DataFetchingEnvironment) {
+            getDataLoader(ResourceDataLoader.NAME) >> dataLoader
+            getContext() >> servletContext
+            getExecutionId() >> ExecutionId.generate()
+        }
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
                 .setBody("one")
@@ -101,8 +112,10 @@ class WebClientRequestSpec extends Specification {
                 .setBody("two"))
 
         when:
-        def future1 = limitedRequest.get(url, String, dfe).toFuture()
-        def future2 = limitedRequest.get(url, String, dfe).toFuture()
+        def future1 = limitedRequest.get(url + "one", String, dfe).toFuture()
+        def future2 = limitedRequest.get(url + "two", String, dfe).toFuture()
+        // allow the internal dispatch debounce to fire
+        Thread.sleep(5)
 
         then:
         def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
@@ -121,17 +134,16 @@ class WebClientRequestSpec extends Specification {
         secondResponse == "two"
     }
 
-    def "DataLoader dispatches queued load without instrumentation"() {
+    def "Request-scoped DataLoader dispatches queued load without instrumentation"() {
         given:
         def servletContext = Mock(GraphQLServletContext) {
             getHttpServletRequest() >> Mock(HttpServletRequest) {
                 getHeader(HttpHeaders.AUTHORIZATION) >> 'Bearer abc123'
             }
         }
-        def dataLoader = ResourceDataLoader.newDataLoader(webClientRequest, servletContext)
         def dfe = Mock(DataFetchingEnvironment) {
-            getDataLoader(ResourceDataLoader.NAME) >> dataLoader
             getContext() >> servletContext
+            getExecutionId() >> ExecutionId.generate()
         }
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 

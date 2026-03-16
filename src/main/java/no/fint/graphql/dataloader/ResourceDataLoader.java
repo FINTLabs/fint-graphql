@@ -25,6 +25,7 @@ public final class ResourceDataLoader {
             GraphQLServletContext context = servletContext != null
                     ? servletContext
                     : extractServletContext(env.getContext());
+            int maxConcurrency = Math.max(1, webClientRequest.getMaxInFlightRequests());
             return Flux.fromIterable(keys)
                     .flatMapSequential(key -> {
                         @SuppressWarnings("unchecked")
@@ -33,7 +34,7 @@ public final class ResourceDataLoader {
                                 .cast(Object.class)
                                 .map(Try::succeeded)
                                 .onErrorResume(ex -> Mono.just(Try.failed(ex)));
-                    })
+                    }, maxConcurrency, maxConcurrency)
                     .collectList()
                     .toFuture();
         };
