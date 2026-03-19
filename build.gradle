@@ -43,7 +43,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
 
-    implementation 'commons-beanutils:commons-beanutils:1.11.0'
+    implementation('commons-beanutils:commons-beanutils:1.11.0') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
     implementation 'no.fint:fint-model-resource:0.4.1'
     implementation("no.novari:fint-utdanning-resource-model-java:${apiVersion}")
     implementation("no.novari:fint-administrasjon-resource-model-java:${apiVersion}")
