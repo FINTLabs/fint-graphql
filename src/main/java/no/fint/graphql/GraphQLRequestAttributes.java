@@ -1,6 +1,7 @@
 package no.fint.graphql;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class GraphQLRequestAttributes {
@@ -10,13 +11,6 @@ public final class GraphQLRequestAttributes {
     public static final String REQUEST_COUNTER = "graphql.query.requestCounter";
 
     private GraphQLRequestAttributes() {
-    }
-
-    public static String getClient(HttpServletRequest request) {
-        if (request == null) {
-            return null;
-        }
-        return request.getHeader(CLIENT_HEADER);
     }
 
     public static Long getQueryId(HttpServletRequest request) {

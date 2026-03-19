@@ -106,7 +106,7 @@ public class WebClientRequest {
         }
         String queryIdValue = formatQueryId(queryId);
         String requestIdValue = formatRequestId(requestSequence);
-        long startNanos = System.nanoTime();
+        long requestStartNanos = System.nanoTime();
 
         String token = getToken(request);
         if (token == null) {
@@ -115,10 +115,6 @@ public class WebClientRequest {
         if (StringUtils.isBlank(token)) {
             throw new MissingAuthorizationException("Missing Authorization token");
         }
-
-        String client = GraphQLRequestAttributes.getClient(request);
-        log.debug("WebClient request start queryId={} requestId={} uri={} client={}",
-                queryIdValue, requestIdValue, uri, client);
 
         final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);
         webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
@@ -130,16 +126,14 @@ public class WebClientRequest {
                 return Mono.just(result);
             }
             log.trace("Cache miss on {}", uri);
-            return get(webClientRequest, type, queryIdValue, requestIdValue, uri)
-                    .doOnNext(value -> cache.put(key, value))
-                    .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
+            return get(webClientRequest, type, queryIdValue, requestIdValue, uri, requestStartNanos)
+                    .doOnNext(value -> cache.put(key, value));
         }
-        return get(webClientRequest, type, queryIdValue, requestIdValue, uri)
-                .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
+        return get(webClientRequest, type, queryIdValue, requestIdValue, uri, requestStartNanos);
     }
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
-                            String queryIdValue, String requestIdValue, String uri) {
+                            String queryIdValue, String requestIdValue, String uri, long requestStartNanos) {
         return withPermit(
                 Mono.defer(() -> {
                     long nettyStartNanos = System.nanoTime();
@@ -171,15 +165,18 @@ public class WebClientRequest {
                                 }
                                 logRequestFailure(ex, queryIdValue, requestIdValue, uri);
                             })
-                            .doFinally(signal -> logNettyRequestEnd(queryIdValue, requestIdValue, uri, nettyStartNanos));
-                }),
-                queryIdValue,
-                requestIdValue,
-                uri
+                            .doFinally(signal -> logNettyRequestEnd(
+                                    queryIdValue,
+                                    requestIdValue,
+                                    uri,
+                                    requestStartNanos,
+                                    nettyStartNanos
+                            ));
+                })
         );
     }
 
-    private <T> Mono<T> withPermit(Mono<T> mono, String queryIdValue, String requestIdValue, String uri) {
+    private <T> Mono<T> withPermit(Mono<T> mono) {
         return Mono.usingWhen(
                 inFlightLimiter.acquire(),
                 ignored -> mono,
@@ -208,16 +205,17 @@ public class WebClientRequest {
         return maxConcurrentRequests;
     }
 
-    private void logRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
-        long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
-        log.debug("WebClient request end queryId={} requestId={} durationMs={} uri={}",
-                queryIdValue, requestIdValue, durationMs, uri);
-    }
-
-    private void logNettyRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
-        long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
-        log.debug("WebClient Netty request end queryId={} requestId={} durationMs={} uri={}",
-                queryIdValue, requestIdValue, durationMs, uri);
+    private void logNettyRequestEnd(
+            String queryIdValue,
+            String requestIdValue,
+            String uri,
+            long requestStartNanos,
+            long nettyStartNanos) {
+        long totalDurationMs = (System.nanoTime() - requestStartNanos) / 1_000_000;
+        long queueDurationMs = (nettyStartNanos - requestStartNanos) / 1_000_000;
+        long nettyDurationMs = totalDurationMs - queueDurationMs;
+        log.debug("WebClient request queryId={} requestId={} queueDurationMs={} nettyDurationMs={} totalDurationMs={} uri={}",
+                queryIdValue, requestIdValue, queueDurationMs, nettyDurationMs, totalDurationMs, uri);
     }
 
     private void logRequestFailure(Throwable exception, String queryIdValue, String requestIdValue, String uri) {
