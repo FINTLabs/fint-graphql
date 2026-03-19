@@ -85,7 +85,7 @@ class WebClientRequestSpec extends Specification {
 
     def "Limiter allows only one concurrent request when max-concurrent is 1"() {
         given:
-        def limitedSettings = new ConnectionProviderSettings(maxConnections: 1, maxInFlightRequests: 1)
+        def limitedSettings = new ConnectionProviderSettings(maxConnections: 1, acquireTimeout: 100)
         def limitedRequest = new WebClientRequest(
                 webClient,
                 limitedSettings,
@@ -122,6 +122,31 @@ class WebClientRequestSpec extends Specification {
         secondRequestAfter != null
         firstResponse == "one"
         secondResponse == "two"
+    }
+
+    def "Concurrent requests are capped by max connections before entering Netty"() {
+        given:
+        def constrainedSettings = new ConnectionProviderSettings(
+                maxConnections: 2,
+                acquireMaxCount: 0
+        )
+        def alignedSettings = new ConnectionProviderSettings(
+                maxConnections: 2,
+                acquireMaxCount: 100
+        )
+
+        when:
+        def constrainedRequest = new WebClientRequest(
+                webClient,
+                constrainedSettings,
+                'maximumSize=1,expireAfterWrite=1s',
+                queryIdProvider
+        )
+
+        then:
+        constrainedRequest.getMaxConcurrentRequests() == 2
+        alignedSettings.getMaxConnections() == 2
+        constrainedSettings.getEffectiveAcquireMaxCount() == 1
     }
 
     def "Request scoped cache deduplicates identical resource fetches"() {

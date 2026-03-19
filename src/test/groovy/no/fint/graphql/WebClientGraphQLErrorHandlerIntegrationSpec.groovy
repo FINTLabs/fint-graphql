@@ -15,6 +15,7 @@ import no.novari.fint.model.felles.kompleksedatatyper.Periode
 import no.novari.fint.model.resource.Link
 import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.QueueDispatcher
@@ -120,7 +121,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         drainRequests()
         // Always return 200 so the only thing we're validating is request count,
         // not any particular error mapping.
-        server.setDispatcher(new QueueDispatcher() {
+        server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
                 return new MockResponse().setResponseCode(200).setBody("ok")
@@ -184,7 +185,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
     def "GraphQL handles rolle fullmakt links with mixed outcomes"() {
         given:
         drainRequests()
-        server.setDispatcher(new QueueDispatcher() {
+        server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
                 if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/1")) {

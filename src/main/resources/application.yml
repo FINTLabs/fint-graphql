@@ -5,10 +5,9 @@ fint:
     connect-timeout-ms: 4000
     response-timeout: PT4S
     connection-provider:
-      maxConnections: 300
-      maxInFlightRequests: 300
+      maxConnections: 100
       acquireTimeout: 2000
-      acquireMaxCount: 3000
+      acquireMaxCount: -1
       maxIdleTime: PT30S
       maxLifeTime: PT90S
   graphql:

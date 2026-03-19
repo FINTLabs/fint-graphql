@@ -22,25 +22,26 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Component
 public class WebClientRequest {
 
+    private static final Duration POOL_ACQUIRE_RETRY_DELAY = Duration.ofMillis(25);
+    private static final long POOL_ACQUIRE_RETRY_ATTEMPTS = 400;
+
     private final WebClient webClient;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
-    private final int maxInFlightRequests;
-    private final Semaphore inFlightLimiter;
+    private final int maxConcurrentRequests;
+    private final AsyncPermitLimiter inFlightLimiter;
     private final long acquireTimeoutMs;
     private final Cache<String, Cache<ResourceRequestKey, Mono<Object>>> requestScopedLookups;
     private final GraphQLQueryIdProvider queryIdProvider;
@@ -55,20 +56,19 @@ public class WebClientRequest {
         cache = Caffeine.from(cacheSpec).build();
         this.queryIdProvider = queryIdProvider;
         hashFunction = Hashing.murmur3_128();
-        Integer configuredInFlightRequests = connectionProviderSettings.getMaxInFlightRequests();
-        if (configuredInFlightRequests == null) {
-            configuredInFlightRequests = connectionProviderSettings.getMaxConnections();
-        }
-        maxInFlightRequests = Math.max(1, configuredInFlightRequests);
-        inFlightLimiter = new Semaphore(maxInFlightRequests, true);
+        maxConcurrentRequests = Math.max(1, connectionProviderSettings.getMaxConnections());
+        inFlightLimiter = new AsyncPermitLimiter(maxConcurrentRequests);
         acquireTimeoutMs = connectionProviderSettings.getAcquireTimeout();
         requestScopedLookups = Caffeine.newBuilder()
                 .maximumSize(10000)
                 .expireAfterWrite(Duration.ofMinutes(5))
                 .build();
 
-        log.info("WebClient limits: maxConnections={}, maxInFlightRequests={}, acquireTimeoutMs={}",
-                connectionProviderSettings.getMaxConnections(), maxInFlightRequests, acquireTimeoutMs);
+        log.info("WebClient limits: maxConnections={}, acquireMaxCount={}, effectiveAcquireMaxCount={}, acquireTimeoutMs={}",
+                connectionProviderSettings.getMaxConnections(),
+                connectionProviderSettings.getAcquireMaxCount(),
+                connectionProviderSettings.getEffectiveAcquireMaxCount(),
+                acquireTimeoutMs);
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
@@ -143,6 +143,9 @@ public class WebClientRequest {
         return withPermit(
                 request.retrieve()
                         .bodyToMono(type)
+                        .retryWhen(Retry.fixedDelay(POOL_ACQUIRE_RETRY_ATTEMPTS, POOL_ACQUIRE_RETRY_DELAY)
+                                .filter(this::isPoolAcquireFailure)
+                                .onRetryExhaustedThrow((spec, signal) -> signal.failure()))
                         .onErrorResume(WebClientResponseException.class, ex -> {
                             log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
                                     ex.getRawStatusCode(), ex.getRequest().getURI(), queryIdValue, requestIdValue, ex.getMessage());
@@ -174,34 +177,11 @@ public class WebClientRequest {
 
     private <T> Mono<T> withPermit(Mono<T> mono, String queryIdValue, String requestIdValue, String uri) {
         return Mono.usingWhen(
-                Mono.fromCallable(() -> {
-                            boolean acquired;
-                            try {
-                                if (acquireTimeoutMs > 0) {
-                                    acquired = inFlightLimiter.tryAcquire(acquireTimeoutMs, TimeUnit.MILLISECONDS);
-                                } else {
-                                    acquired = inFlightLimiter.tryAcquire();
-                                }
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                throw new IllegalStateException("Interrupted while waiting for WebClient in-flight permit", e);
-                            }
-                            if (!acquired) {
-                                throw new WebClientRequestException(
-                                        "WebClient in-flight limit exceeded",
-                                        null,
-                                        uri,
-                                        queryIdValue,
-                                        requestIdValue
-                                );
-                            }
-                            return inFlightLimiter;
-                        })
-                        .subscribeOn(Schedulers.boundedElastic()),
+                inFlightLimiter.acquire(),
                 ignored -> mono,
-                semaphore -> Mono.fromRunnable(semaphore::release),
-                (semaphore, error) -> Mono.fromRunnable(semaphore::release),
-                semaphore -> Mono.fromRunnable(semaphore::release)
+                AsyncPermitLimiter.Permit::release,
+                (permit, error) -> permit.release(),
+                AsyncPermitLimiter.Permit::release
         );
     }
 
@@ -220,8 +200,8 @@ public class WebClientRequest {
         return null;
     }
 
-    public int getMaxInFlightRequests() {
-        return maxInFlightRequests;
+    public int getMaxConcurrentRequests() {
+        return maxConcurrentRequests;
     }
 
     private void logRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
@@ -264,6 +244,11 @@ public class WebClientRequest {
             current = current.getCause();
         }
         return exception;
+    }
+
+    private boolean isPoolAcquireFailure(Throwable exception) {
+        Throwable root = findRelevantCause(exception);
+        return root instanceof PoolAcquireTimeoutException || root instanceof PoolAcquirePendingLimitException;
     }
 
     private String formatQueryId(Long queryId) {

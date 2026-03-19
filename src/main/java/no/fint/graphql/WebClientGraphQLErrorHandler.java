@@ -190,7 +190,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         String target = resourcePath != null ? resourcePath : "unknown resource";
         Throwable root = findRelevantCause(exception);
         if (root instanceof PoolAcquireTimeoutException || root instanceof PoolAcquirePendingLimitException) {
-            return "Web request delayed by connection pool exhaustion for " + target;
+            return "Web request delayed by connection pool exhaustion for " + target + ": " + exception.getMessage();
         }
         if (root instanceof ConnectTimeoutException) {
             return "Web request connection timeout for " + target;
@@ -198,7 +198,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         if (root instanceof ReadTimeoutException || root instanceof WriteTimeoutException) {
             return "Web request response timeout for " + target;
         }
-        return "Web request failed for " + target;
+        return "Web request failed for " + target + ": " + exception.getMessage();
     }
 
     private String resourcePath(String uri) {

@@ -14,11 +14,12 @@ public class ConnectionProviderConfig {
 
     @Bean
     public ConnectionProvider connectionProvider(ConnectionProviderSettings settings) {
-        log.info("Connection Provider settings: {}", settings);
+        int effectiveAcquireMaxCount = settings.getEffectiveAcquireMaxCount();
+        log.info("Connection Provider settings: {} (effectiveAcquireMaxCount={})", settings, effectiveAcquireMaxCount);
         return switch (StringUtils.upperCase(settings.getType())) {
             case "FIXED" -> ConnectionProvider.builder("graphql")
                     .maxConnections(settings.getMaxConnections())
-                    .pendingAcquireMaxCount(settings.getAcquireMaxCount())
+                    .pendingAcquireMaxCount(effectiveAcquireMaxCount)
                     .pendingAcquireTimeout(Duration.ofMillis(settings.getAcquireTimeout()))
                     .maxIdleTime(settings.getMaxIdleTime())
                     .maxLifeTime(settings.getMaxLifeTime())
