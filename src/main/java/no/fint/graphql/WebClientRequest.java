@@ -29,6 +29,7 @@ import reactor.util.retry.Retry;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -137,8 +138,14 @@ public class WebClientRequest {
         return withPermit(
                 Mono.defer(() -> {
                     long nettyStartNanos = System.nanoTime();
-                    return request.retrieve()
-                            .bodyToMono(type)
+                    AtomicInteger responseStatusCode = new AtomicInteger(-1);
+                    return request.exchangeToMono(response -> {
+                                responseStatusCode.set(response.statusCode().value());
+                                if (response.statusCode().isError()) {
+                                    return response.createException().flatMap(Mono::error);
+                                }
+                                return response.bodyToMono(type);
+                            })
                             .retryWhen(Retry.fixedDelay(POOL_ACQUIRE_RETRY_ATTEMPTS, POOL_ACQUIRE_RETRY_DELAY)
                                     .filter(this::isPoolAcquireFailure)
                                     .onRetryExhaustedThrow((spec, signal) -> signal.failure()))
@@ -170,7 +177,8 @@ public class WebClientRequest {
                                     requestIdValue,
                                     uri,
                                     requestStartNanos,
-                                    nettyStartNanos
+                                    nettyStartNanos,
+                                    responseStatusCode.get()
                             ));
                 })
         );
@@ -210,12 +218,14 @@ public class WebClientRequest {
             String requestIdValue,
             String uri,
             long requestStartNanos,
-            long nettyStartNanos) {
+            long nettyStartNanos,
+            int responseStatusCode) {
         long totalDurationMs = (System.nanoTime() - requestStartNanos) / 1_000_000;
         long queueDurationMs = (nettyStartNanos - requestStartNanos) / 1_000_000;
         long nettyDurationMs = totalDurationMs - queueDurationMs;
-        log.debug("WebClient request queryId={} requestId={} queueDurationMs={} nettyDurationMs={} totalDurationMs={} uri={}",
-                queryIdValue, requestIdValue, queueDurationMs, nettyDurationMs, totalDurationMs, uri);
+        String responseCodeValue = responseStatusCode >= 0 ? Integer.toString(responseStatusCode) : "n/a";
+        log.debug("WebClient request queryId={} requestId={} statusCode={} queueDurationMs={} nettyDurationMs={} totalDurationMs={} uri={}",
+                queryIdValue, requestIdValue, responseCodeValue, queueDurationMs, nettyDurationMs, totalDurationMs, uri);
     }
 
     private void logRequestFailure(Throwable exception, String queryIdValue, String requestIdValue, String uri) {

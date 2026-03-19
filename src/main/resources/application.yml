@@ -2,8 +2,8 @@ fint:
   endpoint:
     root: https://play-with-fint.felleskomponent.no
   webclient:
-    connect-timeout-ms: 4000
-    response-timeout: PT4S
+    connect-timeout-ms: 10000
+    response-timeout: PT10S
     connection-provider:
       maxConnections: 100
       acquireTimeout: 2000
