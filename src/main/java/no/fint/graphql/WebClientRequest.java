@@ -141,33 +141,37 @@ public class WebClientRequest {
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
                             String queryIdValue, String requestIdValue, String uri) {
         return withPermit(
-                request.retrieve()
-                        .bodyToMono(type)
-                        .retryWhen(Retry.fixedDelay(POOL_ACQUIRE_RETRY_ATTEMPTS, POOL_ACQUIRE_RETRY_DELAY)
-                                .filter(this::isPoolAcquireFailure)
-                                .onRetryExhaustedThrow((spec, signal) -> signal.failure()))
-                        .onErrorResume(WebClientResponseException.class, ex -> {
-                            log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
-                                    ex.getRawStatusCode(), ex.getRequest().getURI(), queryIdValue, requestIdValue, ex.getMessage());
-                            return Mono.error(ex);
-                        })
-                        .onErrorMap(ex -> {
-                            if (ex instanceof WebClientResponseException) {
-                                return ex;
-                            }
-                            return new WebClientRequestException(
-                                    "WebClient request failed",
-                                    ex,
-                                    uri,
-                                    queryIdValue,
-                                    requestIdValue
-                            );
-                        })
-                .doOnError(ex -> {
-                    if (ex instanceof WebClientResponseException) {
-                        return;
-                    }
-                    logRequestFailure(ex, queryIdValue, requestIdValue, uri);
+                Mono.defer(() -> {
+                    long nettyStartNanos = System.nanoTime();
+                    return request.retrieve()
+                            .bodyToMono(type)
+                            .retryWhen(Retry.fixedDelay(POOL_ACQUIRE_RETRY_ATTEMPTS, POOL_ACQUIRE_RETRY_DELAY)
+                                    .filter(this::isPoolAcquireFailure)
+                                    .onRetryExhaustedThrow((spec, signal) -> signal.failure()))
+                            .onErrorResume(WebClientResponseException.class, ex -> {
+                                log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
+                                        ex.getRawStatusCode(), ex.getRequest().getURI(), queryIdValue, requestIdValue, ex.getMessage());
+                                return Mono.error(ex);
+                            })
+                            .onErrorMap(ex -> {
+                                if (ex instanceof WebClientResponseException) {
+                                    return ex;
+                                }
+                                return new WebClientRequestException(
+                                        "WebClient request failed",
+                                        ex,
+                                        uri,
+                                        queryIdValue,
+                                        requestIdValue
+                                );
+                            })
+                            .doOnError(ex -> {
+                                if (ex instanceof WebClientResponseException) {
+                                    return;
+                                }
+                                logRequestFailure(ex, queryIdValue, requestIdValue, uri);
+                            })
+                            .doFinally(signal -> logNettyRequestEnd(queryIdValue, requestIdValue, uri, nettyStartNanos));
                 }),
                 queryIdValue,
                 requestIdValue,
@@ -207,6 +211,12 @@ public class WebClientRequest {
     private void logRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
         long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
         log.debug("WebClient request end queryId={} requestId={} durationMs={} uri={}",
+                queryIdValue, requestIdValue, durationMs, uri);
+    }
+
+    private void logNettyRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
+        long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
+        log.debug("WebClient Netty request end queryId={} requestId={} durationMs={} uri={}",
                 queryIdValue, requestIdValue, durationMs, uri);
     }
 
