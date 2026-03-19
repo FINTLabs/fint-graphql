@@ -4,6 +4,6 @@ COPY . .
 RUN gradle --no-daemon build
 
 FROM gcr.io/distroless/java25
-ENV JAVA_TOOL_OPTIONS=-XX:+ExitOnOutOfMemoryError
+ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED"
 COPY --from=builder /home/gradle/build/libs/fint-graphql*.jar /data/fint-graphql.jar
 CMD ["/data/fint-graphql.jar"]
