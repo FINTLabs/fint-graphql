@@ -1,6 +1,6 @@
 fint:
   endpoint:
-    root: https://play-with-fint.felleskomponent.no
+    root: https://traefik.traefik-v2
   webclient:
     connect-timeout-ms: 10000
     response-timeout: PT10S

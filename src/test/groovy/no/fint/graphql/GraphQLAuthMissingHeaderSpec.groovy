@@ -13,7 +13,7 @@ import java.time.Duration
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = no.fint.graphql.Application,
+        classes = [no.fint.graphql.Application, TestJwtDecoderConfig],
         properties = [
                 "spring.main.allow-bean-definition-overriding=true",
                 "fint.graphql.blacklist="

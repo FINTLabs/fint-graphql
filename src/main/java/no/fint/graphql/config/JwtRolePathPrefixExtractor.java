@@ -4,6 +4,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -42,6 +43,14 @@ public class JwtRolePathPrefixExtractor {
             log.warn("Unable to parse JWT roles claim", ex);
             return Collections.emptySet();
         }
+    }
+
+    public Set<String> extractAllowedPathPrefixes(Jwt jwt) {
+        if (jwt == null) {
+            return Collections.emptySet();
+        }
+        Set<String> prefixes = collectPrefixes(getRolesClaim(jwt));
+        return prefixes.isEmpty() ? Collections.emptySet() : Collections.unmodifiableSet(prefixes);
     }
 
     private Set<String> collectPrefixes(Object rolesClaim) {
@@ -93,6 +102,14 @@ public class JwtRolePathPrefixExtractor {
             return rolesClaim;
         }
         return claimsSet.getClaim("Roles");
+    }
+
+    private Object getRolesClaim(Jwt jwt) {
+        Object rolesClaim = jwt.getClaim("roles");
+        if (rolesClaim != null) {
+            return rolesClaim;
+        }
+        return jwt.getClaim("Roles");
     }
 
     private Stream<String> tokenizeSuffix(String suffix) {

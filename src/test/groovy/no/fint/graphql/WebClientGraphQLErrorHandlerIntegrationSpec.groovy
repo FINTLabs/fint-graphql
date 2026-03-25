@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = TestApplication,
+        classes = [TestApplication, TestJwtDecoderConfig],
         properties = "spring.main.allow-bean-definition-overriding=true"
 )
 @ContextConfiguration

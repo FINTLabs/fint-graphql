@@ -22,7 +22,7 @@ import java.time.Duration
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = [Application, TimeoutTestConfig],
+        classes = [Application, TimeoutTestConfig, TestJwtDecoderConfig],
         properties = [
                 "spring.profiles.active=timeout-test",
                 "spring.main.allow-bean-definition-overriding=true",

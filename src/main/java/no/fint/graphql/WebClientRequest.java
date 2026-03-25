@@ -39,6 +39,7 @@ public class WebClientRequest {
 
     private static final Duration POOL_ACQUIRE_RETRY_DELAY = Duration.ofMillis(25);
     private static final long POOL_ACQUIRE_RETRY_ATTEMPTS = 400;
+    private static final String ORG_ID_HEADER = "x-org-id";
 
     private final WebClient webClient;
     private final Cache<HashCode, Object> cache;
@@ -114,6 +115,10 @@ public class WebClientRequest {
         if (StringUtils.isBlank(token)) {
             throw new MissingAuthorizationException("Missing Authorization token");
         }
+        String organisationId = GraphQLRequestAttributes.getOrganisationId(request);
+        if (StringUtils.isBlank(organisationId)) {
+            throw new MissingAuthorizationException("Missing organisation id");
+        }
 
         String resourcePath = getResourcePath(uri);
         if (!isAuthorized(resourcePath, request)) {
@@ -122,6 +127,7 @@ public class WebClientRequest {
 
         final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);
         webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
+        webClientRequest.header(ORG_ID_HEADER, organisationId);
         if (StringUtils.containsIgnoreCase(resourcePath, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);

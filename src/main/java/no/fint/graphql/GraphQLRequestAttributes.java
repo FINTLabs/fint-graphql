@@ -13,6 +13,7 @@ public final class GraphQLRequestAttributes {
     public static final String QUERY_START_NANOS = "graphql.query.startNanos";
     public static final String REQUEST_COUNTER = "graphql.query.requestCounter";
     public static final String ALLOWED_PATH_PREFIXES = "graphql.query.allowedPathPrefixes";
+    public static final String ORGANISATION_ID = "graphql.query.organisationId";
 
     private GraphQLRequestAttributes() {
     }
@@ -66,5 +67,20 @@ public final class GraphQLRequestAttributes {
             return (Set<String>) value;
         }
         return Collections.emptySet();
+    }
+
+    public static void setOrganisationId(HttpServletRequest request, String organisationId) {
+        if (request == null) {
+            return;
+        }
+        request.setAttribute(ORGANISATION_ID, organisationId);
+    }
+
+    public static String getOrganisationId(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        Object value = request.getAttribute(ORGANISATION_ID);
+        return value instanceof String ? (String) value : null;
     }
 }
