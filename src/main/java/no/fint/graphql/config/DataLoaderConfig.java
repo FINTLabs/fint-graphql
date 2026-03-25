@@ -2,8 +2,10 @@ package no.fint.graphql.config;
 
 import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
+import no.fint.graphql.GraphQLRequestAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +18,16 @@ import java.util.Map;
 public class DataLoaderConfig {
 
     @Bean
-    public GraphQLServletContextBuilder graphQLServletContextBuilder() {
+    public GraphQLServletContextBuilder graphQLServletContextBuilder(JwtRolePathPrefixExtractor jwtRolePathPrefixExtractor) {
         return new GraphQLServletContextBuilder() {
             @Override
             public GraphQLKickstartContext build(HttpServletRequest request, HttpServletResponse response) {
+                if (request != null) {
+                    GraphQLRequestAttributes.setAllowedPathPrefixes(
+                            request,
+                            jwtRolePathPrefixExtractor.extractAllowedPathPrefixes(request.getHeader(HttpHeaders.AUTHORIZATION))
+                    );
+                }
                 return GraphQLKickstartContext.of(createContextMap(request, response));
             }
 
@@ -39,6 +47,7 @@ public class DataLoaderConfig {
         Map<Object, Object> contextMap = new HashMap<>();
         if (request != null) {
             contextMap.put(HttpServletRequest.class, request);
+            contextMap.put(GraphQLRequestAttributes.ALLOWED_PATH_PREFIXES, GraphQLRequestAttributes.getAllowedPathPrefixes(request));
         }
         if (response != null) {
             contextMap.put(HttpServletResponse.class, response);

@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -182,6 +183,28 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         status << [401, 403, 404]
     }
 
+    def "GraphQL blocks downstream request when JWT role prefix does not match resource path"() {
+        given:
+        drainRequests()
+        def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
+
+        when:
+        def responseBody = executeQuery(
+                query,
+                TestJwtTokens.bearerWithRoles("FINT_Client_UtdanningElev"),
+                HttpStatus.UNAUTHORIZED
+        )
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.data?.rolle == null
+        body.errors?.size() == 1
+        body.errors[0].message == "Unauthorized"
+        body.errors[0].path == ["rolle"]
+        body.errors[0].extensions?.code == 401
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
+    }
+
     def "GraphQL handles rolle fullmakt links with mixed outcomes"() {
         given:
         drainRequests()
@@ -300,17 +323,21 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 """
     }
 
-    private String executeQuery(String query) {
+    private String executeQuery(
+            String query,
+            String authorization = TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"),
+            HttpStatusCode expectedStatus = HttpStatus.OK
+    ) {
         return webTestClient.mutate()
                 .responseTimeout(Duration.ofSeconds(20))
                 .build()
                 .post()
                 .uri("/graphql")
-                .header("Authorization", "Bearer header.payload.signature")
+                .header("Authorization", authorization)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue([query: query])
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isEqualTo(expectedStatus)
                 .returnResult(String)
                 .responseBody
                 .blockFirst()

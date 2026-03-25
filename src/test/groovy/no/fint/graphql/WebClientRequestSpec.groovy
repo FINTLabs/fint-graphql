@@ -36,7 +36,7 @@ class WebClientRequestSpec extends Specification {
 
     def "Get request with token"() {
         given:
-        def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"])
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
@@ -62,7 +62,7 @@ class WebClientRequestSpec extends Specification {
 
     def "Get request returns status #status as WebClientResponseException"() {
         given:
-        def dfe = createDataFetchingEnvironmentMock('Bearer abc123')
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"])
         server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
         def handler = new WebClientGraphQLErrorHandler()
         def path = ["query", "resource"]
@@ -92,7 +92,7 @@ class WebClientRequestSpec extends Specification {
                 'maximumSize=1,expireAfterWrite=1s'
                 ,
                 queryIdProvider)
-        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1')
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/one/", "/two/"])
         def firstUrl = server.url('/one').toString()
         def secondUrl = server.url('/two').toString()
         server.enqueue(new MockResponse()
@@ -151,7 +151,7 @@ class WebClientRequestSpec extends Specification {
 
     def "Request scoped cache deduplicates identical resource fetches"() {
         given:
-        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1')
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/"])
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
@@ -170,7 +170,7 @@ class WebClientRequestSpec extends Specification {
 
     def "Unique outbound requests keep the originating query request counter"() {
         given:
-        def servletRequest = createServletRequest('Bearer abc123')
+        def servletRequest = createServletRequest('Bearer abc123', ["/first/", "/second/"])
         servletRequest.setAttribute(GraphQLRequestAttributes.QUERY_ID, 42L)
         servletRequest.setAttribute(GraphQLRequestAttributes.REQUEST_COUNTER, new AtomicLong())
         def dfe = createDataFetchingEnvironmentMock(servletRequest, 'query-1')
@@ -190,6 +190,20 @@ class WebClientRequestSpec extends Specification {
         ((AtomicLong) servletRequest.getAttribute(GraphQLRequestAttributes.REQUEST_COUNTER)).get() == 2
     }
 
+    def "Unauthorized path prefix blocks outbound request"() {
+        given:
+        def unauthorizedUrl = server.url('/administrasjon/fullmakt/rolle/navn/foo').toString()
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/utdanning/elev/"])
+
+        when:
+        webClientRequest.get(unauthorizedUrl, String, dfe).block()
+
+        then:
+        def ex = thrown(UnauthorizedResourceAccessException)
+        ex.uri == unauthorizedUrl
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
+    }
+
     private static String expectedMessage(int status, String requestUrl) {
         def resourcePath = new URI(requestUrl).path
         if (status == 401) {
@@ -204,8 +218,10 @@ class WebClientRequestSpec extends Specification {
         throw IllegalArgumentException("Message for status code " + status + " is not defined yet")
     }
 
-    private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null, String executionId = null) {
-        return createDataFetchingEnvironmentMock(createServletRequest(token), executionId)
+    private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null,
+                                                                     String executionId = null,
+                                                                     Collection<String> allowedPrefixes = []) {
+        return createDataFetchingEnvironmentMock(createServletRequest(token, allowedPrefixes), executionId)
     }
 
     private DataFetchingEnvironment createDataFetchingEnvironmentMock(MockHttpServletRequest request, String executionId = null) {
@@ -217,11 +233,12 @@ class WebClientRequestSpec extends Specification {
         }
     }
 
-    private MockHttpServletRequest createServletRequest(String token = null) {
+    private MockHttpServletRequest createServletRequest(String token = null, Collection<String> allowedPrefixes = []) {
         def request = new MockHttpServletRequest()
         if (token != null) {
             request.addHeader(HttpHeaders.AUTHORIZATION, token)
         }
+        GraphQLRequestAttributes.setAllowedPathPrefixes(request, new LinkedHashSet<>(allowedPrefixes))
         request
     }
 }

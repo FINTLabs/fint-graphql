@@ -54,6 +54,7 @@ dependencies {
     implementation 'com.graphql-java-kickstart:graphql-java-tools:13.0.3'
     implementation 'com.google.guava:guava:33.4.7-jre'
     implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37.4'
     implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
 
     compileOnly 'org.projectlombok:lombok:1.18.42'

@@ -37,7 +37,7 @@ class GraphQLAuthBlacklistedSpec extends Specification {
                 .build()
                 .post()
                 .uri("/graphql")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer header.payload.signature")
+                .header(HttpHeaders.AUTHORIZATION, TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue([query: query])
                 .exchange()

@@ -59,7 +59,7 @@ class GraphQLAsyncTimeoutSpec extends Specification {
                 .build()
                 .post()
                 .uri("/graphql")
-                .header("Authorization", "Bearer header.payload.signature")
+                .header("Authorization", TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue([query: query])
                 .exchange()

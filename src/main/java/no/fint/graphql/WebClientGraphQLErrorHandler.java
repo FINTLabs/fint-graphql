@@ -53,6 +53,10 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
             String resourcePath = resourcePath(requestException.getUri());
             return toRemoteFailureError(dataFetchingError, requestException, resourcePath);
         }
+        if (exception instanceof UnauthorizedResourceAccessException) {
+            UnauthorizedResourceAccessException unauthorizedException = (UnauthorizedResourceAccessException) exception;
+            return toUnauthorizedError(dataFetchingError, unauthorizedException, resourcePath(unauthorizedException.getUri()));
+        }
         if (exception instanceof MissingAuthorizationException) {
             return new RemoteAccessGraphQLError(
                     "Unauthorized",
@@ -100,6 +104,17 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         );
     }
 
+    private GraphQLError toUnauthorizedError(ExceptionWhileDataFetching error,
+                                             UnauthorizedResourceAccessException exception,
+                                             String resourcePath) {
+        return new RemoteAccessGraphQLError(
+                "Unauthorized",
+                error.getLocations(),
+                error.getPath(),
+                buildUnauthorizedExtensions(resourcePath, exception)
+        );
+    }
+
     private Map<String, Object> buildExtensions(int status, String resourcePath) {
         Map<String, Object> extensions = new LinkedHashMap<>();
         extensions.put("code", status);
@@ -141,6 +156,30 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         return extensions;
     }
 
+    private Map<String, Object> buildUnauthorizedExtensions(String resourcePath,
+                                                            UnauthorizedResourceAccessException exception) {
+        Map<String, Object> extensions = new LinkedHashMap<>();
+        extensions.put("code", 401);
+        String[] parts = resourcePath != null ? resourcePath.split("/") : new String[0];
+        if (hasResourcePattern(parts)) {
+            extensions.put("domain", getPart(parts, 1));
+            extensions.put("package", getPart(parts, 2));
+            extensions.put("resource", getPart(parts, 3));
+            extensions.put("idkey", getPart(parts, 4));
+            extensions.put("idvalue", getPart(parts, 5));
+        }
+        if (exception.getQueryId() != null) {
+            extensions.put("queryId", exception.getQueryId());
+        }
+        if (exception.getRequestId() != null) {
+            extensions.put("requestId", exception.getRequestId());
+        }
+        if (exception.getUri() != null) {
+            extensions.put("uri", exception.getUri());
+        }
+        return extensions;
+    }
+
     private boolean hasResourcePattern(String[] parts) {
         return getPart(parts, 1) != null
                 && getPart(parts, 2) != null
@@ -163,12 +202,24 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
             if (current instanceof WebClientRequestException) {
                 return current;
             }
+            if (current instanceof UnauthorizedResourceAccessException) {
+                return current;
+            }
             current = current.getCause();
         }
         return exception;
     }
 
     private void logDataFetchingError(ExceptionWhileDataFetching error, Throwable exception) {
+        if (exception instanceof UnauthorizedResourceAccessException) {
+            UnauthorizedResourceAccessException unauthorizedException = (UnauthorizedResourceAccessException) exception;
+            log.warn("GraphQL data fetch unauthorized path={} uri={} queryId={} requestId={}",
+                    error.getPath(),
+                    unauthorizedException.getUri(),
+                    unauthorizedException.getQueryId(),
+                    unauthorizedException.getRequestId());
+            return;
+        }
         if (exception instanceof WebClientRequestException) {
             WebClientRequestException requestException = (WebClientRequestException) exception;
             log.error("GraphQL data fetch failed path={} uri={} queryId={} requestId={} message={}",

@@ -4,6 +4,7 @@ import graphql.ExecutionResultImpl;
 import graphql.kickstart.execution.GraphQLObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.graphql.BlacklistService;
+import no.fint.graphql.GraphQLRequestAttributes;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -29,10 +30,16 @@ public class GraphQLAuthFilter extends OncePerRequestFilter {
 
     private final GraphQLObjectMapper graphQLObjectMapper;
     private final BlacklistService blacklistService;
+    private final JwtRolePathPrefixExtractor jwtRolePathPrefixExtractor;
 
-    public GraphQLAuthFilter(GraphQLObjectMapper graphQLObjectMapper, BlacklistService blacklistService) {
+    public GraphQLAuthFilter(
+            GraphQLObjectMapper graphQLObjectMapper,
+            BlacklistService blacklistService,
+            JwtRolePathPrefixExtractor jwtRolePathPrefixExtractor
+    ) {
         this.graphQLObjectMapper = graphQLObjectMapper;
         this.blacklistService = blacklistService;
+        this.jwtRolePathPrefixExtractor = jwtRolePathPrefixExtractor;
     }
 
     @Override
@@ -53,6 +60,10 @@ public class GraphQLAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        GraphQLRequestAttributes.setAllowedPathPrefixes(
+                request,
+                jwtRolePathPrefixExtractor.extractAllowedPathPrefixes(getAuthorization(request))
+        );
         filterChain.doFilter(request, response);
     }
 

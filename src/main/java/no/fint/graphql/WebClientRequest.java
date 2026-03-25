@@ -26,8 +26,10 @@ import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitExcepti
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
 import reactor.util.retry.Retry;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -92,10 +94,6 @@ public class WebClientRequest {
         return mono.cast(type);
     }
 
-    public <T> Mono<T> get(String uri, Class<T> type, GraphQLKickstartContext context) {
-        return getDirect(uri, type, getRequest(context), null);
-    }
-
     private <T> Mono<T> getDirect(String uri, Class<T> type, HttpServletRequest request, String authorization) {
         Long queryId = GraphQLRequestAttributes.getQueryId(request);
         if (queryId == null) {
@@ -117,9 +115,14 @@ public class WebClientRequest {
             throw new MissingAuthorizationException("Missing Authorization token");
         }
 
+        String resourcePath = getResourcePath(uri);
+        if (!isAuthorized(resourcePath, request)) {
+            throw new UnauthorizedResourceAccessException("Unauthorized", uri, queryIdValue, requestIdValue);
+        }
+
         final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);
         webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
-        if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
+        if (StringUtils.containsIgnoreCase(resourcePath, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);
             if (result != null) {
@@ -150,13 +153,15 @@ public class WebClientRequest {
                                     .filter(this::isPoolAcquireFailure)
                                     .onRetryExhaustedThrow((spec, signal) -> signal.failure()))
                             .onErrorResume(WebClientResponseException.class, ex -> {
-                                log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
-                                        ex.getRawStatusCode(), ex.getRequest().getURI(), queryIdValue, requestIdValue, ex.getMessage());
+                                log.warn("WebClient response error: GET {} -> {}, queryId={}, requestId={}, Cause={}", uri, ex.getStatusCode(), queryIdValue, requestIdValue, ex.getMessage());
                                 return Mono.error(ex);
                             })
                             .onErrorMap(ex -> {
-                                if (ex instanceof WebClientResponseException) {
+                                if (ex instanceof WebClientResponseException responseException) {
+                                    log.warn("WebClient response error: GET {} -> {}, queryId={}, requestId={}, Cause={}", uri, responseException.getStatusCode(), queryIdValue, requestIdValue, ex.getMessage());
                                     return ex;
+                                } else if (ex instanceof org.springframework.web.reactive.function.client.WebClientRequestException requestException) {
+                                    log.warn("WebClient request error: {} {}, queryId={}, requestId={}, Cause={}", requestException.getMethod(), requestException.getUri(), queryIdValue, requestIdValue, ex.getMessage());
                                 }
                                 return new WebClientRequestException(
                                         "WebClient request failed",
@@ -207,6 +212,55 @@ public class WebClientRequest {
             return "query:" + queryId;
         }
         return null;
+    }
+
+    private boolean isAuthorized(String resourcePath, HttpServletRequest request) {
+        if (StringUtils.isBlank(resourcePath)) {
+            return false;
+        }
+        Set<String> allowedPathPrefixes = GraphQLRequestAttributes.getAllowedPathPrefixes(request);
+        if (allowedPathPrefixes.isEmpty()) {
+            return false;
+        }
+        String normalizedPath = normalizePath(resourcePath);
+        for (String allowedPathPrefix : allowedPathPrefixes) {
+            String normalizedPrefix = trimTrailingSlash(normalizePath(allowedPathPrefix));
+            if ("/".equals(normalizedPrefix)) {
+                return true;
+            }
+            if (normalizedPath.equals(normalizedPrefix) || normalizedPath.startsWith(normalizedPrefix + "/")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getResourcePath(String uri) {
+        if (StringUtils.isBlank(uri)) {
+            return null;
+        }
+        try {
+            String path = URI.create(uri).getPath();
+            return StringUtils.isNotBlank(path) ? path : uri;
+        } catch (IllegalArgumentException ex) {
+            return uri;
+        }
+    }
+
+    private String normalizePath(String path) {
+        String normalized = StringUtils.defaultString(path).trim();
+        if (normalized.isEmpty()) {
+            return normalized;
+        }
+        normalized = normalized.startsWith("/") ? normalized : "/" + normalized;
+        return normalized.replaceAll("/{2,}", "/");
+    }
+
+    private String trimTrailingSlash(String path) {
+        if ("/".equals(path)) {
+            return path;
+        }
+        return StringUtils.removeEnd(path, "/");
     }
 
     public int getMaxConcurrentRequests() {

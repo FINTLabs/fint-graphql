@@ -1,5 +1,8 @@
 package no.fint.graphql;
 
+import lombok.Getter;
+
+@Getter
 public class WebClientRequestException extends RuntimeException {
     private final String uri;
     private final String queryId;
@@ -12,15 +15,4 @@ public class WebClientRequestException extends RuntimeException {
         this.requestId = requestId;
     }
 
-    public String getUri() {
-        return uri;
-    }
-
-    public String getQueryId() {
-        return queryId;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
 }
