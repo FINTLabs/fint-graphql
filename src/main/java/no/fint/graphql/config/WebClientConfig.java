@@ -18,8 +18,11 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${fint.endpoint.root:https://play-with-fint.felleskomponent.no}")
+    @Value("${fint.endpoint.root:http://traefik.traefik-v2}")
     private String rootUrl;
+
+    @Value("${fint.endpoint.host:beta.felleskomponent.no}")
+    private String host;
 
     @Value("${fint.webclient.connect-timeout-ms:20000}")
     private int connectTimeoutMs;
@@ -50,6 +53,7 @@ public class WebClientConfig {
                     return client;
                 }))
                 .baseUrl(rootUrl)
+                .defaultHeader("Host", host)
                 .build();
     }
 

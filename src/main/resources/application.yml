@@ -1,6 +1,7 @@
 fint:
   endpoint:
-    root: https://traefik.traefik-v2
+    root: http://traefik.traefik-v2
+    host: beta.felleskomponent.no
   webclient:
     connect-timeout-ms: 10000
     response-timeout: PT10S
