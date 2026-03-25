@@ -76,6 +76,29 @@ class WebClientRequestSpec extends Specification {
         request.getHeader('Host') == configuredHost
     }
 
+    def "Absolute FINT links are normalized to path before downstream request"() {
+        given:
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/utdanning/timeplan/"], 'org-1')
+        def absoluteLink = 'https://beta.felleskomponent.no/utdanning/timeplan/undervisningsgruppemedlemskap/systemid/13276228_10140044'
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+
+        when:
+        def response = webClientRequest.get(absoluteLink, String, dfe).block()
+        def request = server.takeRequest()
+
+        then:
+        response == 'response'
+        request.path == '/utdanning/timeplan/undervisningsgruppemedlemskap/systemid/13276228_10140044'
+    }
+
+    def "normalizeRequestUri maps absolute uri without path to root slash"() {
+        given:
+        def normalized = ReflectionTestUtils.invokeMethod(webClientRequest, 'normalizeRequestUri', 'https://beta.felleskomponent.no')
+
+        expect:
+        normalized == '/'
+    }
+
     def "Get request without token"() {
         given:
         def dfe = createDataFetchingEnvironmentMock()
@@ -228,7 +251,7 @@ class WebClientRequestSpec extends Specification {
 
         then:
         def ex = thrown(UnauthorizedResourceAccessException)
-        ex.uri == unauthorizedUrl
+        ex.uri == '/administrasjon/fullmakt/rolle/navn/foo'
         server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 

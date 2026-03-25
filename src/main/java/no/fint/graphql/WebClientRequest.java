@@ -76,20 +76,21 @@ public class WebClientRequest {
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
+        String requestUri = normalizeRequestUri(uri);
         GraphQLKickstartContext context = getContext(dfe);
         HttpServletRequest request = getRequest(context);
         String authorization = getToken(request);
         String requestScope = getRequestScope(dfe, request);
         if (requestScope == null) {
-            return getDirect(uri, type, request, authorization);
+            return getDirect(requestUri, type, request, authorization);
         }
-        ResourceRequestKey key = new ResourceRequestKey(uri, type, authorization);
+        ResourceRequestKey key = new ResourceRequestKey(requestUri, type, authorization);
         Cache<ResourceRequestKey, Mono<Object>> requestCache = requestScopedLookups.get(
                 requestScope,
                 ignored -> Caffeine.newBuilder().maximumSize(10000).build()
         );
         Mono<Object> mono = requestCache.get(key,
-                ignored -> getDirect(uri, type, request, authorization)
+                ignored -> getDirect(requestUri, type, request, authorization)
                         .cast(Object.class)
                         .cache());
         return mono.cast(type);
@@ -248,6 +249,25 @@ public class WebClientRequest {
         try {
             String path = URI.create(uri).getPath();
             return StringUtils.isNotBlank(path) ? path : uri;
+        } catch (IllegalArgumentException ex) {
+            return uri;
+        }
+    }
+
+    private String normalizeRequestUri(String uri) {
+        if (StringUtils.isBlank(uri)) {
+            return uri;
+        }
+        try {
+            URI parsed = URI.create(uri);
+            if (!parsed.isAbsolute()) {
+                return uri;
+            }
+            String path = StringUtils.defaultIfBlank(parsed.getRawPath(), "/");
+            if (StringUtils.isNotBlank(parsed.getRawQuery())) {
+                return path + "?" + parsed.getRawQuery();
+            }
+            return path;
         } catch (IllegalArgumentException ex) {
             return uri;
         }
