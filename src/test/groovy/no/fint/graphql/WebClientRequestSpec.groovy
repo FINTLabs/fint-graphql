@@ -6,16 +6,20 @@ import graphql.execution.ExecutionId
 import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
+import no.fint.graphql.config.ConnectionProviderConfig
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import spock.lang.Specification
 import no.fint.graphql.config.ConnectionProviderSettings
+import no.fint.graphql.config.WebClientConfig
 
 import jakarta.servlet.http.HttpServletRequest
+import java.time.Duration
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.TimeUnit
 
@@ -47,6 +51,29 @@ class WebClientRequestSpec extends Specification {
         response == 'response'
         request.getHeader(HttpHeaders.AUTHORIZATION) == 'Bearer abc123'
         request.getHeader('x-org-id') == 'org-1'
+    }
+
+    def "Configured WebClient sends Host header based on fint.endpoint.host"() {
+        given:
+        def configuredHost = 'beta.example.test'
+        def configuredWebClient = createConfiguredWebClient(server.url('/').toString(), configuredHost)
+        def configuredRequest = new WebClientRequest(
+                configuredWebClient,
+                connectionProviderSettings,
+                'maximumSize=1,expireAfterWrite=1s',
+                queryIdProvider
+        )
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
+        def resourceUrl = server.url('/administrasjon/fullmakt/rolle/navn/foo').toString()
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+
+        when:
+        def response = configuredRequest.get(resourceUrl, String, dfe).block()
+        def request = server.takeRequest()
+
+        then:
+        response == 'response'
+        request.getHeader('Host') == configuredHost
     }
 
     def "Get request without token"() {
@@ -247,5 +274,16 @@ class WebClientRequestSpec extends Specification {
             GraphQLRequestAttributes.setOrganisationId(request, organisationId)
         }
         request
+    }
+
+    private static WebClient createConfiguredWebClient(String rootUrl, String host) {
+        def config = new WebClientConfig()
+        ReflectionTestUtils.setField(config, 'rootUrl', rootUrl)
+        ReflectionTestUtils.setField(config, 'host', host)
+        ReflectionTestUtils.setField(config, 'connectTimeoutMs', 20000)
+        ReflectionTestUtils.setField(config, 'responseTimeout', Duration.ofSeconds(5))
+
+        def connectionProvider = new ConnectionProviderConfig().connectionProvider(new ConnectionProviderSettings(maxConnections: 100))
+        return config.webClient(WebClient.builder(), config.reactorResourceFactory(), connectionProvider)
     }
 }
