@@ -12,9 +12,13 @@ import no.fint.graphql.model.Endpoints
 import no.fint.graphql.model.model.rolle.RolleService
 import no.novari.fint.model.felles.kompleksedatatyper.Identifikator
 import no.novari.fint.model.felles.kompleksedatatyper.Periode
+import no.novari.fint.model.felles.kompleksedatatyper.Personnavn
 import no.novari.fint.model.resource.Link
+import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
+import no.novari.fint.model.resource.felles.PersonResource
+import no.novari.fint.model.resource.utdanning.elev.ElevResource
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -282,6 +286,185 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         ])
     }
 
+    def "Person query returns administrasjon person when utdanning person is not found"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Ada",
+                            "Lovelace",
+                            null,
+                            "admin-image",
+                            null,
+                            null
+                    ))
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
+        body.data?.person?.navn == [fornavn: "Ada", etternavn: "Lovelace", mellomnavn: null]
+        body.data?.person?.bilde == "admin-image"
+    }
+
+    def "Person query returns utdanning person when administrasjon person is not found"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Grace",
+                            "Hopper",
+                            null,
+                            "elev-image",
+                            null,
+                            null
+                    ))
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
+        body.data?.person?.navn == [fornavn: "Grace", etternavn: "Hopper", mellomnavn: null]
+        body.data?.person?.bilde == "elev-image"
+    }
+
+    def "Person query merges administrasjon and utdanning person results when both succeed"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Ada",
+                            "Byron",
+                            null,
+                            "admin-image",
+                            "/administrasjon/personal/personalressurs/systemid/P-1",
+                            null
+                    ))
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Grace",
+                            "Hopper",
+                            null,
+                            null,
+                            null,
+                            "/utdanning/elev/elev/systemid/E-1"
+                    ))
+                }
+                if (request.path == "/administrasjon/personal/personalressurs/systemid/P-1") {
+                    return jsonResponse(personalressursResource("P-1"))
+                }
+                if (request.path == "/utdanning/elev/elev/systemid/E-1") {
+                    return jsonResponse(elevResource("E-1"))
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
+        body.data?.person?.bilde == "admin-image"
+        body.data?.person?.navn != null
+        body.data?.person?.personalressurs?.systemId?.identifikatorverdi == "P-1"
+        body.data?.person?.elev?.systemId?.identifikatorverdi == "E-1"
+    }
+
+    def "Person query returns null without errors when both person endpoints return 404"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.data?.person == null
+        body.errors == null || body.errors.isEmpty()
+    }
+
+    def "Person query surfaces the most relevant downstream error when both person endpoints fail"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(503).setBody("service unavailable")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.data?.person == null
+        body.errors?.size() == 1
+        body.errors[0].path == ["person"]
+        body.errors[0].message == "Service Unavailable for /utdanning/elev/person/fodselsnummer/${fnr}"
+        assertExtensionsMatch(body.errors[0].extensions, expectedExtensions(503, "/utdanning/elev/person/fodselsnummer/${fnr}"))
+    }
+
     private static String expectedMessage(int status, String navn) {
         def resourcePath = "/administrasjon/fullmakt/rolle/navn/${navn}"
         if (status == 401) {
@@ -323,6 +506,57 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 """
     }
 
+    private static MockResponse jsonResponse(String body) {
+        return new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody(body)
+    }
+
+    private static String personResource(
+            String fodselsnummer,
+            String fornavn,
+            String etternavn,
+            String mellomnavn,
+            String bilde,
+            String personalressursHref,
+            String elevHref
+    ) {
+        def person = new PersonResource()
+        person.setFodselsnummer(identifikator(fodselsnummer))
+        def navn = new Personnavn()
+        navn.setFornavn(fornavn)
+        navn.setEtternavn(etternavn)
+        navn.setMellomnavn(mellomnavn)
+        person.setNavn(navn)
+        person.setBilde(bilde)
+        if (personalressursHref != null) {
+            person.addPersonalressurs(new Link(personalressursHref))
+        }
+        if (elevHref != null) {
+            person.addElev(new Link(elevHref))
+        }
+        return new ObjectMapper().writeValueAsString(person)
+    }
+
+    private static String personalressursResource(String systemIdValue) {
+        def personalressurs = new PersonalressursResource()
+        personalressurs.setSystemId(identifikator(systemIdValue))
+        return new ObjectMapper().writeValueAsString(personalressurs)
+    }
+
+    private static String elevResource(String systemIdValue) {
+        def elev = new ElevResource()
+        elev.setSystemId(identifikator(systemIdValue))
+        return new ObjectMapper().writeValueAsString(elev)
+    }
+
+    private static Identifikator identifikator(String value) {
+        def identifikator = new Identifikator()
+        identifikator.setIdentifikatorverdi(value)
+        return identifikator
+    }
+
     private String executeQuery(
             String query,
             String authorization = TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"),
@@ -341,6 +575,25 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
                 .returnResult(String)
                 .responseBody
                 .blockFirst()
+    }
+
+    private String executePersonQuery(
+            String fodselsnummer,
+            String authorization = TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonPersonal", "FINT_Client_UtdanningElev"),
+            HttpStatusCode expectedStatus = HttpStatus.OK
+    ) {
+        def query = """
+query {
+  person(fodselsnummer: "${fodselsnummer}") {
+    bilde
+    fodselsnummer { identifikatorverdi }
+    navn { fornavn etternavn mellomnavn }
+    personalressurs { systemId { identifikatorverdi } }
+    elev { systemId { identifikatorverdi } }
+  }
+}
+"""
+        return executeQuery(query, authorization, expectedStatus)
     }
 
     private static void drainRequests() {
