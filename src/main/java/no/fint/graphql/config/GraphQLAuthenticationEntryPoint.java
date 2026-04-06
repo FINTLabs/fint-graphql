@@ -31,6 +31,7 @@ public class GraphQLAuthenticationEntryPoint implements AuthenticationEntryPoint
             delegate.commence(request, response, authException);
             return;
         }
+        delegate.commence(request, response, authException);
         writeUnauthorizedResponse(response);
     }
 
