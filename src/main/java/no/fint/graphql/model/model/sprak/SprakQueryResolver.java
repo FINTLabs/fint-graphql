@@ -19,7 +19,7 @@ public class SprakQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SprakService service;
 
-    public CompletionStage<SprakResource> sprak(
+    public CompletionStage<SprakResource> getSprak(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Sprak");

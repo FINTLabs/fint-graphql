@@ -19,7 +19,7 @@ public class EksamensvurderingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private EksamensvurderingService service;
 
-    public CompletionStage<EksamensvurderingResource> eksamensvurdering(
+    public CompletionStage<EksamensvurderingResource> getEksamensvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Eksamensvurdering");

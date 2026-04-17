@@ -19,7 +19,7 @@ public class ObjektQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ObjektService service;
 
-    public CompletionStage<ObjektResource> objekt(
+    public CompletionStage<ObjektResource> getObjekt(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Objekt");

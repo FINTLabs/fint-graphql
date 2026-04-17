@@ -19,7 +19,7 @@ public class AktivitetQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AktivitetService service;
 
-    public CompletionStage<AktivitetResource> aktivitet(
+    public CompletionStage<AktivitetResource> getAktivitet(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Aktivitet");

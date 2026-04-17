@@ -19,7 +19,7 @@ public class LarlingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private LarlingService service;
 
-    public CompletionStage<LarlingResource> larling(
+    public CompletionStage<LarlingResource> getLarling(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Larling");

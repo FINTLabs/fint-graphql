@@ -19,7 +19,7 @@ public class FravarsregistreringQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FravarsregistreringService service;
 
-    public CompletionStage<FravarsregistreringResource> fravarsregistrering(
+    public CompletionStage<FravarsregistreringResource> getFravarsregistrering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fravarsregistrering");

@@ -19,7 +19,7 @@ public class AnmerkningerQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AnmerkningerService service;
 
-    public CompletionStage<AnmerkningerResource> anmerkninger(
+    public CompletionStage<AnmerkningerResource> getAnmerkninger(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Anmerkninger");

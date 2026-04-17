@@ -19,7 +19,7 @@ public class KontaktpersonQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KontaktpersonService service;
 
-    public CompletionStage<KontaktpersonResource> kontaktperson(
+    public CompletionStage<KontaktpersonResource> getKontaktperson(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Kontaktperson");

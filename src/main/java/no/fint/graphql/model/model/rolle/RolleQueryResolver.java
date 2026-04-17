@@ -19,7 +19,7 @@ public class RolleQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private RolleService service;
 
-    public CompletionStage<RolleResource> rolle(
+    public CompletionStage<RolleResource> getRolle(
             String navn,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Rolle");

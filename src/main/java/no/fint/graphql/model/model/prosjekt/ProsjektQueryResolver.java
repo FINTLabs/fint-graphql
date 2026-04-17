@@ -19,7 +19,7 @@ public class ProsjektQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ProsjektService service;
 
-    public CompletionStage<ProsjektResource> prosjekt(
+    public CompletionStage<ProsjektResource> getProsjekt(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Prosjekt");

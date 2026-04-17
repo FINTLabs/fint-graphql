@@ -19,7 +19,7 @@ public class FullmaktQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FullmaktService service;
 
-    public CompletionStage<FullmaktResource> fullmakt(
+    public CompletionStage<FullmaktResource> getFullmakt(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fullmakt");

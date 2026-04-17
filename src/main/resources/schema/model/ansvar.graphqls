@@ -12,4 +12,5 @@ type Ansvar {
     overordnet: Ansvar
     underordnet: [Ansvar]
     organisasjonselement: [Organisasjonselement]
+    fullmakt: [Fullmakt]
 }

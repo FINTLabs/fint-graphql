@@ -10,4 +10,5 @@ type Prosjekt {
 
 	# Relations
     prosjektart: [Prosjektart]
+    fullmakt: [Fullmakt]
 }

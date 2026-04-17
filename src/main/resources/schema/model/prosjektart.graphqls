@@ -12,4 +12,5 @@ type Prosjektart {
     underordnet: [Prosjektart]
     prosjekt: Prosjekt
     overordnet: Prosjektart
+    fullmakt: [Fullmakt]
 }

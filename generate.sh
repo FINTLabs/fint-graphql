@@ -4,6 +4,7 @@ docker run \
   -v "${PWD}/src/main/resources/schema:/src/graphql/schema" \
   -v "${PWD}/src/main/java/no/fint/graphql/model:/src/graphql/model" \
   ghcr.io/fintlabs/fint-graphql-cli:1.3.1 \
+  --tag v3.21.10 \
   generate --exclude Fravar --exclude Fravarstype
 
 cp PersonService.txt src/main/java/no/fint/graphql/model/felles/person/PersonService.java

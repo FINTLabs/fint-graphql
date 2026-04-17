@@ -19,7 +19,7 @@ public class RomQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private RomService service;
 
-    public CompletionStage<RomResource> rom(
+    public CompletionStage<RomResource> getRom(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Rom");

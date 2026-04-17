@@ -19,7 +19,7 @@ public class RammeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private RammeService service;
 
-    public CompletionStage<RammeResource> ramme(
+    public CompletionStage<RammeResource> getRamme(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Ramme");

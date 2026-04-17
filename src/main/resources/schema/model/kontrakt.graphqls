@@ -7,4 +7,7 @@ type Kontrakt {
     navn: String! # Begrep
     passiv: Boolean # Begrep
     systemId: Identifikator! # Begrep
+
+	# Relations
+    fullmakt: [Fullmakt]
 }

@@ -19,7 +19,7 @@ public class SkoleeiertypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SkoleeiertypeService service;
 
-    public CompletionStage<SkoleeiertypeResource> skoleeiertype(
+    public CompletionStage<SkoleeiertypeResource> getSkoleeiertype(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Skoleeiertype");
