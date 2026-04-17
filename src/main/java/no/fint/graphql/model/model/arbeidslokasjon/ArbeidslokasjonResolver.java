@@ -7,9 +7,9 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.organisasjon.ArbeidslokasjonResource;
-import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.administrasjon.organisasjon.ArbeidslokasjonResource;
+import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

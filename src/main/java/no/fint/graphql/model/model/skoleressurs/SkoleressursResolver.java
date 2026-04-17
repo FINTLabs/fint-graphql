@@ -11,13 +11,13 @@ import no.fint.graphql.model.model.skole.SkoleService;
 import no.fint.graphql.model.model.sensor.SensorService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
-import no.novari.fint.model.resource.felles.PersonResource;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
-import no.novari.fint.model.resource.utdanning.vurdering.SensorResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.elev.SkoleressursResource;
+import no.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.utdanning.vurdering.SensorResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

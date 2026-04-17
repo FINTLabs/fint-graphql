@@ -13,15 +13,15 @@ import no.fint.graphql.model.model.betalingsstatus.BetalingsstatusService;
 import no.fint.graphql.model.model.sensor.SensorService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
-import no.novari.fint.model.resource.felles.kodeverk.FylkeResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.KarakterstatusResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.BetalingsstatusResource;
-import no.novari.fint.model.resource.utdanning.vurdering.SensorResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
+import no.fint.model.resource.felles.kodeverk.FylkeResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
+import no.fint.model.resource.utdanning.kodeverk.KarakterstatusResource;
+import no.fint.model.resource.utdanning.kodeverk.BetalingsstatusResource;
+import no.fint.model.resource.utdanning.vurdering.SensorResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

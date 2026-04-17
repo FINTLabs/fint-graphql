@@ -11,13 +11,13 @@ import no.fint.graphql.model.model.varsel.VarselService;
 import no.fint.graphql.model.model.faggruppe.FaggruppeService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.timeplan.FaggruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.FagmerknadResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.FagstatusResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.elev.VarselResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FaggruppeResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.timeplan.FaggruppemedlemskapResource;
+import no.fint.model.resource.utdanning.kodeverk.FagmerknadResource;
+import no.fint.model.resource.utdanning.kodeverk.FagstatusResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.elev.VarselResource;
+import no.fint.model.resource.utdanning.timeplan.FaggruppeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

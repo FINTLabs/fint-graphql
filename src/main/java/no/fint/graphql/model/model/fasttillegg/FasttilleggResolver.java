@@ -9,11 +9,11 @@ import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.model.personalressurs.PersonalressursService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.personal.FasttilleggResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.LonnsartResource;
-import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.administrasjon.personal.FasttilleggResource;
+import no.fint.model.resource.administrasjon.kodeverk.LonnsartResource;
+import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -8,10 +8,10 @@ import no.fint.graphql.model.model.rom.RomService;
 import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.timeplan.EksamenResource;
-import no.novari.fint.model.resource.utdanning.timeplan.RomResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.timeplan.EksamenResource;
+import no.fint.model.resource.utdanning.timeplan.RomResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

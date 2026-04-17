@@ -8,10 +8,10 @@ import no.fint.graphql.model.model.time.TimeService;
 import no.fint.graphql.model.model.eksamen.EksamenService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.timeplan.RomResource;
-import no.novari.fint.model.resource.utdanning.timeplan.TimeResource;
-import no.novari.fint.model.resource.utdanning.timeplan.EksamenResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.timeplan.RomResource;
+import no.fint.model.resource.utdanning.timeplan.TimeResource;
+import no.fint.model.resource.utdanning.timeplan.EksamenResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

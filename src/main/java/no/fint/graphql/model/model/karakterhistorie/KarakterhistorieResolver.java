@@ -9,11 +9,11 @@ import no.fint.graphql.model.model.karakterverdi.KarakterverdiService;
 import no.fint.graphql.model.model.karakterstatus.KarakterstatusService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.KarakterhistorieResource;
-import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
-import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.KarakterstatusResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.KarakterhistorieResource;
+import no.fint.model.resource.utdanning.elev.SkoleressursResource;
+import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
+import no.fint.model.resource.utdanning.kodeverk.KarakterstatusResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

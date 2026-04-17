@@ -47,9 +47,8 @@ dependencies {
     implementation('commons-beanutils:commons-beanutils:1.11.0') {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
-    implementation 'no.fint:fint-model-resource:0.4.1'
-    implementation("no.novari:fint-utdanning-resource-model-java:${apiVersion}")
-    implementation("no.novari:fint-administrasjon-resource-model-java:${apiVersion}")
+    implementation("no.fint:fint-utdanning-resource-model-java:${apiVersion}")
+    implementation("no.fint:fint-administrasjon-resource-model-java:${apiVersion}")
 
     implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:15.1.0'
     implementation 'com.graphql-java-kickstart:graphql-java-tools:13.0.3'
