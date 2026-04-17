@@ -19,7 +19,7 @@ public class AnleggQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private AnleggService service;
 
-    public CompletionStage<AnleggResource> anlegg(
+    public CompletionStage<AnleggResource> getAnlegg(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Anlegg");

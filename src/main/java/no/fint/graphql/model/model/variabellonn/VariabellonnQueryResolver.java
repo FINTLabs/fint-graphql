@@ -19,7 +19,7 @@ public class VariabellonnQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private VariabellonnService service;
 
-    public CompletionStage<VariabellonnResource> variabellonn(
+    public CompletionStage<VariabellonnResource> getVariabellonn(
             String kildesystemId,
             String systemId,
             DataFetchingEnvironment dfe) {

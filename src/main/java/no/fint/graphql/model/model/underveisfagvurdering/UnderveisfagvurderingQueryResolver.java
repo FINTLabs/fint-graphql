@@ -19,7 +19,7 @@ public class UnderveisfagvurderingQueryResolver implements GraphQLQueryResolver 
     @Autowired
     private UnderveisfagvurderingService service;
 
-    public CompletionStage<UnderveisfagvurderingResource> underveisfagvurdering(
+    public CompletionStage<UnderveisfagvurderingResource> getUnderveisfagvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Underveisfagvurdering");

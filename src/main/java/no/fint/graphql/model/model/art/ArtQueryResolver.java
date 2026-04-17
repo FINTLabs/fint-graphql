@@ -19,7 +19,7 @@ public class ArtQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ArtService service;
 
-    public CompletionStage<ArtResource> art(
+    public CompletionStage<ArtResource> getArt(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Art");

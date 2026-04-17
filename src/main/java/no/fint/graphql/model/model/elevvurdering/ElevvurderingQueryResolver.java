@@ -19,7 +19,7 @@ public class ElevvurderingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevvurderingService service;
 
-    public CompletionStage<ElevvurderingResource> elevvurdering(
+    public CompletionStage<ElevvurderingResource> getElevvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Elevvurdering");

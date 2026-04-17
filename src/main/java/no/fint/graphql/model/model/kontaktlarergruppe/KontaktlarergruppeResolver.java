@@ -3,37 +3,44 @@ package no.fint.graphql.model.model.kontaktlarergruppe;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.model.model.klasse.KlasseService;
-import no.fint.graphql.model.model.kontaktlarergruppemedlemskap.KontaktlarergruppemedlemskapService;
+
+import no.fint.graphql.model.model.basisgruppe.BasisgruppeService;
+import no.fint.graphql.model.model.elevforhold.ElevforholdService;
+import no.fint.graphql.model.model.termin.TerminService;
 import no.fint.graphql.model.model.skole.SkoleService;
 import no.fint.graphql.model.model.skolear.SkolearService;
-import no.fint.graphql.model.model.termin.TerminService;
 import no.fint.graphql.model.model.undervisningsforhold.UndervisningsforholdService;
+import no.fint.graphql.model.model.kontaktlarergruppemedlemskap.KontaktlarergruppemedlemskapService;
+import no.fint.graphql.model.model.medlemskap.MedlemskapService;
+
+
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.KlasseResource;
 import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
+import no.novari.fint.model.resource.utdanning.elev.BasisgruppeResource;
+import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.TerminResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
+import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppemedlemskapResource;
+import no.novari.fint.model.resource.utdanning.elev.MedlemskapResource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @Component("modelKontaktlarergruppeResolver")
 public class KontaktlarergruppeResolver implements GraphQLResolver<KontaktlarergruppeResource> {
 
     @Autowired
-    private KlasseService klasseService;
+    private BasisgruppeService basisgruppeService;
+
+    @Autowired
+    private ElevforholdService elevforholdService;
 
     @Autowired
     private TerminService terminService;
@@ -50,42 +57,37 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
     @Autowired
     private KontaktlarergruppemedlemskapService kontaktlarergruppemedlemskapService;
 
+    @Autowired
+    private MedlemskapService medlemskapService;
 
-    public CompletionStage<List<KlasseResource>> getKlasse(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(kontaktlarergruppe.getKlasse()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+
+    public CompletionStage<List<BasisgruppeResource>> getBasisgruppe(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(kontaktlarergruppe.getBasisgruppe()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> klasseService.getKlasseResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> basisgruppeService.getBasisgruppeResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
+                .toFuture();
+    }
+
+    public CompletionStage<List<ElevforholdResource>> getElevforhold(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(kontaktlarergruppe.getElevforhold()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
                 .toFuture();
     }
 
     public CompletionStage<List<TerminResource>> getTermin(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(kontaktlarergruppe.getTermin()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(kontaktlarergruppe.getTermin()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> terminService.getTerminResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> terminService.getTerminResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
@@ -110,40 +112,32 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
     }
 
     public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(kontaktlarergruppe.getUndervisningsforhold()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(kontaktlarergruppe.getUndervisningsforhold()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> undervisningsforholdService.getUndervisningsforholdResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> undervisningsforholdService.getUndervisningsforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<KontaktlarergruppemedlemskapResource>> getGruppemedlemskap(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(kontaktlarergruppe.getGruppemedlemskap()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(kontaktlarergruppe.getGruppemedlemskap()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> kontaktlarergruppemedlemskapService.getKontaktlarergruppemedlemskapResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> kontaktlarergruppemedlemskapService.getKontaktlarergruppemedlemskapResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
+                .toFuture();
+    }
+
+    public CompletionStage<List<MedlemskapResource>> getMedlemskap(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(kontaktlarergruppe.getMedlemskap()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> medlemskapService.getMedlemskapResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .collectList()
                 .toFuture();
     }
 

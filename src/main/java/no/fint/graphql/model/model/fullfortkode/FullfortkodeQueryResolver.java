@@ -19,7 +19,7 @@ public class FullfortkodeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FullfortkodeService service;
 
-    public CompletionStage<FullfortkodeResource> fullfortkode(
+    public CompletionStage<FullfortkodeResource> getFullfortkode(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fullfortkode");

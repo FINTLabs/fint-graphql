@@ -19,7 +19,7 @@ public class EksamensgruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private EksamensgruppeService service;
 
-    public CompletionStage<EksamensgruppeResource> eksamensgruppe(
+    public CompletionStage<EksamensgruppeResource> getEksamensgruppe(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Eksamensgruppe");

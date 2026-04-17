@@ -19,7 +19,7 @@ public class ValutaQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ValutaService service;
 
-    public CompletionStage<ValutaResource> valuta(
+    public CompletionStage<ValutaResource> getValuta(
             String bokstavkode,
             String nummerkode,
             DataFetchingEnvironment dfe) {

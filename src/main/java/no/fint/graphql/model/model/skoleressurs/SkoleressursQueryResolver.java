@@ -19,7 +19,7 @@ public class SkoleressursQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private SkoleressursService service;
 
-    public CompletionStage<SkoleressursResource> skoleressurs(
+    public CompletionStage<SkoleressursResource> getSkoleressurs(
             String feidenavn,
             String systemId,
             DataFetchingEnvironment dfe) {

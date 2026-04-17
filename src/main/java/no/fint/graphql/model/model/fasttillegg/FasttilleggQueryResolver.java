@@ -19,7 +19,7 @@ public class FasttilleggQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FasttilleggService service;
 
-    public CompletionStage<FasttilleggResource> fasttillegg(
+    public CompletionStage<FasttilleggResource> getFasttillegg(
             String kildesystemId,
             String systemId,
             DataFetchingEnvironment dfe) {

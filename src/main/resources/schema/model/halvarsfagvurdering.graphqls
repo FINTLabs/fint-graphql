@@ -7,8 +7,10 @@ type Halvarsfagvurdering {
     vurderingsdato: Date! # Fagvurdering
 
 	# Relations
+    elevforhold: Elevforhold!
     elevvurdering: Elevvurdering!
     fag: Fag!
+    undervisningsgruppe: Undervisningsgruppe
     skolear: Skolear
     karakter: Karakterverdi
 }

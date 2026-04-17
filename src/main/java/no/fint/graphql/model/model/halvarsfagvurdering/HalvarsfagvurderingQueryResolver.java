@@ -19,7 +19,7 @@ public class HalvarsfagvurderingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private HalvarsfagvurderingService service;
 
-    public CompletionStage<HalvarsfagvurderingResource> halvarsfagvurdering(
+    public CompletionStage<HalvarsfagvurderingResource> getHalvarsfagvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Halvarsfagvurdering");

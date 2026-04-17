@@ -19,7 +19,7 @@ public class TerminQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private TerminService service;
 
-    public CompletionStage<TerminResource> termin(
+    public CompletionStage<TerminResource> getTermin(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Termin");

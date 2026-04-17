@@ -1,10 +1,10 @@
 
-package no.fint.graphql.model.model.klasse;
+package no.fint.graphql.model.model.vurdering;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.utdanning.elev.KlasseResource;
+import no.novari.fint.model.resource.utdanning.vurdering.VurderingResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,20 +12,20 @@ import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelKlasseQueryResolver")
+@Component("modelVurderingQueryResolver")
 @Slf4j
-public class KlasseQueryResolver implements GraphQLQueryResolver {
+public class VurderingQueryResolver implements GraphQLQueryResolver {
 
     @Autowired
-    private KlasseService service;
+    private VurderingService service;
 
-    public CompletionStage<KlasseResource> klasse(
+    public CompletionStage<VurderingResource> getVurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
-		log.info("New Query for Klasse");
+		log.info("New Query for Vurdering");
         if (StringUtils.isNotEmpty(systemId)) {
-            return service.getKlasseResourceById("systemid", systemId, dfe).toFuture();
+            return service.getVurderingResourceById("systemid", systemId, dfe).toFuture();
         }
-        return Mono.<KlasseResource>empty().toFuture();
+        return Mono.<VurderingResource>empty().toFuture();
     }
 }
