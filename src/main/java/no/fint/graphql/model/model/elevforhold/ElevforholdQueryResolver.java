@@ -19,7 +19,7 @@ public class ElevforholdQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevforholdService service;
 
-    public CompletionStage<ElevforholdResource> elevforhold(
+    public CompletionStage<ElevforholdResource> getElevforhold(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Elevforhold");

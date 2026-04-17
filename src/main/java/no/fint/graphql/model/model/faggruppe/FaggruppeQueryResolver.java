@@ -19,7 +19,7 @@ public class FaggruppeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FaggruppeService service;
 
-    public CompletionStage<FaggruppeResource> faggruppe(
+    public CompletionStage<FaggruppeResource> getFaggruppe(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Faggruppe");

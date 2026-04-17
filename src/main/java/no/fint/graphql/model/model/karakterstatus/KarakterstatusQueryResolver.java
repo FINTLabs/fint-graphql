@@ -19,7 +19,7 @@ public class KarakterstatusQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private KarakterstatusService service;
 
-    public CompletionStage<KarakterstatusResource> karakterstatus(
+    public CompletionStage<KarakterstatusResource> getKarakterstatus(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Karakterstatus");

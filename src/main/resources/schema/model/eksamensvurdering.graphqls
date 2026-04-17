@@ -11,6 +11,7 @@ type Eksamensvurdering {
     karakterhistorie: Karakterhistorie
     elevvurdering: Elevvurdering!
     fag: Fag!
+    undervisningsgruppe: Undervisningsgruppe
     skolear: Skolear
     karakter: Karakterverdi
 }

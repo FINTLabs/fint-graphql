@@ -19,7 +19,7 @@ public class VirksomhetQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private VirksomhetService service;
 
-    public CompletionStage<VirksomhetResource> virksomhet(
+    public CompletionStage<VirksomhetResource> getVirksomhet(
             String virksomhetsId,
             String organisasjonsnummer,
             DataFetchingEnvironment dfe) {

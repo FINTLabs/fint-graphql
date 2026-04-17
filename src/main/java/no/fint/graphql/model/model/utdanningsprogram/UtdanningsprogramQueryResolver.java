@@ -19,7 +19,7 @@ public class UtdanningsprogramQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private UtdanningsprogramService service;
 
-    public CompletionStage<UtdanningsprogramResource> utdanningsprogram(
+    public CompletionStage<UtdanningsprogramResource> getUtdanningsprogram(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Utdanningsprogram");

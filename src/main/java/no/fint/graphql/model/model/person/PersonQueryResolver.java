@@ -19,7 +19,7 @@ public class PersonQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PersonService service;
 
-    public CompletionStage<PersonResource> person(
+    public CompletionStage<PersonResource> getPerson(
             String fodselsnummer,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Person");

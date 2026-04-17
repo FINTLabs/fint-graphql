@@ -19,7 +19,7 @@ public class FagQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FagService service;
 
-    public CompletionStage<FagResource> fag(
+    public CompletionStage<FagResource> getFag(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fag");

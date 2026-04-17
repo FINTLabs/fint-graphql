@@ -19,7 +19,7 @@ public class EksamensformQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private EksamensformService service;
 
-    public CompletionStage<EksamensformResource> eksamensform(
+    public CompletionStage<EksamensformResource> getEksamensform(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Eksamensform");

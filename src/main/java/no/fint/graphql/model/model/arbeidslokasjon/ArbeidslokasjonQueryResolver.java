@@ -19,7 +19,7 @@ public class ArbeidslokasjonQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ArbeidslokasjonService service;
 
-    public CompletionStage<ArbeidslokasjonResource> arbeidslokasjon(
+    public CompletionStage<ArbeidslokasjonResource> getArbeidslokasjon(
             String lokasjonskode,
             String organisasjonsnummer,
             DataFetchingEnvironment dfe) {

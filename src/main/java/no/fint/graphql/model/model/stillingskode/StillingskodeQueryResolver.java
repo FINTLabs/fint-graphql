@@ -19,7 +19,7 @@ public class StillingskodeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private StillingskodeService service;
 
-    public CompletionStage<StillingskodeResource> stillingskode(
+    public CompletionStage<StillingskodeResource> getStillingskode(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Stillingskode");

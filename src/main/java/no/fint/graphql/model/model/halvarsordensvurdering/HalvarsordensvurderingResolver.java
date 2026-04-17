@@ -3,23 +3,33 @@ package no.fint.graphql.model.model.halvarsordensvurdering;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
+
+import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
 import no.fint.graphql.model.model.karakterverdi.KarakterverdiService;
 import no.fint.graphql.model.model.skolear.SkolearService;
+
+
 import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
+import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
+import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelHalvarsordensvurderingResolver")
 public class HalvarsordensvurderingResolver implements GraphQLResolver<HalvarsordensvurderingResource> {
+
+    @Autowired
+    private ElevforholdService elevforholdService;
 
     @Autowired
     private ElevvurderingService elevvurderingService;
@@ -30,6 +40,16 @@ public class HalvarsordensvurderingResolver implements GraphQLResolver<Halvarsor
     @Autowired
     private SkolearService skolearService;
 
+
+    public CompletionStage<ElevforholdResource> getElevforhold(HalvarsordensvurderingResource halvarsordensvurdering, DataFetchingEnvironment dfe) {
+        return Flux.fromStream(halvarsordensvurdering.getElevforhold()
+                .stream()
+                .map(Link::getHref)
+                .map(l -> elevforholdService.getElevforholdResource(l, dfe)))
+                .flatMap(Mono::flux)
+                .next()
+                .toFuture();
+    }
 
     public CompletionStage<ElevvurderingResource> getElevvurdering(HalvarsordensvurderingResource halvarsordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsordensvurdering.getElevvurdering()

@@ -19,7 +19,7 @@ public class ElevkategoriQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevkategoriService service;
 
-    public CompletionStage<ElevkategoriResource> elevkategori(
+    public CompletionStage<ElevkategoriResource> getElevkategori(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Elevkategori");

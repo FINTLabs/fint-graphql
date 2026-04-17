@@ -19,7 +19,7 @@ public class ProgramomradeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ProgramomradeService service;
 
-    public CompletionStage<ProgramomradeResource> programomrade(
+    public CompletionStage<ProgramomradeResource> getProgramomrade(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Programomrade");

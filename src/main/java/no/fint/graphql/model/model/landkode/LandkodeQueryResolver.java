@@ -19,7 +19,7 @@ public class LandkodeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private LandkodeService service;
 
-    public CompletionStage<LandkodeResource> landkode(
+    public CompletionStage<LandkodeResource> getLandkode(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Landkode");

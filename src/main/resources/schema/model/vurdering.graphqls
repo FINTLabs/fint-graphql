@@ -1,0 +1,15 @@
+
+type Vurdering {
+	#  Attributes
+    endelig: Boolean!
+    kommentar: String!
+    systemId: Identifikator!
+
+
+	# Relations
+    elevforhold: Elevforhold
+    fag: Fag
+    undervisningsgruppe: Undervisningsgruppe
+    eksamensgruppe: Eksamensgruppe
+    karakter: Karakterverdi!
+}

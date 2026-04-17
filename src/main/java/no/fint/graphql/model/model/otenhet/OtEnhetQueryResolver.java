@@ -19,7 +19,7 @@ public class OtEnhetQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private OtEnhetService service;
 
-    public CompletionStage<OtEnhetResource> otenhet(
+    public CompletionStage<OtEnhetResource> getOtEnhet(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for OtEnhet");
