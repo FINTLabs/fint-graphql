@@ -7,9 +7,9 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.kommune.KommuneService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.kodeverk.OtEnhetResource;
-import no.novari.fint.model.resource.felles.kodeverk.KommuneResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.kodeverk.OtEnhetResource;
+import no.fint.model.resource.felles.kodeverk.KommuneResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -10,12 +10,12 @@ import no.fint.graphql.model.model.otenhet.OtEnhetService;
 import no.fint.graphql.model.model.programomrade.ProgramomradeService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.ot.OtUngdomResource;
-import no.novari.fint.model.resource.felles.PersonResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.OtStatusResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.OtEnhetResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.ot.OtUngdomResource;
+import no.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.utdanning.kodeverk.OtStatusResource;
+import no.fint.model.resource.utdanning.kodeverk.OtEnhetResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

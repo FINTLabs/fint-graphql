@@ -12,14 +12,14 @@ import no.fint.graphql.model.model.organisasjonselement.OrganisasjonselementServ
 import no.fint.graphql.model.model.skoleressurs.SkoleressursService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriResource;
-import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
-import no.novari.fint.model.resource.felles.PersonResource;
-import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
-import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
-import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.fint.model.resource.administrasjon.kodeverk.PersonalressurskategoriResource;
+import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+import no.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
+import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
+import no.fint.model.resource.utdanning.elev.SkoleressursResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

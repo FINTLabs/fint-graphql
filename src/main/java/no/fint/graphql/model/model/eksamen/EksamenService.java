@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.eksamen;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.WebClientRequest;
 import no.fint.graphql.model.Endpoints;
-import no.novari.fint.model.resource.utdanning.timeplan.EksamenResource;
+import no.fint.model.resource.utdanning.timeplan.EksamenResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

@@ -8,10 +8,10 @@ import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.kontaktlarergruppe.KontaktlarergruppeService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.elev.KontaktlarergruppemedlemskapResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -7,6 +7,6 @@ docker run \
   --tag v3.21.10 \
   generate --exclude Fravar --exclude Fravarstype
 
-cp PersonService.txt src/main/java/no/fint/graphql/model/felles/person/PersonService.java
+cp PersonService.txt src/main/java/no/fint/graphql/model/model/person/PersonService.java
 
 echo Schema and models generated.  Please remember to clean up ${PWD}/src/main/{resources/schema,java/no/fint/graphql/model} before commit.

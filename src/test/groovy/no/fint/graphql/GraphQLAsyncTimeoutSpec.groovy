@@ -3,8 +3,8 @@ package no.fint.graphql
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetchingEnvironment
 import no.fint.graphql.model.model.rolle.RolleService
-import no.novari.fint.model.felles.kompleksedatatyper.Identifikator
-import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
+import no.fint.model.felles.kompleksedatatyper.Identifikator
+import no.fint.model.resource.administrasjon.fullmakt.RolleResource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest

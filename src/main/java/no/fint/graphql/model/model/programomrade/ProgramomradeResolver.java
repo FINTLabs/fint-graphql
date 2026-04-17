@@ -12,14 +12,14 @@ import no.fint.graphql.model.model.programomrademedlemskap.Programomrademedlemsk
 import no.fint.graphql.model.model.medlemskap.MedlemskapService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomrademedlemskapResource;
-import no.novari.fint.model.resource.utdanning.elev.MedlemskapResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
+import no.fint.model.resource.utdanning.timeplan.FagResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomrademedlemskapResource;
+import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

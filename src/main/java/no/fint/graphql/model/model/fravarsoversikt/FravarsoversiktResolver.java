@@ -8,10 +8,10 @@ import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.fag.FagService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.FravarsoversiktResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.FravarsoversiktResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.timeplan.FagResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

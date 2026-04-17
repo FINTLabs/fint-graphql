@@ -7,9 +7,9 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.person.PersonService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.felles.KontaktpersonResource;
-import no.novari.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.felles.KontaktpersonResource;
+import no.fint.model.resource.felles.PersonResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

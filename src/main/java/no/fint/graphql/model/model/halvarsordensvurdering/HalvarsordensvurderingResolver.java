@@ -10,12 +10,12 @@ import no.fint.graphql.model.model.karakterverdi.KarakterverdiService;
 import no.fint.graphql.model.model.skolear.SkolearService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
-import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
+import no.fint.model.resource.utdanning.kodeverk.SkolearResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

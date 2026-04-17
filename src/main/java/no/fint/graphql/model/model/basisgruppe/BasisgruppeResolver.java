@@ -15,17 +15,17 @@ import no.fint.graphql.model.model.kontaktlarergruppe.KontaktlarergruppeService;
 import no.fint.graphql.model.model.medlemskap.MedlemskapService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.BasisgruppeResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.TerminResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
-import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-import no.novari.fint.model.resource.utdanning.elev.BasisgruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.MedlemskapResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
+import no.fint.model.resource.utdanning.kodeverk.SkolearResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.kodeverk.TerminResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.fint.model.resource.utdanning.elev.BasisgruppemedlemskapResource;
+import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
+import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

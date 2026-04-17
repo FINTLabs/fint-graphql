@@ -10,12 +10,12 @@ import no.fint.graphql.model.model.programomrade.ProgramomradeService;
 import no.fint.graphql.model.model.avlagtprove.AvlagtProveService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
-import no.novari.fint.model.resource.felles.PersonResource;
-import no.novari.fint.model.resource.felles.VirksomhetResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
-import no.novari.fint.model.resource.utdanning.larling.AvlagtProveResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.larling.LarlingResource;
+import no.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.felles.VirksomhetResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
+import no.fint.model.resource.utdanning.larling.AvlagtProveResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

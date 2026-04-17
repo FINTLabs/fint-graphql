@@ -17,19 +17,19 @@ import no.fint.graphql.model.model.sensor.SensorService;
 import no.fint.graphql.model.model.medlemskap.MedlemskapService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.timeplan.EksamenResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.TerminResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.EksamensformResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
-import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.vurdering.SensorResource;
-import no.novari.fint.model.resource.utdanning.elev.MedlemskapResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.timeplan.EksamenResource;
+import no.fint.model.resource.utdanning.timeplan.FagResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.utdanning.kodeverk.TerminResource;
+import no.fint.model.resource.utdanning.kodeverk.EksamensformResource;
+import no.fint.model.resource.utdanning.kodeverk.SkolearResource;
+import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
+import no.fint.model.resource.utdanning.vurdering.SensorResource;
+import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
