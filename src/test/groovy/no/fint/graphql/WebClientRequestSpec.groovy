@@ -34,8 +34,8 @@ class WebClientRequestSpec extends Specification {
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
             connectionProviderSettings,
-            'maximumSize=1,expireAfterWrite=1s'
-            ,
+            'maximumSize=1,expireAfterWrite=1s',
+            'V4',
             queryIdProvider)
 
     def "Get request with token"() {
@@ -61,6 +61,7 @@ class WebClientRequestSpec extends Specification {
                 configuredWebClient,
                 connectionProviderSettings,
                 'maximumSize=1,expireAfterWrite=1s',
+                'V4',
                 queryIdProvider
         )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
@@ -97,6 +98,19 @@ class WebClientRequestSpec extends Specification {
 
         expect:
         normalized == '/'
+    }
+
+    def "Get request includes x-fint-model-version header"() {
+        given:
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+
+        when:
+        webClientRequest.get(url, String, dfe).block()
+        def request = server.takeRequest()
+
+        then:
+        request.getHeader('x-fint-model-version') == 'V4'
     }
 
     def "Get request without token"() {
@@ -140,8 +154,8 @@ class WebClientRequestSpec extends Specification {
         def limitedRequest = new WebClientRequest(
                 webClient,
                 limitedSettings,
-                'maximumSize=1,expireAfterWrite=1s'
-                ,
+                'maximumSize=1,expireAfterWrite=1s',
+                'V4',
                 queryIdProvider)
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/one/", "/two/"], 'org-1')
         def firstUrl = server.url('/one').toString()
@@ -191,6 +205,7 @@ class WebClientRequestSpec extends Specification {
                 webClient,
                 constrainedSettings,
                 'maximumSize=1,expireAfterWrite=1s',
+                'V4',
                 queryIdProvider
         )
 
