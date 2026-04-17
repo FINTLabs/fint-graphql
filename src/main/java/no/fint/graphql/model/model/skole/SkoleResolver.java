@@ -18,20 +18,20 @@ import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
 import no.fint.graphql.model.model.utdanningsprogram.UtdanningsprogramService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
-import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResource;
-import no.novari.fint.model.resource.utdanning.elev.BasisgruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
-import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FaggruppeResource;
-import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
+import no.fint.model.resource.utdanning.timeplan.FagResource;
+import no.fint.model.resource.utdanning.kodeverk.SkoleeiertypeResource;
+import no.fint.model.resource.utdanning.elev.BasisgruppeResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.elev.KontaktlarergruppeResource;
+import no.fint.model.resource.utdanning.elev.SkoleressursResource;
+import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.fint.model.resource.utdanning.timeplan.FaggruppeResource;
+import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

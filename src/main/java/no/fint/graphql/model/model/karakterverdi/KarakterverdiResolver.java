@@ -7,9 +7,9 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.karakterskala.KarakterskalaService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.KarakterskalaResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
+import no.fint.model.resource.utdanning.kodeverk.KarakterskalaResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

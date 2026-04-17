@@ -2,6 +2,8 @@
 # java.util.Date implementation
 scalar Date
 
+scalar Long
+
 type Query {
 	anmerkninger(systemId: String): Anmerkninger
 	arbeidsforhold(systemId: String): Arbeidsforhold

@@ -14,16 +14,16 @@ import no.fint.graphql.model.model.skolear.SkolearService;
 import no.fint.graphql.model.model.medlemskap.MedlemskapService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.PersongruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevResource;
-import no.novari.fint.model.resource.utdanning.elev.PersongruppemedlemskapResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.TerminResource;
-import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
-import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
-import no.novari.fint.model.resource.utdanning.elev.MedlemskapResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.elev.PersongruppeResource;
+import no.fint.model.resource.utdanning.elev.ElevResource;
+import no.fint.model.resource.utdanning.elev.PersongruppemedlemskapResource;
+import no.fint.model.resource.utdanning.kodeverk.TerminResource;
+import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.utdanning.elev.SkoleressursResource;
+import no.fint.model.resource.utdanning.kodeverk.SkolearResource;
+import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

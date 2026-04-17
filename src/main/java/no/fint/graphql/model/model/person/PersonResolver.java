@@ -16,18 +16,18 @@ import no.fint.graphql.model.model.elev.ElevService;
 import no.fint.graphql.model.model.otungdom.OtUngdomService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.felles.PersonResource;
-import no.novari.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
-import no.novari.fint.model.resource.felles.kodeverk.KommuneResource;
-import no.novari.fint.model.resource.felles.kodeverk.iso.KjonnResource;
-import no.novari.fint.model.resource.felles.PersonResource;
-import no.novari.fint.model.resource.felles.kodeverk.iso.SprakResource;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
-import no.novari.fint.model.resource.felles.KontaktpersonResource;
-import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevResource;
-import no.novari.fint.model.resource.utdanning.ot.OtUngdomResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.felles.kodeverk.iso.LandkodeResource;
+import no.fint.model.resource.felles.kodeverk.KommuneResource;
+import no.fint.model.resource.felles.kodeverk.iso.KjonnResource;
+import no.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.felles.kodeverk.iso.SprakResource;
+import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.fint.model.resource.felles.KontaktpersonResource;
+import no.fint.model.resource.utdanning.larling.LarlingResource;
+import no.fint.model.resource.utdanning.elev.ElevResource;
+import no.fint.model.resource.utdanning.ot.OtUngdomResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

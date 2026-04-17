@@ -7,9 +7,9 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arbeidsforholdstype.ArbeidsforholdstypeService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ArbeidsforholdstypeResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ArbeidsforholdstypeResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.administrasjon.kodeverk.ArbeidsforholdstypeResource;
+import no.fint.model.resource.administrasjon.kodeverk.ArbeidsforholdstypeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

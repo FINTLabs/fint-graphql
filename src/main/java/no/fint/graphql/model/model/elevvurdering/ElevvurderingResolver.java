@@ -15,17 +15,17 @@ import no.fint.graphql.model.model.sluttordensvurdering.SluttordensvurderingServ
 import no.fint.graphql.model.model.eksamensvurdering.EksamensvurderingService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.vurdering.SluttfagvurderingResource;
-import no.novari.fint.model.resource.utdanning.vurdering.UnderveisordensvurderingResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.VitnemalsmerknadResource;
-import no.novari.fint.model.resource.utdanning.vurdering.UnderveisfagvurderingResource;
-import no.novari.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
-import no.novari.fint.model.resource.utdanning.vurdering.HalvarsfagvurderingResource;
-import no.novari.fint.model.resource.utdanning.vurdering.SluttordensvurderingResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensvurderingResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.vurdering.SluttfagvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.UnderveisordensvurderingResource;
+import no.fint.model.resource.utdanning.kodeverk.VitnemalsmerknadResource;
+import no.fint.model.resource.utdanning.vurdering.UnderveisfagvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.HalvarsfagvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.SluttordensvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensvurderingResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

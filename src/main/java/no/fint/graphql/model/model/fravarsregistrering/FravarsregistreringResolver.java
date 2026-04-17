@@ -10,12 +10,12 @@ import no.fint.graphql.model.model.undervisningsgruppe.UndervisningsgruppeServic
 import no.fint.graphql.model.model.elevfravar.ElevfravarService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.FravarsregistreringResource;
-import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FaggruppeResource;
-import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevfravarResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.FravarsregistreringResource;
+import no.fint.model.resource.utdanning.elev.SkoleressursResource;
+import no.fint.model.resource.utdanning.timeplan.FaggruppeResource;
+import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
+import no.fint.model.resource.utdanning.vurdering.ElevfravarResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

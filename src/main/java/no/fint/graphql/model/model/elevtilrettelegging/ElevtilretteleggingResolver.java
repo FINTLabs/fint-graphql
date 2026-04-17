@@ -10,12 +10,12 @@ import no.fint.graphql.model.model.tilrettelegging.TilretteleggingService;
 import no.fint.graphql.model.model.eksamensform.EksamensformService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.ElevtilretteleggingResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.TilretteleggingResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.EksamensformResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.elev.ElevtilretteleggingResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.timeplan.FagResource;
+import no.fint.model.resource.utdanning.kodeverk.TilretteleggingResource;
+import no.fint.model.resource.utdanning.kodeverk.EksamensformResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -13,15 +13,15 @@ import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
 import no.fint.graphql.model.model.medlemskap.MedlemskapService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevtilretteleggingResource;
-import no.novari.fint.model.resource.utdanning.timeplan.FaggruppeResource;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
-import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.MedlemskapResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.timeplan.FagResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
+import no.fint.model.resource.utdanning.elev.ElevtilretteleggingResource;
+import no.fint.model.resource.utdanning.timeplan.FaggruppeResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
+import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
+import no.fint.model.resource.utdanning.elev.MedlemskapResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

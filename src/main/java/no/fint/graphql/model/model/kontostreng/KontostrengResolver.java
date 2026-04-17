@@ -19,21 +19,21 @@ import no.fint.graphql.model.model.prosjektart.ProsjektartService;
 import no.fint.graphql.model.model.ramme.RammeService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.administrasjon.kompleksedatatyper.KontostrengResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AktivitetResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnleggResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ArtResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.DiverseResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FormalResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FunksjonResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.KontraktResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.LopenummerResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ObjektResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ProsjektResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.ProsjektartResource;
-import no.novari.fint.model.resource.administrasjon.kodeverk.RammeResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.administrasjon.kompleksedatatyper.KontostrengResource;
+import no.fint.model.resource.administrasjon.kodeverk.AktivitetResource;
+import no.fint.model.resource.administrasjon.kodeverk.AnleggResource;
+import no.fint.model.resource.administrasjon.kodeverk.AnsvarResource;
+import no.fint.model.resource.administrasjon.kodeverk.ArtResource;
+import no.fint.model.resource.administrasjon.kodeverk.DiverseResource;
+import no.fint.model.resource.administrasjon.kodeverk.FormalResource;
+import no.fint.model.resource.administrasjon.kodeverk.FunksjonResource;
+import no.fint.model.resource.administrasjon.kodeverk.KontraktResource;
+import no.fint.model.resource.administrasjon.kodeverk.LopenummerResource;
+import no.fint.model.resource.administrasjon.kodeverk.ObjektResource;
+import no.fint.model.resource.administrasjon.kodeverk.ProsjektResource;
+import no.fint.model.resource.administrasjon.kodeverk.ProsjektartResource;
+import no.fint.model.resource.administrasjon.kodeverk.RammeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -7,9 +7,9 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.larling.LarlingService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.felles.VirksomhetResource;
-import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.felles.VirksomhetResource;
+import no.fint.model.resource.utdanning.larling.LarlingResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

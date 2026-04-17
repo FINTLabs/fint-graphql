@@ -7,9 +7,9 @@ import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.vurdering.VurderingService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.MedlemskapResource;
-import no.novari.fint.model.resource.utdanning.vurdering.VurderingResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.elev.MedlemskapResource;
+import no.fint.model.resource.utdanning.vurdering.VurderingResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

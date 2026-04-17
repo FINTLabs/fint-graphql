@@ -9,11 +9,11 @@ import no.fint.graphql.model.model.undervisningsforhold.UndervisningsforholdServ
 import no.fint.graphql.model.model.rom.RomService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.timeplan.TimeResource;
-import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
-import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
-import no.novari.fint.model.resource.utdanning.timeplan.RomResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.timeplan.TimeResource;
+import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResource;
+import no.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
+import no.fint.model.resource.utdanning.timeplan.RomResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

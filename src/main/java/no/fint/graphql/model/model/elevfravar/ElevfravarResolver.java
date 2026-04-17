@@ -8,10 +8,10 @@ import no.fint.graphql.model.model.fravarsregistrering.FravarsregistreringServic
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevfravarResource;
-import no.novari.fint.model.resource.utdanning.vurdering.FravarsregistreringResource;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.ElevfravarResource;
+import no.fint.model.resource.utdanning.vurdering.FravarsregistreringResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

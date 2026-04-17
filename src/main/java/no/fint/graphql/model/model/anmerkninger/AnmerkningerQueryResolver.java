@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.anmerkninger;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.utdanning.vurdering.AnmerkningerResource;
+import no.fint.model.resource.utdanning.vurdering.AnmerkningerResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -11,13 +11,13 @@ import no.fint.graphql.model.model.brevtype.BrevtypeService;
 import no.fint.graphql.model.model.bevistype.BevistypeService;
 
 
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.larling.AvlagtProveResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.ProvestatusResource;
-import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.FullfortkodeResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.BrevtypeResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.BevistypeResource;
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.larling.AvlagtProveResource;
+import no.fint.model.resource.utdanning.kodeverk.ProvestatusResource;
+import no.fint.model.resource.utdanning.larling.LarlingResource;
+import no.fint.model.resource.utdanning.kodeverk.FullfortkodeResource;
+import no.fint.model.resource.utdanning.kodeverk.BrevtypeResource;
+import no.fint.model.resource.utdanning.kodeverk.BevistypeResource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
