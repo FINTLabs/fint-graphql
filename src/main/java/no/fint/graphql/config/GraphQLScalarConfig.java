@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -27,7 +28,7 @@ import java.util.Locale;
 @Configuration
 public class GraphQLScalarConfig {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     private static final ZoneId DATE_ZONE = ZoneOffset.UTC;
 
     @Bean
@@ -110,10 +111,15 @@ public class GraphQLScalarConfig {
 
     private static Date parseDate(String value) {
         try {
-            LocalDate localDate = LocalDate.parse(value, DATE_FORMATTER);
+            LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
             return Date.from(localDate.atStartOfDay(DATE_ZONE).toInstant());
-        } catch (DateTimeParseException ex) {
-            throw new CoercingParseValueException("Invalid ISO-8601 date value '" + value + "'.", ex);
+        } catch (DateTimeParseException ignored) {
+            try {
+                Instant instant = OffsetDateTime.parse(value, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant();
+                return Date.from(instant);
+            } catch (DateTimeParseException ex) {
+                throw new CoercingParseValueException("Invalid ISO-8601 date value '" + value + "'.", ex);
+            }
         }
     }
 
@@ -121,12 +127,14 @@ public class GraphQLScalarConfig {
         return date.toInstant()
                 .atZone(DATE_ZONE)
                 .toLocalDate()
-                .format(DATE_FORMATTER);
+                .atStartOfDay(DATE_ZONE)
+                .format(DATE_TIME_FORMATTER);
     }
 
     private static String formatTemporalAccessor(TemporalAccessor temporalAccessor) {
         return extractLocalDate(temporalAccessor)
-                .format(DATE_FORMATTER);
+                .atStartOfDay(DATE_ZONE)
+                .format(DATE_TIME_FORMATTER);
     }
 
     private static Date parseTemporalAccessor(TemporalAccessor temporalAccessor) {
