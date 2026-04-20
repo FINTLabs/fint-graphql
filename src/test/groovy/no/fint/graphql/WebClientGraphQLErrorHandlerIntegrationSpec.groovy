@@ -5,16 +5,21 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.execution.DataFetcherResult
-import graphql.execution.ExecutionPath
+import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import no.fint.graphql.model.Endpoints
 import no.fint.graphql.model.model.rolle.RolleService
 import no.novari.fint.model.felles.kompleksedatatyper.Identifikator
 import no.novari.fint.model.felles.kompleksedatatyper.Periode
+import no.novari.fint.model.felles.kompleksedatatyper.Personnavn
 import no.novari.fint.model.resource.Link
+import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
+import no.novari.fint.model.resource.felles.PersonResource
+import no.novari.fint.model.resource.utdanning.elev.ElevResource
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.QueueDispatcher
@@ -28,7 +33,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -44,9 +51,10 @@ import java.util.concurrent.TimeUnit
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = TestApplication,
+        classes = [TestApplication, TestJwtDecoderConfig],
         properties = "spring.main.allow-bean-definition-overriding=true"
 )
+@ContextConfiguration
 @AutoConfigureWebTestClient
 class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
@@ -118,7 +126,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         drainRequests()
         // Always return 200 so the only thing we're validating is request count,
         // not any particular error mapping.
-        server.setDispatcher(new QueueDispatcher() {
+        server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
                 return new MockResponse().setResponseCode(200).setBody("ok")
@@ -179,10 +187,32 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         status << [401, 403, 404]
     }
 
+    def "GraphQL blocks downstream request when JWT role prefix does not match resource path"() {
+        given:
+        drainRequests()
+        def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
+
+        when:
+        def responseBody = executeQuery(
+                query,
+                TestJwtTokens.bearerWithRoles("FINT_Client_UtdanningElev"),
+                HttpStatus.UNAUTHORIZED
+        )
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.data?.rolle == null
+        body.errors?.size() == 1
+        body.errors[0].message == "Unauthorized"
+        body.errors[0].path == ["rolle"]
+        body.errors[0].extensions?.code == 401
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
+    }
+
     def "GraphQL handles rolle fullmakt links with mixed outcomes"() {
         given:
         drainRequests()
-        server.setDispatcher(new QueueDispatcher() {
+        server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
                 if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/1")) {
@@ -256,6 +286,185 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         ])
     }
 
+    def "Person query returns administrasjon person when utdanning person is not found"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Ada",
+                            "Lovelace",
+                            null,
+                            "admin-image",
+                            null,
+                            null
+                    ))
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
+        body.data?.person?.navn == [fornavn: "Ada", etternavn: "Lovelace", mellomnavn: null]
+        body.data?.person?.bilde == "admin-image"
+    }
+
+    def "Person query returns utdanning person when administrasjon person is not found"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Grace",
+                            "Hopper",
+                            null,
+                            "elev-image",
+                            null,
+                            null
+                    ))
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
+        body.data?.person?.navn == [fornavn: "Grace", etternavn: "Hopper", mellomnavn: null]
+        body.data?.person?.bilde == "elev-image"
+    }
+
+    def "Person query merges administrasjon and utdanning person results when both succeed"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Ada",
+                            "Byron",
+                            null,
+                            "admin-image",
+                            "/administrasjon/personal/personalressurs/systemid/P-1",
+                            null
+                    ))
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return jsonResponse(personResource(
+                            fnr,
+                            "Grace",
+                            "Hopper",
+                            null,
+                            null,
+                            null,
+                            "/utdanning/elev/elev/systemid/E-1"
+                    ))
+                }
+                if (request.path == "/administrasjon/personal/personalressurs/systemid/P-1") {
+                    return jsonResponse(personalressursResource("P-1"))
+                }
+                if (request.path == "/utdanning/elev/elev/systemid/E-1") {
+                    return jsonResponse(elevResource("E-1"))
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
+        body.data?.person?.bilde == "admin-image"
+        body.data?.person?.navn != null
+        body.data?.person?.personalressurs?.systemId?.identifikatorverdi == "P-1"
+        body.data?.person?.elev?.systemId?.identifikatorverdi == "E-1"
+    }
+
+    def "Person query returns null without errors when both person endpoints return 404"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.data?.person == null
+        body.errors == null || body.errors.isEmpty()
+    }
+
+    def "Person query surfaces the most relevant downstream error when both person endpoints fail"() {
+        given:
+        drainRequests()
+        def fnr = "12345678910"
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(404).setBody("not found")
+                }
+                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse().setResponseCode(503).setBody("service unavailable")
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected")
+            }
+        })
+
+        when:
+        def responseBody = executePersonQuery(fnr)
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.data?.person == null
+        body.errors?.size() == 1
+        body.errors[0].path == ["person"]
+        body.errors[0].message == "Service Unavailable for /utdanning/elev/person/fodselsnummer/${fnr}"
+        assertExtensionsMatch(body.errors[0].extensions, expectedExtensions(503, "/utdanning/elev/person/fodselsnummer/${fnr}"))
+    }
+
     private static String expectedMessage(int status, String navn) {
         def resourcePath = "/administrasjon/fullmakt/rolle/navn/${navn}"
         if (status == 401) {
@@ -297,20 +506,94 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 """
     }
 
-    private String executeQuery(String query) {
+    private static MockResponse jsonResponse(String body) {
+        return new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody(body)
+    }
+
+    private static String personResource(
+            String fodselsnummer,
+            String fornavn,
+            String etternavn,
+            String mellomnavn,
+            String bilde,
+            String personalressursHref,
+            String elevHref
+    ) {
+        def person = new PersonResource()
+        person.setFodselsnummer(identifikator(fodselsnummer))
+        def navn = new Personnavn()
+        navn.setFornavn(fornavn)
+        navn.setEtternavn(etternavn)
+        navn.setMellomnavn(mellomnavn)
+        person.setNavn(navn)
+        person.setBilde(bilde)
+        if (personalressursHref != null) {
+            person.addPersonalressurs(new Link(personalressursHref))
+        }
+        if (elevHref != null) {
+            person.addElev(new Link(elevHref))
+        }
+        return new ObjectMapper().writeValueAsString(person)
+    }
+
+    private static String personalressursResource(String systemIdValue) {
+        def personalressurs = new PersonalressursResource()
+        personalressurs.setSystemId(identifikator(systemIdValue))
+        return new ObjectMapper().writeValueAsString(personalressurs)
+    }
+
+    private static String elevResource(String systemIdValue) {
+        def elev = new ElevResource()
+        elev.setSystemId(identifikator(systemIdValue))
+        return new ObjectMapper().writeValueAsString(elev)
+    }
+
+    private static Identifikator identifikator(String value) {
+        def identifikator = new Identifikator()
+        identifikator.setIdentifikatorverdi(value)
+        return identifikator
+    }
+
+    private String executeQuery(
+            String query,
+            String authorization = TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"),
+            HttpStatusCode expectedStatus = HttpStatus.OK
+    ) {
         return webTestClient.mutate()
                 .responseTimeout(Duration.ofSeconds(20))
                 .build()
                 .post()
                 .uri("/graphql")
-                .header("Authorization", "Bearer header.payload.signature")
+                .header("Authorization", authorization)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue([query: query])
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus().isEqualTo(expectedStatus)
                 .returnResult(String)
                 .responseBody
                 .blockFirst()
+    }
+
+    private String executePersonQuery(
+            String fodselsnummer,
+            String authorization = TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonPersonal", "FINT_Client_UtdanningElev"),
+            HttpStatusCode expectedStatus = HttpStatus.OK
+    ) {
+        def query = """
+query {
+  person(fodselsnummer: "${fodselsnummer}") {
+    bilde
+    fodselsnummer { identifikatorverdi }
+    navn { fornavn etternavn mellomnavn }
+    personalressurs { systemId { identifikatorverdi } }
+    elev { systemId { identifikatorverdi } }
+  }
+}
+"""
+        return executeQuery(query, authorization, expectedStatus)
     }
 
     private static void drainRequests() {
@@ -429,7 +712,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
                             }
                             if (ex != null) {
                                 errors.add(new ExceptionWhileDataFetching(
-                                        ExecutionPath.fromList(["rolle", "fullmakt", idx]),
+                                        ResultPath.fromList(["rolle", "fullmakt", idx]),
                                         ex,
                                         new SourceLocation(1, 1)
                                 ))

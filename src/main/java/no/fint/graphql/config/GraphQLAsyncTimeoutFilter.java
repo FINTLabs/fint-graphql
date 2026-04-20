@@ -8,13 +8,13 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Duration;
@@ -65,30 +65,35 @@ public class GraphQLAsyncTimeoutFilter extends OncePerRequestFilter {
 
         HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(request) {
             @Override
-            public javax.servlet.AsyncContext startAsync() throws IllegalStateException {
-                javax.servlet.AsyncContext ctx = super.startAsync(this, wrappedResponse);
+            public jakarta.servlet.AsyncContext startAsync() throws IllegalStateException {
+                jakarta.servlet.AsyncContext ctx = super.startAsync(this, wrappedResponse);
                 configureAsyncContext(ctx);
                 return ctx;
             }
 
             @Override
-            public javax.servlet.AsyncContext startAsync(javax.servlet.ServletRequest req, javax.servlet.ServletResponse res)
+            public jakarta.servlet.AsyncContext startAsync(jakarta.servlet.ServletRequest req, jakarta.servlet.ServletResponse res)
                     throws IllegalStateException {
-                javax.servlet.AsyncContext ctx = super.startAsync(req, wrappedResponse);
+                jakarta.servlet.AsyncContext ctx = super.startAsync(req, wrappedResponse);
                 configureAsyncContext(ctx);
                 return ctx;
             }
 
-            private void configureAsyncContext(javax.servlet.AsyncContext asyncContext) {
+            private void configureAsyncContext(jakarta.servlet.AsyncContext asyncContext) {
                 long asyncTimeoutMs = getAsyncTimeoutMillis();
-                if (asyncTimeoutMs > 0L) {
-                    asyncContext.setTimeout(asyncTimeoutMs);
+                long queryTimeoutMs = getQueryTimeoutMillis();
+                long effectiveTimeoutMs = asyncTimeoutMs;
+                if (queryTimeoutMs > 0L && (effectiveTimeoutMs <= 0L || queryTimeoutMs < effectiveTimeoutMs)) {
+                    effectiveTimeoutMs = queryTimeoutMs;
+                }
+                if (effectiveTimeoutMs > 0L) {
+                    asyncContext.setTimeout(effectiveTimeoutMs);
                 }
                 AtomicBoolean written = new AtomicBoolean(false);
                 asyncContext.getRequest().setAttribute(TIMEOUT_WRITTEN_ATTR, written);
-                asyncContext.addListener(new javax.servlet.AsyncListener() {
+                asyncContext.addListener(new jakarta.servlet.AsyncListener() {
                     @Override
-                    public void onTimeout(javax.servlet.AsyncEvent event) throws IOException {
+                    public void onTimeout(jakarta.servlet.AsyncEvent event) throws IOException {
                         HttpServletResponse asyncResponse = (HttpServletResponse) event.getSuppliedResponse();
                         AtomicBoolean flag = (AtomicBoolean) event.getSuppliedRequest().getAttribute(TIMEOUT_WRITTEN_ATTR);
                         if (flag == null) {
@@ -118,15 +123,15 @@ public class GraphQLAsyncTimeoutFilter extends OncePerRequestFilter {
                     }
 
                     @Override
-                    public void onComplete(javax.servlet.AsyncEvent event) {
+                    public void onComplete(jakarta.servlet.AsyncEvent event) {
                     }
 
                     @Override
-                    public void onError(javax.servlet.AsyncEvent event) {
+                    public void onError(jakarta.servlet.AsyncEvent event) {
                     }
 
                     @Override
-                    public void onStartAsync(javax.servlet.AsyncEvent event) {
+                    public void onStartAsync(jakarta.servlet.AsyncEvent event) {
                     }
                 });
             }
@@ -136,6 +141,10 @@ public class GraphQLAsyncTimeoutFilter extends OncePerRequestFilter {
 
     private long getAsyncTimeoutMillis() {
         return asyncTimeout != null ? asyncTimeout.toMillis() : 0L;
+    }
+
+    private long getQueryTimeoutMillis() {
+        return queryTimeout != null ? queryTimeout.toMillis() : 0L;
     }
 
     private static final class NoOpWriter extends java.io.Writer {
@@ -159,7 +168,7 @@ public class GraphQLAsyncTimeoutFilter extends OncePerRequestFilter {
         }
 
         @Override
-        public void setWriteListener(javax.servlet.WriteListener writeListener) {
+        public void setWriteListener(jakarta.servlet.WriteListener writeListener) {
         }
 
         @Override

@@ -44,12 +44,31 @@ spec:
           image: fintlabs.azurecr.io/graphql:PR-13.1
           ports:
             - containerPort: 8080
+            - containerPort: 8081
+          startupProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 18
+            httpGet:
+              port: 8081
+              path: /actuator/health
+          livenessProbe:
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+            httpGet:
+              port: 8081
+              path: /actuator/health
           readinessProbe:
             initialDelaySeconds: 30
+            periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 3
             httpGet:
-              port: 8080
-              path: /graphql/actuator/health
+              port: 8081
+              path: /actuator/health
           resources:
             limits:
               memory: "2Gi"
@@ -61,9 +80,11 @@ spec:
             - name: TZ
               value: Europe/Oslo
             - name: JAVA_TOOL_OPTIONS
-              value: -XX:+ExitOnOutOfMemoryError -verbose:gc -Xmx1G
+              value: -XX:+ExitOnOutOfMemoryError -verbose:gc -Xmx1G --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED
             - name: server.servlet.context-path
               value: "/graphql"
+            - name: management.server.port
+              value: "8081"
             - name: graphiql.endpoint.graphql
               value: "/graphql/graphql"
             - name: logging.level.org.springframework.web.reactive.function.client.ExchangeFunctions

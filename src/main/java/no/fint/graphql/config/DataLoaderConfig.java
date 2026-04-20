@@ -1,57 +1,62 @@
 package no.fint.graphql.config;
 
-import graphql.execution.instrumentation.Instrumentation;
-import graphql.execution.instrumentation.dataloader.DataLoaderDispatcherInstrumentation;
-import graphql.kickstart.execution.context.GraphQLContext;
-import graphql.servlet.context.DefaultGraphQLServletContext;
-import graphql.servlet.context.GraphQLServletContextBuilder;
-import no.fint.graphql.WebClientRequest;
-import no.fint.graphql.dataloader.ResourceDataLoader;
-import org.dataloader.DataLoaderRegistry;
+import graphql.kickstart.execution.context.GraphQLKickstartContext;
+import graphql.kickstart.servlet.context.GraphQLServletContextBuilder;
+import no.fint.graphql.GraphQLRequestAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.websocket.Session;
-import javax.websocket.server.HandshakeRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.HandshakeRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class DataLoaderConfig {
 
     @Bean
-    public Instrumentation dataLoaderDispatcherInstrumentation() {
-        return new DataLoaderDispatcherInstrumentation();
-    }
-
-    @Bean
-    public GraphQLServletContextBuilder graphQLServletContextBuilder(WebClientRequest webClientRequest) {
+    public GraphQLServletContextBuilder graphQLServletContextBuilder() {
         return new GraphQLServletContextBuilder() {
             @Override
-            public GraphQLContext build(HttpServletRequest request, HttpServletResponse response) {
-                return DefaultGraphQLServletContext.createServletContext(buildRegistry(webClientRequest), null)
-                        .with(request)
-                        .with(response)
-                        .build();
+            public GraphQLKickstartContext build(HttpServletRequest request, HttpServletResponse response) {
+                return GraphQLKickstartContext.of(createContextMap(request, response));
             }
 
             @Override
-            public GraphQLContext build(Session session, HandshakeRequest request) {
-                return DefaultGraphQLServletContext.createServletContext(buildRegistry(webClientRequest), null)
-                        .build();
+            public GraphQLKickstartContext build(Session session, HandshakeRequest request) {
+                return GraphQLKickstartContext.of(createContextMap(session, request));
             }
 
             @Override
-            public GraphQLContext build() {
-                return DefaultGraphQLServletContext.createServletContext(buildRegistry(webClientRequest), null)
-                        .build();
+            public GraphQLKickstartContext build() {
+                return GraphQLKickstartContext.of(new HashMap<>());
             }
         };
     }
 
-    private DataLoaderRegistry buildRegistry(WebClientRequest webClientRequest) {
-        DataLoaderRegistry registry = new DataLoaderRegistry();
-        registry.register(ResourceDataLoader.NAME, ResourceDataLoader.newDataLoader(webClientRequest));
-        return registry;
+    private Map<Object, Object> createContextMap(HttpServletRequest request, HttpServletResponse response) {
+        Map<Object, Object> contextMap = new HashMap<>();
+        if (request != null) {
+            contextMap.put(HttpServletRequest.class, request);
+            contextMap.put(GraphQLRequestAttributes.ALLOWED_PATH_PREFIXES, GraphQLRequestAttributes.getAllowedPathPrefixes(request));
+            contextMap.put(GraphQLRequestAttributes.ORGANISATION_ID, GraphQLRequestAttributes.getOrganisationId(request));
+        }
+        if (response != null) {
+            contextMap.put(HttpServletResponse.class, response);
+        }
+        return contextMap;
+    }
+
+    private Map<Object, Object> createContextMap(Session session, HandshakeRequest request) {
+        Map<Object, Object> contextMap = new HashMap<>();
+        if (session != null) {
+            contextMap.put(Session.class, session);
+        }
+        if (request != null) {
+            contextMap.put(HandshakeRequest.class, request);
+        }
+        return contextMap;
     }
 }

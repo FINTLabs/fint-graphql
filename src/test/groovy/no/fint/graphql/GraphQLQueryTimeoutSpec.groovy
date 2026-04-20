@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
 import spock.lang.Specification
@@ -21,7 +22,7 @@ import java.time.Duration
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = [Application, TimeoutTestConfig],
+        classes = [Application, TimeoutTestConfig, TestJwtDecoderConfig],
         properties = [
                 "spring.profiles.active=timeout-test",
                 "spring.main.allow-bean-definition-overriding=true",
@@ -30,6 +31,7 @@ import java.time.Duration
                 "fint.graphql.async-request-timeout=PT2S"
         ]
 )
+@ContextConfiguration
 @AutoConfigureWebTestClient
 class GraphQLQueryTimeoutSpec extends Specification {
 
@@ -57,7 +59,7 @@ class GraphQLQueryTimeoutSpec extends Specification {
                 .build()
                 .post()
                 .uri("/graphql")
-                .header("Authorization", "Bearer header.payload.signature")
+                .header("Authorization", TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue([query: query])
                 .exchange()

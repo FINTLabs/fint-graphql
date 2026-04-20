@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import spock.lang.Specification
 
@@ -12,24 +14,25 @@ import java.time.Duration
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = no.fint.graphql.Application,
+        classes = [no.fint.graphql.Application, TestJwtDecoderConfig],
         properties = [
                 "spring.main.allow-bean-definition-overriding=true",
                 "fint.graphql.blacklist="
         ]
 )
+@ContextConfiguration
 @AutoConfigureWebTestClient
 class GraphQLAuthMissingHeaderSpec extends Specification {
 
     @Autowired
     private WebTestClient webTestClient
 
-    def "Missing Authorization header returns 401 with GraphQL error body"() {
+    def "Missing Authorization header returns WWW-Authenticate and GraphQL unauthorized error"() {
         given:
         def query = 'query { rolle(navn: "foo") { navn { identifikatorverdi } } }'
 
         when:
-        def responseBody = webTestClient.mutate()
+        def response = webTestClient.mutate()
                 .responseTimeout(Duration.ofSeconds(5))
                 .build()
                 .post()
@@ -39,10 +42,14 @@ class GraphQLAuthMissingHeaderSpec extends Specification {
                 .exchange()
                 .expectStatus().isUnauthorized()
                 .returnResult(String)
-                .responseBody
-                .blockFirst()
 
         then:
+        def wwwAuthenticate = response.responseHeaders.getFirst(HttpHeaders.WWW_AUTHENTICATE)
+        wwwAuthenticate != null
+        wwwAuthenticate.startsWith("Bearer")
+
+        and:
+        def responseBody = response.responseBody.blockFirst()
         def body = new ObjectMapper().readValue(responseBody, Map)
         body.data == null
         body.errors?.size() == 1

@@ -5,44 +5,49 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import graphql.GraphQLContext;
+import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.schema.DataFetchingEnvironment;
-import graphql.servlet.context.GraphQLServletContext;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.WriteTimeoutException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import no.fint.graphql.config.ConnectionProviderSettings;
-import no.fint.graphql.dataloader.ResourceDataLoader;
 import no.fint.graphql.dataloader.ResourceRequestKey;
 import org.apache.commons.lang3.StringUtils;
-import org.dataloader.DataLoader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
+import reactor.util.retry.Retry;
 
+import java.net.URI;
 import java.time.Duration;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Set;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
 public class WebClientRequest {
 
+    private static final Duration POOL_ACQUIRE_RETRY_DELAY = Duration.ofMillis(25);
+    private static final long POOL_ACQUIRE_RETRY_ATTEMPTS = 400;
+    private static final String ORG_ID_HEADER = "x-org-id";
+
     private final WebClient webClient;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
-    private final BlacklistService blacklistService;
-    private final Set<String> remoteAddresses = new HashSet<>();
-    private final Semaphore concurrencyLimiter;
-    private final Cache<String, DataLoader<ResourceRequestKey, Object>> requestScopedLoaders;
+    private final int maxConcurrentRequests;
+    private final AsyncPermitLimiter inFlightLimiter;
+    private final long acquireTimeoutMs;
+    private final Cache<String, Cache<ResourceRequestKey, Mono<Object>>> requestScopedLookups;
     private final GraphQLQueryIdProvider queryIdProvider;
     private final AtomicLong fallbackRequestCounter = new AtomicLong();
 
@@ -50,74 +55,81 @@ public class WebClientRequest {
             WebClient webClient,
             ConnectionProviderSettings connectionProviderSettings,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
-            BlacklistService blacklistService,
             GraphQLQueryIdProvider queryIdProvider) {
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
-        this.blacklistService = blacklistService;
         this.queryIdProvider = queryIdProvider;
         hashFunction = Hashing.murmur3_128();
-        concurrencyLimiter = new Semaphore(connectionProviderSettings.getMaxConnections(), true);
-        requestScopedLoaders = Caffeine.newBuilder()
+        maxConcurrentRequests = Math.max(1, connectionProviderSettings.getMaxConnections());
+        inFlightLimiter = new AsyncPermitLimiter(maxConcurrentRequests);
+        acquireTimeoutMs = connectionProviderSettings.getAcquireTimeout();
+        requestScopedLookups = Caffeine.newBuilder()
                 .maximumSize(10000)
                 .expireAfterWrite(Duration.ofMinutes(5))
                 .build();
 
-        log.info("Max outgoing HTTP connections: {}", connectionProviderSettings.getMaxConnections());
+        log.info("WebClient limits: maxConnections={}, acquireMaxCount={}, effectiveAcquireMaxCount={}, acquireTimeoutMs={}",
+                connectionProviderSettings.getMaxConnections(),
+                connectionProviderSettings.getAcquireMaxCount(),
+                connectionProviderSettings.getEffectiveAcquireMaxCount(),
+                acquireTimeoutMs);
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        GraphQLServletContext context = getContext(dfe);
-        String authorization = getToken(context);
-        DataLoader<ResourceRequestKey, Object> dataLoader = getDataLoader(dfe);
-        boolean manualDispatch = false;
-        if (dataLoader == null) {
-            dataLoader = getRequestScopedDataLoader(dfe, context);
-            manualDispatch = dataLoader != null;
+        String requestUri = normalizeRequestUri(uri);
+        GraphQLKickstartContext context = getContext(dfe);
+        HttpServletRequest request = getRequest(context);
+        String authorization = getToken(request);
+        String requestScope = getRequestScope(dfe, request);
+        if (requestScope == null) {
+            return getDirect(requestUri, type, request, authorization);
         }
-        if (dataLoader != null) {
-            ResourceRequestKey key = new ResourceRequestKey(uri, type, authorization);
-            Mono<T> mono = Mono.fromFuture(dataLoader.load(key)).cast(type);
-            if (manualDispatch) {
-                dataLoader.dispatch();
-            } else {
-                dispatchIfQueued(dataLoader);
-            }
-            return mono;
-        }
-        return getDirect(uri, type, context, null);
+        ResourceRequestKey key = new ResourceRequestKey(requestUri, type, authorization);
+        Cache<ResourceRequestKey, Mono<Object>> requestCache = requestScopedLookups.get(
+                requestScope,
+                ignored -> Caffeine.newBuilder().maximumSize(10000).build()
+        );
+        Mono<Object> mono = requestCache.get(key,
+                ignored -> getDirect(requestUri, type, request, authorization)
+                        .cast(Object.class)
+                        .cache());
+        return mono.cast(type);
     }
 
-    public <T> Mono<T> get(String uri, Class<T> type, GraphQLServletContext context) {
-        return getDirect(uri, type, context, null);
-    }
-
-    public <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLServletContext context, String authorization) {
-        Long queryId = GraphQLRequestAttributes.getQueryId(context);
+    private <T> Mono<T> getDirect(String uri, Class<T> type, HttpServletRequest request, String authorization) {
+        Long queryId = GraphQLRequestAttributes.getQueryId(request);
         if (queryId == null) {
             queryId = queryIdProvider.nextId();
         }
-        long requestSequence = GraphQLRequestAttributes.nextRequestSequence(context);
+        long requestSequence = GraphQLRequestAttributes.nextRequestSequence(request);
         if (requestSequence < 1) {
             requestSequence = fallbackRequestCounter.incrementAndGet();
         }
         String queryIdValue = formatQueryId(queryId);
         String requestIdValue = formatRequestId(requestSequence);
-        long startNanos = System.nanoTime();
+        long requestStartNanos = System.nanoTime();
 
-        String token = getToken(context);
+        String token = getToken(request);
         if (token == null) {
             token = authorization;
         }
         if (StringUtils.isBlank(token)) {
             throw new MissingAuthorizationException("Missing Authorization token");
         }
+        String organisationId = GraphQLRequestAttributes.getOrganisationId(request);
+        if (StringUtils.isBlank(organisationId)) {
+            throw new MissingAuthorizationException("Missing organisation id");
+        }
 
-        log.debug("WebClient request start queryId={} requestId={} uri={} remote-IP={}", queryIdValue, requestIdValue, uri, getRemoteIp(context));
+        String resourcePath = getResourcePath(uri);
+        if (!isAuthorized(resourcePath, request)) {
+            throw new UnauthorizedResourceAccessException("Unauthorized", uri, queryIdValue, requestIdValue);
+        }
 
-        final WebClient.RequestHeadersSpec<?> request = webClient.get().uri(uri);
-        request.header(HttpHeaders.AUTHORIZATION, token);
-        if (StringUtils.containsIgnoreCase(uri, "/kodeverk/")) {
+        final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);
+        webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
+        webClientRequest.header(ORG_ID_HEADER, organisationId);
+        if (StringUtils.containsIgnoreCase(resourcePath, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);
             if (result != null) {
@@ -125,107 +137,175 @@ public class WebClientRequest {
                 return Mono.just(result);
             }
             log.trace("Cache miss on {}", uri);
-            return get(request, type, queryIdValue, requestIdValue, uri)
-                    .doOnNext(value -> cache.put(key, value))
-                    .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
+            return get(webClientRequest, type, queryIdValue, requestIdValue, uri, requestStartNanos)
+                    .doOnNext(value -> cache.put(key, value));
         }
-        return get(request, type, queryIdValue, requestIdValue, uri)
-                .doFinally(signal -> logRequestEnd(queryIdValue, requestIdValue, uri, startNanos));
+        return get(webClientRequest, type, queryIdValue, requestIdValue, uri, requestStartNanos);
     }
 
     private <T> Mono<T> get(WebClient.RequestHeadersSpec<?> request, Class<T> type,
-                            String queryIdValue, String requestIdValue, String uri) {
+                            String queryIdValue, String requestIdValue, String uri, long requestStartNanos) {
         return withPermit(
-                request.retrieve()
-                        .bodyToMono(type)
-                        .onErrorResume(WebClientResponseException.class, ex -> {
-                            log.error("WebClient response error: Status Code {}, URI {}, queryId={}, requestId={}, Message {}",
-                                    ex.getRawStatusCode(), ex.getRequest().getURI(), queryIdValue, requestIdValue, ex.getMessage());
-                            return Mono.error(ex);
-                        })
-                        .onErrorMap(ex -> {
-                            if (ex instanceof WebClientResponseException) {
-                                return ex;
-                            }
-                            return new WebClientRequestException(
-                                    "WebClient request failed",
-                                    ex,
-                                    uri,
-                                    queryIdValue,
-                                    requestIdValue
-                            );
-                        })
-                        .doOnError(ex -> {
-                            if (ex instanceof WebClientResponseException) {
-                                return;
-                            }
-                            logRequestFailure(ex, queryIdValue, requestIdValue, uri);
-                        }),
-                queryIdValue,
-                requestIdValue
-        );
-    }
-
-    private <T> Mono<T> withPermit(Mono<T> mono, String queryIdValue, String requestIdValue) {
-        return Mono.usingWhen(
-                Mono.fromCallable(() -> {
-                            try {
-                                if (!concurrencyLimiter.tryAcquire()) {
-                                    long parkedAt = System.nanoTime();
-                                    log.debug("WebClient request queued queryId={} requestId={}", queryIdValue, requestIdValue);
-                                    concurrencyLimiter.acquire();
-                                    long waitMs = (System.nanoTime() - parkedAt) / 1_000_000;
-                                    log.debug("WebClient request resumed queryId={} requestId={} waitMs={}",
-                                            queryIdValue, requestIdValue, waitMs);
+                Mono.defer(() -> {
+                    long nettyStartNanos = System.nanoTime();
+                    AtomicInteger responseStatusCode = new AtomicInteger(-1);
+                    return request.exchangeToMono(response -> {
+                                responseStatusCode.set(response.statusCode().value());
+                                if (response.statusCode().isError()) {
+                                    return response.createException().flatMap(Mono::error);
                                 }
-                                return concurrencyLimiter;
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                throw new IllegalStateException("Interrupted while waiting for WebClient concurrency permit", e);
-                            }
-                        })
-                        .subscribeOn(Schedulers.boundedElastic()),
-                ignored -> mono,
-                semaphore -> Mono.fromRunnable(semaphore::release),
-                (semaphore, error) -> Mono.fromRunnable(semaphore::release),
-                semaphore -> Mono.fromRunnable(semaphore::release)
+                                return response.bodyToMono(type);
+                            })
+                            .retryWhen(Retry.fixedDelay(POOL_ACQUIRE_RETRY_ATTEMPTS, POOL_ACQUIRE_RETRY_DELAY)
+                                    .filter(this::isPoolAcquireFailure)
+                                    .onRetryExhaustedThrow((spec, signal) -> signal.failure()))
+                            .onErrorResume(WebClientResponseException.class, ex -> {
+                                log.warn("WebClient response error: GET {} -> {}, queryId={}, requestId={}, Cause={}", uri, ex.getStatusCode(), queryIdValue, requestIdValue, ex.getMessage());
+                                return Mono.error(ex);
+                            })
+                            .onErrorMap(ex -> {
+                                if (ex instanceof WebClientResponseException responseException) {
+                                    log.warn("WebClient response error: GET {} -> {}, queryId={}, requestId={}, Cause={}", uri, responseException.getStatusCode(), queryIdValue, requestIdValue, ex.getMessage());
+                                    return ex;
+                                } else if (ex instanceof org.springframework.web.reactive.function.client.WebClientRequestException requestException) {
+                                    log.warn("WebClient request error: {} {}, queryId={}, requestId={}, Cause={}", requestException.getMethod(), requestException.getUri(), queryIdValue, requestIdValue, ex.getMessage());
+                                }
+                                return new WebClientRequestException(
+                                        "WebClient request failed",
+                                        ex,
+                                        uri,
+                                        queryIdValue,
+                                        requestIdValue
+                                );
+                            })
+                            .doOnError(ex -> {
+                                if (ex instanceof WebClientResponseException) {
+                                    return;
+                                }
+                                logRequestFailure(ex, queryIdValue, requestIdValue, uri);
+                            })
+                            .doFinally(signal -> logNettyRequestEnd(
+                                    queryIdValue,
+                                    requestIdValue,
+                                    uri,
+                                    requestStartNanos,
+                                    nettyStartNanos,
+                                    responseStatusCode.get()
+                            ));
+                })
         );
     }
 
-    private String getToken(GraphQLServletContext context) {
-        return context != null ? context.getHttpServletRequest().getHeader(HttpHeaders.AUTHORIZATION) : null;
+    private <T> Mono<T> withPermit(Mono<T> mono) {
+        return Mono.usingWhen(
+                inFlightLimiter.acquire(),
+                ignored -> mono,
+                AsyncPermitLimiter.Permit::release,
+                (permit, error) -> permit.release(),
+                AsyncPermitLimiter.Permit::release
+        );
     }
 
-    private DataLoader<ResourceRequestKey, Object> getDataLoader(DataFetchingEnvironment dfe) {
-        if (dfe == null) {
+    private String getToken(HttpServletRequest request) {
+        return request != null ? request.getHeader(HttpHeaders.AUTHORIZATION) : null;
+    }
+
+    private String getRequestScope(DataFetchingEnvironment dfe, HttpServletRequest request) {
+        if (dfe != null && dfe.getExecutionId() != null) {
+            return dfe.getExecutionId().toString();
+        }
+        Long queryId = GraphQLRequestAttributes.getQueryId(request);
+        if (queryId != null) {
+            return "query:" + queryId;
+        }
+        return null;
+    }
+
+    private boolean isAuthorized(String resourcePath, HttpServletRequest request) {
+        if (StringUtils.isBlank(resourcePath)) {
+            return false;
+        }
+        Set<String> allowedPathPrefixes = GraphQLRequestAttributes.getAllowedPathPrefixes(request);
+        if (allowedPathPrefixes.isEmpty()) {
+            return false;
+        }
+        String normalizedPath = normalizePath(resourcePath);
+        for (String allowedPathPrefix : allowedPathPrefixes) {
+            String normalizedPrefix = trimTrailingSlash(normalizePath(allowedPathPrefix));
+            if ("/".equals(normalizedPrefix)) {
+                return true;
+            }
+            if (normalizedPath.equals(normalizedPrefix) || normalizedPath.startsWith(normalizedPrefix + "/")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getResourcePath(String uri) {
+        if (StringUtils.isBlank(uri)) {
             return null;
         }
         try {
-            return dfe.getDataLoader(ResourceDataLoader.NAME);
-        } catch (Exception ex) {
-            return null;
+            String path = URI.create(uri).getPath();
+            return StringUtils.isNotBlank(path) ? path : uri;
+        } catch (IllegalArgumentException ex) {
+            return uri;
         }
     }
 
-    private DataLoader<ResourceRequestKey, Object> getRequestScopedDataLoader(DataFetchingEnvironment dfe,
-                                                                              GraphQLServletContext context) {
-        if (dfe == null || dfe.getExecutionId() == null) {
-            return null;
+    private String normalizeRequestUri(String uri) {
+        if (StringUtils.isBlank(uri)) {
+            return uri;
         }
-        return requestScopedLoaders.get(dfe.getExecutionId().toString(),
-                key -> ResourceDataLoader.newDataLoader(this, context));
+        try {
+            URI parsed = URI.create(uri);
+            if (!parsed.isAbsolute()) {
+                return uri;
+            }
+            String path = StringUtils.defaultIfBlank(parsed.getRawPath(), "/");
+            if (StringUtils.isNotBlank(parsed.getRawQuery())) {
+                return path + "?" + parsed.getRawQuery();
+            }
+            return path;
+        } catch (IllegalArgumentException ex) {
+            return uri;
+        }
     }
 
-    private void dispatchIfQueued(DataLoader<ResourceRequestKey, Object> dataLoader) {
-        if (dataLoader.dispatchDepth() > 0) {
-            dataLoader.dispatch();
+    private String normalizePath(String path) {
+        String normalized = StringUtils.defaultString(path).trim();
+        if (normalized.isEmpty()) {
+            return normalized;
         }
+        normalized = normalized.startsWith("/") ? normalized : "/" + normalized;
+        return normalized.replaceAll("/{2,}", "/");
     }
 
-    private void logRequestEnd(String queryIdValue, String requestIdValue, String uri, long startNanos) {
-        long durationMs = (System.nanoTime() - startNanos) / 1_000_000;
-        log.debug("WebClient request end queryId={} requestId={} durationMs={} uri={}",
-                queryIdValue, requestIdValue, durationMs, uri);
+    private String trimTrailingSlash(String path) {
+        if ("/".equals(path)) {
+            return path;
+        }
+        return StringUtils.removeEnd(path, "/");
+    }
+
+    public int getMaxConcurrentRequests() {
+        return maxConcurrentRequests;
+    }
+
+    private void logNettyRequestEnd(
+            String queryIdValue,
+            String requestIdValue,
+            String uri,
+            long requestStartNanos,
+            long nettyStartNanos,
+            int responseStatusCode) {
+        long totalDurationMs = (System.nanoTime() - requestStartNanos) / 1_000_000;
+        long queueDurationMs = (nettyStartNanos - requestStartNanos) / 1_000_000;
+        long nettyDurationMs = totalDurationMs - queueDurationMs;
+        String responseCodeValue = responseStatusCode >= 0 ? Integer.toString(responseStatusCode) : "n/a";
+        log.debug("WebClient request queryId={} requestId={} statusCode={} queueDurationMs={} nettyDurationMs={} totalDurationMs={} uri={}",
+                queryIdValue, requestIdValue, responseCodeValue, queueDurationMs, nettyDurationMs, totalDurationMs, uri);
     }
 
     private void logRequestFailure(Throwable exception, String queryIdValue, String requestIdValue, String uri) {
@@ -264,6 +344,11 @@ public class WebClientRequest {
         return exception;
     }
 
+    private boolean isPoolAcquireFailure(Throwable exception) {
+        Throwable root = findRelevantCause(exception);
+        return root instanceof PoolAcquireTimeoutException || root instanceof PoolAcquirePendingLimitException;
+    }
+
     private String formatQueryId(Long queryId) {
         return queryId != null ? queryId.toString() : "unknown";
     }
@@ -272,23 +357,24 @@ public class WebClientRequest {
         return requestSequence > 0 ? Long.toString(requestSequence) : "unknown";
     }
 
-    private void logRemoteIp(GraphQLServletContext context) {
-        String ip = getRemoteIp(context);
-
-        if (remoteAddresses.add(ip)) {
-            log.debug("Remote IP: {}", ip);
+    private GraphQLKickstartContext getContext(DataFetchingEnvironment dataFetchingEnvironment) {
+        if (dataFetchingEnvironment == null) {
+            return null;
         }
+        GraphQLContext graphQLContext = dataFetchingEnvironment.getGraphQlContext();
+        if (graphQLContext == null) {
+            return null;
+        }
+        HashMap<Object, Object> contextMap = new HashMap<>();
+        graphQLContext.stream().forEach(entry -> contextMap.put(entry.getKey(), entry.getValue()));
+        return GraphQLKickstartContext.of(contextMap);
     }
 
-    private GraphQLServletContext getContext(DataFetchingEnvironment dataFetchingEnvironment) {
-        Object context = dataFetchingEnvironment.getContext();
-        return context instanceof GraphQLServletContext ? (GraphQLServletContext) context : null;
-    }
-
-    private String getRemoteIp(GraphQLServletContext context) {
-        if (context == null) return null;
-        if (context.getHttpServletRequest() == null) return null;
-        if (context.getHttpServletRequest().getRemoteAddr() == null) return null;
-        return context.getHttpServletRequest().getRemoteAddr();
+    private HttpServletRequest getRequest(GraphQLKickstartContext context) {
+        if (context == null || context.getMapOfContext() == null) {
+            return null;
+        }
+        Object request = context.getMapOfContext().get(HttpServletRequest.class);
+        return request instanceof HttpServletRequest ? (HttpServletRequest) request : null;
     }
 }

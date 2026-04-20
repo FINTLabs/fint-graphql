@@ -13,7 +13,12 @@ import java.time.Duration;
 public class ConnectionProviderSettings {
     private String type = "fixed";
     private int maxConnections = ConnectionProvider.DEFAULT_POOL_MAX_CONNECTIONS;
+    private int acquireMaxCount = 1;
     private long acquireTimeout = ConnectionProvider.DEFAULT_POOL_ACQUIRE_TIMEOUT;
-    private Duration maxIdleTime;
-    private Duration maxLifeTime;
+    private Duration maxIdleTime = Duration.ofSeconds(30);
+    private Duration maxLifeTime = Duration.ofSeconds(90);
+
+    public int getEffectiveAcquireMaxCount() {
+        return acquireMaxCount < 0 ? acquireMaxCount : Math.max(1, acquireMaxCount);
+    }
 }

@@ -4,30 +4,31 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.WebTestClient
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.time.Duration
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        classes = [no.fint.graphql.Application, TestJwtDecoderConfig],
+        classes = [Application, TestJwtDecoderConfig],
         properties = [
                 "spring.main.allow-bean-definition-overriding=true",
-                "fint.graphql.blacklist=127.0.0.1,::1"
+                "fint.graphql.blacklist="
         ]
 )
 @ContextConfiguration
 @AutoConfigureWebTestClient
-class GraphQLAuthBlacklistedSpec extends Specification {
+class GraphQLAuthMissingOrgIdSpec extends Specification {
 
     @Autowired
     private WebTestClient webTestClient
 
-    def "Blacklisted IP returns 401 with GraphQL error body"() {
+    @Unroll
+    def "Missing or empty fintAssetIDs claim returns 401 (#label)"() {
         given:
         def query = 'query { rolle(navn: "foo") { navn { identifikatorverdi } } }'
 
@@ -37,7 +38,7 @@ class GraphQLAuthBlacklistedSpec extends Specification {
                 .build()
                 .post()
                 .uri("/graphql")
-                .header(HttpHeaders.AUTHORIZATION, TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"))
+                .header("Authorization", authorization)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue([query: query])
                 .exchange()
@@ -52,5 +53,10 @@ class GraphQLAuthBlacklistedSpec extends Specification {
         body.errors?.size() == 1
         body.errors[0].extensions?.code == 401
         body.errors[0].message == "Unauthorized"
+
+        where:
+        label   | authorization
+        "missing" | TestJwtTokens.bearerWithClaims([roles: ["FINT_Client_AdministrasjonFullmakt"]])
+        "empty"   | TestJwtTokens.bearerWithClaims([roles: ["FINT_Client_AdministrasjonFullmakt"], fintAssetIDs: ""])
     }
 }
