@@ -20,13 +20,13 @@ class GraphQLScalarConfigSpec extends Specification {
     private final Locale locale = Locale.ENGLISH
     private final CoercedVariables variables = CoercedVariables.emptyVariables()
 
-    def "date scalar serializes java.util.Date as ISO date"() {
+    def "date scalar serializes java.util.Date as UTC timestamp"() {
         given:
         def scalar = config.graphQLDateScalar()
         Date date = Date.from(LocalDate.of(2026, 3, 3).atStartOfDay(ZoneOffset.UTC).toInstant())
 
         expect:
-        scalar.getCoercing().serialize(date, graphQLContext, locale) == "2026-03-03"
+        scalar.getCoercing().serialize(date, graphQLContext, locale) == "2026-03-03T00:00:00Z"
     }
 
     def "date scalar parses ISO date string to java.util.Date"() {
@@ -38,6 +38,17 @@ class GraphQLScalarConfigSpec extends Specification {
 
         then:
         parsed.toInstant().atZone(ZoneOffset.UTC).toLocalDate() == LocalDate.of(2026, 3, 3)
+    }
+
+    def "date scalar parses ISO timestamp string to java.util.Date"() {
+        given:
+        def scalar = config.graphQLDateScalar()
+
+        when:
+        def parsed = scalar.getCoercing().parseValue("2026-03-03T00:00:00Z", graphQLContext, locale) as Date
+
+        then:
+        parsed.toInstant().toString() == "2026-03-03T00:00:00Z"
     }
 
     def "date scalar rejects unsupported runtime type"() {
