@@ -40,7 +40,9 @@ public class WebClientRequest {
     private static final Duration POOL_ACQUIRE_RETRY_DELAY = Duration.ofMillis(25);
     private static final long POOL_ACQUIRE_RETRY_ATTEMPTS = 400;
     private static final String ORG_ID_HEADER = "x-org-id";
+    private static final String MODEL_VERSION_HEADER = "x-fint-model-version";
 
+    private final String modelVersion;
     private final WebClient webClient;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
@@ -55,7 +57,9 @@ public class WebClientRequest {
             WebClient webClient,
             ConnectionProviderSettings connectionProviderSettings,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
+            @Value("${fint.graphql.model-version:V4}") String modelVersion,
             GraphQLQueryIdProvider queryIdProvider) {
+        this.modelVersion = modelVersion;
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
         this.queryIdProvider = queryIdProvider;
@@ -129,6 +133,7 @@ public class WebClientRequest {
         final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);
         webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
         webClientRequest.header(ORG_ID_HEADER, organisationId);
+        webClientRequest.header(MODEL_VERSION_HEADER, modelVersion);
         if (StringUtils.containsIgnoreCase(resourcePath, "/kodeverk/")) {
             HashCode key = hashFunction.newHasher().putUnencodedChars(token).putUnencodedChars(uri).hash();
             final T result = (T) cache.getIfPresent(key);
