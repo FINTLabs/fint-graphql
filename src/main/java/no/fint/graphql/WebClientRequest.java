@@ -2,6 +2,7 @@ package no.fint.graphql;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
@@ -61,7 +62,7 @@ public class WebClientRequest {
             GraphQLQueryIdProvider queryIdProvider) {
         this.modelVersion = modelVersion;
         this.webClient = webClient;
-        cache = Caffeine.from(cacheSpec).build();
+        cache = Caffeine.from(cacheSpec).scheduler(Scheduler.systemScheduler()).build();
         this.queryIdProvider = queryIdProvider;
         hashFunction = Hashing.murmur3_128();
         maxConcurrentRequests = Math.max(1, connectionProviderSettings.getMaxConnections());
@@ -69,7 +70,8 @@ public class WebClientRequest {
         acquireTimeoutMs = connectionProviderSettings.getAcquireTimeout();
         requestScopedLookups = Caffeine.newBuilder()
                 .maximumSize(10000)
-                .expireAfterWrite(Duration.ofMinutes(5))
+                .expireAfterWrite(Duration.ofMinutes(2))
+                .scheduler(Scheduler.systemScheduler())
                 .build();
 
         log.info("WebClient limits: maxConnections={}, acquireMaxCount={}, effectiveAcquireMaxCount={}, acquireTimeoutMs={}",
