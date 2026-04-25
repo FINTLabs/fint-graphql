@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.organisasjonstype;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.administrasjon.kodeverk.OrganisasjonstypeResource;
+import no.fint.model.resource.administrasjon.kodeverk.OrganisasjonstypeResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class OrganisasjonstypeQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private OrganisasjonstypeService service;
 
-    public CompletionStage<OrganisasjonstypeResource> organisasjonstype(
+    public CompletionStage<OrganisasjonstypeResource> getOrganisasjonstype(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Organisasjonstype");

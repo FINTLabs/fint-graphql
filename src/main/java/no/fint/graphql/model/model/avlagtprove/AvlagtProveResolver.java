@@ -3,23 +3,28 @@ package no.fint.graphql.model.model.avlagtprove;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.model.model.bevistype.BevistypeService;
-import no.fint.graphql.model.model.brevtype.BrevtypeService;
-import no.fint.graphql.model.model.fullfortkode.FullfortkodeService;
-import no.fint.graphql.model.model.larling.LarlingService;
+
 import no.fint.graphql.model.model.provestatus.ProvestatusService;
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.kodeverk.BevistypeResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.BrevtypeResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.FullfortkodeResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.ProvestatusResource;
-import no.novari.fint.model.resource.utdanning.larling.AvlagtProveResource;
-import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
+import no.fint.graphql.model.model.larling.LarlingService;
+import no.fint.graphql.model.model.fullfortkode.FullfortkodeService;
+import no.fint.graphql.model.model.brevtype.BrevtypeService;
+import no.fint.graphql.model.model.bevistype.BevistypeService;
+
+
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.larling.AvlagtProveResource;
+import no.fint.model.resource.utdanning.kodeverk.ProvestatusResource;
+import no.fint.model.resource.utdanning.larling.LarlingResource;
+import no.fint.model.resource.utdanning.kodeverk.FullfortkodeResource;
+import no.fint.model.resource.utdanning.kodeverk.BrevtypeResource;
+import no.fint.model.resource.utdanning.kodeverk.BevistypeResource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelAvlagtProveResolver")

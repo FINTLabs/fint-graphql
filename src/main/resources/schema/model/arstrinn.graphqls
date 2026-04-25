@@ -4,11 +4,13 @@ type Arstrinn {
 	# Inherited Attributes
     beskrivelse: String! # Gruppe
     navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
     systemId: Identifikator! # Gruppe
 
 	# Relations
-    vigoreferanse: [String]
-    grepreferanse: [String]
-    klasse: [Klasse]
     programomrade: [Programomrade]
+    basisgruppe: [Basisgruppe]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
 }

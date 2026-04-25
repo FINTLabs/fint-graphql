@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.person;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.felles.PersonResource;
+import no.fint.model.resource.felles.PersonResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class PersonQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PersonService service;
 
-    public CompletionStage<PersonResource> person(
+    public CompletionStage<PersonResource> getPerson(
             String fodselsnummer,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Person");

@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.underveisfagvurdering;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.utdanning.vurdering.UnderveisfagvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.UnderveisfagvurderingResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class UnderveisfagvurderingQueryResolver implements GraphQLQueryResolver 
     @Autowired
     private UnderveisfagvurderingService service;
 
-    public CompletionStage<UnderveisfagvurderingResource> underveisfagvurdering(
+    public CompletionStage<UnderveisfagvurderingResource> getUnderveisfagvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Underveisfagvurdering");

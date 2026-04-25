@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.arbeidsforhold;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
+import no.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class ArbeidsforholdQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ArbeidsforholdService service;
 
-    public CompletionStage<ArbeidsforholdResource> arbeidsforhold(
+    public CompletionStage<ArbeidsforholdResource> getArbeidsforhold(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Arbeidsforhold");

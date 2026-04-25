@@ -6,6 +6,7 @@ type Fullmakt {
 
 
 	# Relations
+    myndighet: [String]
     ramme: Ramme
     funksjon: Funksjon
     objekt: Objekt

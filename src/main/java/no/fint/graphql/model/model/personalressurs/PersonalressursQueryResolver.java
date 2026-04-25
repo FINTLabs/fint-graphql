@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.personalressurs;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
+import no.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class PersonalressursQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PersonalressursService service;
 
-    public CompletionStage<PersonalressursResource> personalressurs(
+    public CompletionStage<PersonalressursResource> getPersonalressurs(
             String ansattnummer,
             String brukernavn,
             String systemId,

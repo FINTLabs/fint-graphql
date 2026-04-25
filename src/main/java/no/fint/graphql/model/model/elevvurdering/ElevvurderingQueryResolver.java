@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.elevvurdering;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class ElevvurderingQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private ElevvurderingService service;
 
-    public CompletionStage<ElevvurderingResource> elevvurdering(
+    public CompletionStage<ElevvurderingResource> getElevvurdering(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Elevvurdering");
