@@ -41,6 +41,8 @@ public class WebClientRequest {
     private static final long POOL_ACQUIRE_RETRY_ATTEMPTS = 400;
     private static final String ORG_ID_HEADER = "x-org-id";
     private static final String MODEL_VERSION_HEADER = "x-fint-model-version";
+    private static final String REQUEST_LOOKUP_CACHE_ATTRIBUTE =
+            WebClientRequest.class.getName() + ".requestScopedLookups";
 
     private final String modelVersion;
     private final WebClient webClient;
@@ -49,7 +51,6 @@ public class WebClientRequest {
     private final int maxConcurrentRequests;
     private final AsyncPermitLimiter inFlightLimiter;
     private final long acquireTimeoutMs;
-    private final Cache<String, Cache<ResourceRequestKey, Mono<Object>>> requestScopedLookups;
     private final GraphQLQueryIdProvider queryIdProvider;
     private final AtomicLong fallbackRequestCounter = new AtomicLong();
 
@@ -67,10 +68,6 @@ public class WebClientRequest {
         maxConcurrentRequests = Math.max(1, connectionProviderSettings.getMaxConnections());
         inFlightLimiter = new AsyncPermitLimiter(maxConcurrentRequests);
         acquireTimeoutMs = connectionProviderSettings.getAcquireTimeout();
-        requestScopedLookups = Caffeine.newBuilder()
-                .maximumSize(10000)
-                .expireAfterWrite(Duration.ofMinutes(5))
-                .build();
 
         log.info("WebClient limits: maxConnections={}, acquireMaxCount={}, effectiveAcquireMaxCount={}, acquireTimeoutMs={}",
                 connectionProviderSettings.getMaxConnections(),
@@ -84,15 +81,11 @@ public class WebClientRequest {
         GraphQLKickstartContext context = getContext(dfe);
         HttpServletRequest request = getRequest(context);
         String authorization = getToken(request);
-        String requestScope = getRequestScope(dfe, request);
-        if (requestScope == null) {
+        Cache<ResourceRequestKey, Mono<Object>> requestCache = getRequestCache(request);
+        if (requestCache == null) {
             return getDirect(requestUri, type, request, authorization);
         }
         ResourceRequestKey key = new ResourceRequestKey(requestUri, type, authorization);
-        Cache<ResourceRequestKey, Mono<Object>> requestCache = requestScopedLookups.get(
-                requestScope,
-                ignored -> Caffeine.newBuilder().maximumSize(10000).build()
-        );
         Mono<Object> mono = requestCache.get(key,
                 ignored -> getDirect(requestUri, type, request, authorization)
                         .cast(Object.class)
@@ -215,15 +208,20 @@ public class WebClientRequest {
         return request != null ? request.getHeader(HttpHeaders.AUTHORIZATION) : null;
     }
 
-    private String getRequestScope(DataFetchingEnvironment dfe, HttpServletRequest request) {
-        if (dfe != null && dfe.getExecutionId() != null) {
-            return dfe.getExecutionId().toString();
+    @SuppressWarnings("unchecked")
+    private Cache<ResourceRequestKey, Mono<Object>> getRequestCache(HttpServletRequest request) {
+        if (request == null) {
+            return null;
         }
-        Long queryId = GraphQLRequestAttributes.getQueryId(request);
-        if (queryId != null) {
-            return "query:" + queryId;
+        Object existing = request.getAttribute(REQUEST_LOOKUP_CACHE_ATTRIBUTE);
+        if (existing instanceof Cache) {
+            return (Cache<ResourceRequestKey, Mono<Object>>) existing;
         }
-        return null;
+        Cache<ResourceRequestKey, Mono<Object>> requestCache = Caffeine.newBuilder()
+                .maximumSize(10000)
+                .build();
+        request.setAttribute(REQUEST_LOOKUP_CACHE_ATTRIBUTE, requestCache);
+        return requestCache;
     }
 
     private boolean isAuthorized(String resourcePath, HttpServletRequest request) {
@@ -296,6 +294,18 @@ public class WebClientRequest {
 
     public int getMaxConcurrentRequests() {
         return maxConcurrentRequests;
+    }
+
+    public long getReferenceDataCacheEstimatedSize() {
+        return cache.estimatedSize();
+    }
+
+    public int getAvailableConcurrencyPermits() {
+        return inFlightLimiter.getAvailablePermits();
+    }
+
+    public int getQueuedConcurrencyWaiters() {
+        return inFlightLimiter.getQueueLength();
     }
 
     private void logNettyRequestEnd(
