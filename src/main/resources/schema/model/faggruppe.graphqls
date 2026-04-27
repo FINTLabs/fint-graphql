@@ -4,6 +4,7 @@ type Faggruppe {
 	# Inherited Attributes
     beskrivelse: String! # Gruppe
     navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
     systemId: Identifikator! # Gruppe
 
 	# Relations
@@ -11,4 +12,7 @@ type Faggruppe {
     skole: Skole
     skolear: Skolear
     faggruppemedlemskap: [Faggruppemedlemskap]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
 }

@@ -3,30 +3,37 @@ package no.fint.graphql.model.model.elevvurdering;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.model.model.eksamensvurdering.EksamensvurderingService;
+
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
-import no.fint.graphql.model.model.halvarsfagvurdering.HalvarsfagvurderingService;
-import no.fint.graphql.model.model.halvarsordensvurdering.HalvarsordensvurderingService;
 import no.fint.graphql.model.model.sluttfagvurdering.SluttfagvurderingService;
-import no.fint.graphql.model.model.sluttordensvurdering.SluttordensvurderingService;
-import no.fint.graphql.model.model.underveisfagvurdering.UnderveisfagvurderingService;
 import no.fint.graphql.model.model.underveisordensvurdering.UnderveisordensvurderingService;
 import no.fint.graphql.model.model.vitnemalsmerknad.VitnemalsmerknadService;
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
-import no.novari.fint.model.resource.utdanning.kodeverk.VitnemalsmerknadResource;
-import no.novari.fint.model.resource.utdanning.vurdering.*;
+import no.fint.graphql.model.model.underveisfagvurdering.UnderveisfagvurderingService;
+import no.fint.graphql.model.model.halvarsordensvurdering.HalvarsordensvurderingService;
+import no.fint.graphql.model.model.halvarsfagvurdering.HalvarsfagvurderingService;
+import no.fint.graphql.model.model.sluttordensvurdering.SluttordensvurderingService;
+import no.fint.graphql.model.model.eksamensvurdering.EksamensvurderingService;
+
+
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
+import no.fint.model.resource.utdanning.elev.ElevforholdResource;
+import no.fint.model.resource.utdanning.vurdering.SluttfagvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.UnderveisordensvurderingResource;
+import no.fint.model.resource.utdanning.kodeverk.VitnemalsmerknadResource;
+import no.fint.model.resource.utdanning.vurdering.UnderveisfagvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.HalvarsfagvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.SluttordensvurderingResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensvurderingResource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 @Component("modelElevvurderingResolver")
 public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResource> {
@@ -70,154 +77,82 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
     }
 
     public CompletionStage<List<SluttfagvurderingResource>> getSluttfagvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getSluttfagvurdering()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getSluttfagvurdering()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> sluttfagvurderingService.getSluttfagvurderingResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> sluttfagvurderingService.getSluttfagvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<UnderveisordensvurderingResource>> getUnderveisordensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getUnderveisordensvurdering()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getUnderveisordensvurdering()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> underveisordensvurderingService.getUnderveisordensvurderingResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> underveisordensvurderingService.getUnderveisordensvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<VitnemalsmerknadResource>> getVitnemalsmerknad(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getVitnemalsmerknad()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getVitnemalsmerknad()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> vitnemalsmerknadService.getVitnemalsmerknadResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> vitnemalsmerknadService.getVitnemalsmerknadResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<UnderveisfagvurderingResource>> getUnderveisfagvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getUnderveisfagvurdering()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getUnderveisfagvurdering()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> underveisfagvurderingService.getUnderveisfagvurderingResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> underveisfagvurderingService.getUnderveisfagvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<HalvarsordensvurderingResource>> getHalvarsordensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getHalvarsordensvurdering()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getHalvarsordensvurdering()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> halvarsordensvurderingService.getHalvarsordensvurderingResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> halvarsordensvurderingService.getHalvarsordensvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<HalvarsfagvurderingResource>> getHalvarsfagvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getHalvarsfagvurdering()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getHalvarsfagvurdering()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> halvarsfagvurderingService.getHalvarsfagvurderingResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> halvarsfagvurderingService.getHalvarsfagvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<SluttordensvurderingResource>> getSluttordensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getSluttordensvurdering()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getSluttordensvurdering()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> sluttordensvurderingService.getSluttordensvurderingResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> sluttordensvurderingService.getSluttordensvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 
     public CompletionStage<List<EksamensvurderingResource>> getEksamensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(elevvurdering.getEksamensvurdering()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
+        return Flux.fromStream(elevvurdering.getEksamensvurdering()
+                .stream()
                 .map(Link::getHref)
-                .flatMapSequential(href -> eksamensvurderingService.getEksamensvurderingResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
+                .map(l -> eksamensvurderingService.getEksamensvurderingResource(l, dfe)))
+                .flatMap(Mono::flux)
                 .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
                 .toFuture();
     }
 

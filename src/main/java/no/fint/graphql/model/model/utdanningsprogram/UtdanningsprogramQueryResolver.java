@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.utdanningsprogram;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
+import no.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class UtdanningsprogramQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private UtdanningsprogramService service;
 
-    public CompletionStage<UtdanningsprogramResource> utdanningsprogram(
+    public CompletionStage<UtdanningsprogramResource> getUtdanningsprogram(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Utdanningsprogram");

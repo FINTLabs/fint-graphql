@@ -4,13 +4,18 @@ type Kontaktlarergruppe {
 	# Inherited Attributes
     beskrivelse: String! # Gruppe
     navn: String! # Gruppe
+    periode: [Periode]! # Gruppe
     systemId: Identifikator! # Gruppe
 
 	# Relations
-    klasse: [Klasse]!
+    basisgruppe: [Basisgruppe]!
+    elevforhold: [Elevforhold]
     termin: [Termin]
     skole: Skole!
     skolear: Skolear
     undervisningsforhold: [Undervisningsforhold]
     gruppemedlemskap: [Kontaktlarergruppemedlemskap]
+    grepreferanse: [String]
+    vigoreferanse: [String]
+    medlemskap: [Medlemskap]
 }

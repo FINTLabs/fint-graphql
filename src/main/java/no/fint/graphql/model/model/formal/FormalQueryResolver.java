@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.formal;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.administrasjon.kodeverk.FormalResource;
+import no.fint.model.resource.administrasjon.kodeverk.FormalResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class FormalQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FormalService service;
 
-    public CompletionStage<FormalResource> formal(
+    public CompletionStage<FormalResource> getFormal(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Formal");

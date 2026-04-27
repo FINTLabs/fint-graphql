@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.undervisningsgruppemedlemskap;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppemedlemskapResource;
+import no.fint.model.resource.utdanning.timeplan.UndervisningsgruppemedlemskapResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class UndervisningsgruppemedlemskapQueryResolver implements GraphQLQueryR
     @Autowired
     private UndervisningsgruppemedlemskapService service;
 
-    public CompletionStage<UndervisningsgruppemedlemskapResource> undervisningsgruppemedlemskap(
+    public CompletionStage<UndervisningsgruppemedlemskapResource> getUndervisningsgruppemedlemskap(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Undervisningsgruppemedlemskap");

@@ -3,17 +3,22 @@ package no.fint.graphql.model.model.sensor;
 
 import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
-import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
+
 import no.fint.graphql.model.model.skoleressurs.SkoleressursService;
-import no.novari.fint.model.resource.Link;
-import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
-import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
-import no.novari.fint.model.resource.utdanning.vurdering.SensorResource;
+import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
+
+
+import no.fint.model.resource.Link;
+import no.fint.model.resource.utdanning.vurdering.SensorResource;
+import no.fint.model.resource.utdanning.elev.SkoleressursResource;
+import no.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 @Component("modelSensorResolver")

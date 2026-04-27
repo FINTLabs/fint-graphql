@@ -7,6 +7,7 @@ type Halvarsordensvurdering {
     vurderingsdato: Date! # Ordensvurdering
 
 	# Relations
+    elevforhold: Elevforhold!
     elevvurdering: Elevvurdering!
     atferd: Karakterverdi!
     orden: Karakterverdi!

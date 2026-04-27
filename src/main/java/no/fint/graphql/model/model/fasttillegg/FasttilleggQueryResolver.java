@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.fasttillegg;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.administrasjon.personal.FasttilleggResource;
+import no.fint.model.resource.administrasjon.personal.FasttilleggResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class FasttilleggQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FasttilleggService service;
 
-    public CompletionStage<FasttilleggResource> fasttillegg(
+    public CompletionStage<FasttilleggResource> getFasttillegg(
             String kildesystemId,
             String systemId,
             DataFetchingEnvironment dfe) {

@@ -11,4 +11,5 @@ type Funksjon {
 	# Relations
     overordnet: Funksjon
     underordnet: [Funksjon]
+    fullmakt: [Fullmakt]
 }

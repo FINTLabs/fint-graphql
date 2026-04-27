@@ -4,7 +4,7 @@ package no.fint.graphql.model.model.fagstatus;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
-import no.novari.fint.model.resource.utdanning.kodeverk.FagstatusResource;
+import no.fint.model.resource.utdanning.kodeverk.FagstatusResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class FagstatusQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private FagstatusService service;
 
-    public CompletionStage<FagstatusResource> fagstatus(
+    public CompletionStage<FagstatusResource> getFagstatus(
             String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for Fagstatus");
