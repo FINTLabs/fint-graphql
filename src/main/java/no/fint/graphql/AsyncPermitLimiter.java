@@ -67,6 +67,14 @@ final class AsyncPermitLimiter {
         next.completeSuccess(new Permit(this));
     }
 
+    synchronized int getAvailablePermits() {
+        return availablePermits;
+    }
+
+    synchronized int getQueueLength() {
+        return waiters.size();
+    }
+
     static final class Permit {
         private final AsyncPermitLimiter limiter;
         private final AtomicBoolean released = new AtomicBoolean();
