@@ -123,7 +123,7 @@ public class WebClientRequest {
 
         String resourcePath = getResourcePath(uri);
         if (!isAuthorized(resourcePath, request)) {
-            throw new UnauthorizedResourceAccessException("Unauthorized", uri, queryIdValue, requestIdValue);
+            throw new UnauthorizedResourceAccessException("Forbidden", uri, queryIdValue, requestIdValue);
         }
 
         final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);

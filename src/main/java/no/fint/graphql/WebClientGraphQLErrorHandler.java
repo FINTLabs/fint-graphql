@@ -55,7 +55,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         }
         if (exception instanceof UnauthorizedResourceAccessException) {
             UnauthorizedResourceAccessException unauthorizedException = (UnauthorizedResourceAccessException) exception;
-            return toUnauthorizedError(dataFetchingError, unauthorizedException, resourcePath(unauthorizedException.getUri()));
+            return toForbiddenError(dataFetchingError, unauthorizedException, resourcePath(unauthorizedException.getUri()));
         }
         if (exception instanceof MissingAuthorizationException) {
             return new RemoteAccessGraphQLError(
@@ -104,14 +104,14 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         );
     }
 
-    private GraphQLError toUnauthorizedError(ExceptionWhileDataFetching error,
-                                             UnauthorizedResourceAccessException exception,
-                                             String resourcePath) {
+    private GraphQLError toForbiddenError(ExceptionWhileDataFetching error,
+                                          UnauthorizedResourceAccessException exception,
+                                          String resourcePath) {
         return new RemoteAccessGraphQLError(
-                "Unauthorized",
+                "Forbidden",
                 error.getLocations(),
                 error.getPath(),
-                buildUnauthorizedExtensions(resourcePath, exception)
+                buildForbiddenExtensions(resourcePath, exception)
         );
     }
 
@@ -156,10 +156,10 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         return extensions;
     }
 
-    private Map<String, Object> buildUnauthorizedExtensions(String resourcePath,
-                                                            UnauthorizedResourceAccessException exception) {
+    private Map<String, Object> buildForbiddenExtensions(String resourcePath,
+                                                         UnauthorizedResourceAccessException exception) {
         Map<String, Object> extensions = new LinkedHashMap<>();
-        extensions.put("code", 401);
+        extensions.put("code", 403);
         String[] parts = resourcePath != null ? resourcePath.split("/") : new String[0];
         if (hasResourcePattern(parts)) {
             extensions.put("domain", getPart(parts, 1));
