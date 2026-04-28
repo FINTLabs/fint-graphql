@@ -196,16 +196,16 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         def responseBody = executeQuery(
                 query,
                 TestJwtTokens.bearerWithRoles("FINT_Client_UtdanningElev"),
-                HttpStatus.UNAUTHORIZED
+                HttpStatus.OK
         )
 
         then:
         def body = new ObjectMapper().readValue(responseBody, Map)
         body.data?.rolle == null
         body.errors?.size() == 1
-        body.errors[0].message == "Unauthorized"
+        body.errors[0].message == "Forbidden"
         body.errors[0].path == ["rolle"]
-        body.errors[0].extensions?.code == 401
+        body.errors[0].extensions?.code == 403
         server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 
