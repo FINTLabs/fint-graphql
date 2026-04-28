@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ReactorResourceFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import io.netty.handler.logging.LogLevel;
 import reactor.netty.http.client.HttpClient;
@@ -35,6 +36,8 @@ public class WebClientConfig {
     @Bean
     public WebClient webClient(WebClient.Builder builder, ReactorResourceFactory factory, ConnectionProvider connectionProvider) {
         factory.setConnectionProvider(connectionProvider);
+        DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory(rootUrl);
+        uriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
         return builder
                 .clientConnector(new ReactorClientHttpConnector(factory, httpClient -> {
                     HttpClient client = httpClient.secure()
@@ -55,7 +58,7 @@ public class WebClientConfig {
                     }
                     return client;
                 }))
-                .baseUrl(rootUrl)
+                .uriBuilderFactory(uriBuilderFactory)
                 .defaultHeader("Host", host)
                 .build();
     }

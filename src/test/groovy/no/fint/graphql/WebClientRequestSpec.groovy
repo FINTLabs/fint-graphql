@@ -34,6 +34,8 @@ class WebClientRequestSpec extends Specification {
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
             connectionProviderSettings,
+            url,
+            'beta.felleskomponent.no',
             'maximumSize=1,expireAfterWrite=1s',
             10000,
             'V4',
@@ -61,6 +63,8 @@ class WebClientRequestSpec extends Specification {
         def configuredRequest = new WebClientRequest(
                 configuredWebClient,
                 connectionProviderSettings,
+                server.url('/').toString(),
+                configuredHost,
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
@@ -79,19 +83,44 @@ class WebClientRequestSpec extends Specification {
         request.getHeader('Host') == configuredHost
     }
 
-    def "Absolute FINT links are normalized to path before downstream request"() {
+    def "toRequestUri keeps absolute encoded uri unchanged"() {
         given:
-        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/utdanning/timeplan/"], 'org-1')
-        def absoluteLink = 'https://beta.felleskomponent.no/utdanning/timeplan/undervisningsgruppemedlemskap/systemid/13276228_10140044'
+        def absoluteLink = 'https://beta.felleskomponent.no/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4'
+
+        when:
+        def requestUri = ReflectionTestUtils.invokeMethod(webClientRequest, 'toRequestUri', absoluteLink)
+
+        then:
+        requestUri == URI.create(absoluteLink)
+    }
+
+    def "Configured WebClient preserves encoded path and overrides Host header for absolute link"() {
+        given:
+        def configuredHost = 'beta.example.test'
+        def configuredWebClient = createConfiguredWebClient(server.url('/').toString(), configuredHost)
+        def configuredRequest = new WebClientRequest(
+                configuredWebClient,
+                connectionProviderSettings,
+                server.url('/').toString(),
+                configuredHost,
+                'maximumSize=1,expireAfterWrite=1s',
+                10000,
+                'V4',
+                queryIdProvider
+        )
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/utdanning/vurdering/"], 'org-1')
+        def encodedPath = '/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4'
+        def absoluteLink = server.url(encodedPath).toString()
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
-        def response = webClientRequest.get(absoluteLink, String, dfe).block()
+        def response = configuredRequest.get(absoluteLink, String, dfe).block()
         def request = server.takeRequest()
 
         then:
         response == 'response'
-        request.path == '/utdanning/timeplan/undervisningsgruppemedlemskap/systemid/13276228_10140044'
+        request.path == encodedPath
+        request.getHeader('Host') == configuredHost
     }
 
     def "normalizeRequestUri maps absolute uri without path to root slash"() {
@@ -156,6 +185,8 @@ class WebClientRequestSpec extends Specification {
         def limitedRequest = new WebClientRequest(
                 webClient,
                 limitedSettings,
+                url,
+                'beta.felleskomponent.no',
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
@@ -207,6 +238,8 @@ class WebClientRequestSpec extends Specification {
         def constrainedRequest = new WebClientRequest(
                 webClient,
                 constrainedSettings,
+                url,
+                'beta.felleskomponent.no',
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
@@ -270,7 +303,7 @@ class WebClientRequestSpec extends Specification {
 
         then:
         def ex = thrown(UnauthorizedResourceAccessException)
-        ex.uri == '/administrasjon/fullmakt/rolle/navn/foo'
+        ex.uri == unauthorizedUrl
         server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 

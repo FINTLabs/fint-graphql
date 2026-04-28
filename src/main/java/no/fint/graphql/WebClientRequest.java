@@ -45,7 +45,9 @@ public class WebClientRequest {
             WebClientRequest.class.getName() + ".requestScopedLookups";
 
     private final String modelVersion;
+    private final String hostHeader;
     private final WebClient webClient;
+    private final URI rootUri;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
     private final int maxConcurrentRequests;
@@ -58,12 +60,16 @@ public class WebClientRequest {
     public WebClientRequest(
             WebClient webClient,
             ConnectionProviderSettings connectionProviderSettings,
+            @Value("${fint.endpoint.root:http://traefik.traefik-v2}") String rootUrl,
+            @Value("${fint.endpoint.host:beta.felleskomponent.no}") String hostHeader,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
             @Value("${fint.webclient.request-cache-maximum-size:10000}") long requestCacheMaximumSize,
             @Value("${fint.graphql.model-version:V4}") String modelVersion,
             GraphQLQueryIdProvider queryIdProvider) {
         this.modelVersion = modelVersion;
+        this.hostHeader = hostHeader;
         this.webClient = webClient;
+        this.rootUri = URI.create(StringUtils.appendIfMissing(rootUrl, "/"));
         cache = Caffeine.from(cacheSpec).build();
         this.queryIdProvider = queryIdProvider;
         this.requestCacheMaximumSize = requestCacheMaximumSize;
@@ -80,17 +86,17 @@ public class WebClientRequest {
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        String requestUri = normalizeRequestUri(uri);
+        String cacheKeyUri = normalizeRequestUri(uri);
         GraphQLKickstartContext context = getContext(dfe);
         HttpServletRequest request = getRequest(context);
         String authorization = getToken(request);
         Cache<ResourceRequestKey, Mono<Object>> requestCache = getRequestCache(request);
         if (requestCache == null) {
-            return getDirect(requestUri, type, request, authorization);
+            return getDirect(uri, type, request, authorization);
         }
-        ResourceRequestKey key = new ResourceRequestKey(requestUri, type, authorization);
+        ResourceRequestKey key = new ResourceRequestKey(cacheKeyUri, type, authorization);
         Mono<Object> mono = requestCache.get(key,
-                ignored -> getDirect(requestUri, type, request, authorization)
+                ignored -> getDirect(uri, type, request, authorization)
                         .cast(Object.class)
                         .cache());
         return mono.cast(type);
@@ -126,8 +132,9 @@ public class WebClientRequest {
             throw new UnauthorizedResourceAccessException("Forbidden", uri, queryIdValue, requestIdValue);
         }
 
-        final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(uri);
+        final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(toRequestUri(uri));
         webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
+        webClientRequest.header(HttpHeaders.HOST, hostHeader);
         webClientRequest.header(ORG_ID_HEADER, organisationId);
         webClientRequest.header(MODEL_VERSION_HEADER, modelVersion);
         if (StringUtils.containsIgnoreCase(resourcePath, "/kodeverk/")) {
@@ -293,6 +300,17 @@ public class WebClientRequest {
             return path;
         }
         return StringUtils.removeEnd(path, "/");
+    }
+
+    private URI toRequestUri(String uri) {
+        if (StringUtils.isBlank(uri)) {
+            return rootUri;
+        }
+        URI parsed = URI.create(uri);
+        if (parsed.isAbsolute()) {
+            return parsed;
+        }
+        return rootUri.resolve(uri.startsWith("/") ? uri : "/" + uri);
     }
 
     public int getMaxConcurrentRequests() {

@@ -19,6 +19,8 @@ import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
 import no.novari.fint.model.resource.felles.PersonResource
 import no.novari.fint.model.resource.utdanning.elev.ElevResource
+import no.novari.fint.model.resource.utdanning.vurdering.HalvarsfagvurderingResource
+import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -206,6 +208,55 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         body.errors[0].message == "Forbidden"
         body.errors[0].path == ["rolle"]
         body.errors[0].extensions?.code == 403
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
+    }
+
+    def "GraphQL resolves absolute encoded karakter link without double encoding path and with configured Host header"() {
+        given:
+        drainRequests()
+        def halvarsfagvurderingId = "H1"
+        def encodedKarakterPath = "/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4"
+        def absoluteKarakterLink = server.url(encodedKarakterPath).toString()
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.path == "/utdanning/vurdering/halvarsfagvurdering/systemid/${halvarsfagvurderingId}") {
+                    return jsonResponse(halvarsfagvurderingResource("HV-1", absoluteKarakterLink))
+                }
+                if (request.path == encodedKarakterPath) {
+                    return jsonResponse(karakterverdiResource("V::4"))
+                }
+                return new MockResponse().setResponseCode(500).setBody("unexpected ${request.path}")
+            }
+        })
+        def query = """
+query {
+  halvarsfagvurdering(systemId: "${halvarsfagvurderingId}") {
+    systemId { identifikatorverdi }
+    karakter { systemId { identifikatorverdi } }
+  }
+}
+"""
+
+        when:
+        def responseBody = executeQuery(
+                query,
+                TestJwtTokens.bearerWithRoles("FINT_Client_UtdanningVurdering")
+        )
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.halvarsfagvurdering?.systemId?.identifikatorverdi == "HV-1"
+        body.data?.halvarsfagvurdering?.karakter?.systemId?.identifikatorverdi == "V::4"
+
+        and:
+        def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
+        def secondRequest = server.takeRequest(1, TimeUnit.SECONDS)
+        firstRequest.path == "/utdanning/vurdering/halvarsfagvurdering/systemid/${halvarsfagvurderingId}"
+        secondRequest.path == encodedKarakterPath
+        secondRequest.getHeader('Host') == 'beta.felleskomponent.no'
+        secondRequest.path != "/utdanning/vurdering/karakterverdi/systemid/V%253A%253A4"
         server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 
@@ -537,6 +588,19 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
             person.addElev(new Link(elevHref))
         }
         return new ObjectMapper().writeValueAsString(person)
+    }
+
+    private static String halvarsfagvurderingResource(String systemIdValue, String karakterHref) {
+        def halvarsfagvurdering = new HalvarsfagvurderingResource()
+        halvarsfagvurdering.setSystemId(identifikator(systemIdValue))
+        halvarsfagvurdering.addKarakter(new Link(karakterHref))
+        return new ObjectMapper().writeValueAsString(halvarsfagvurdering)
+    }
+
+    private static String karakterverdiResource(String systemIdValue) {
+        def karakterverdi = new KarakterverdiResource()
+        karakterverdi.setSystemId(identifikator(systemIdValue))
+        return new ObjectMapper().writeValueAsString(karakterverdi)
     }
 
     private static String personalressursResource(String systemIdValue) {
