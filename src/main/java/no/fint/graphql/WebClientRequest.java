@@ -52,18 +52,21 @@ public class WebClientRequest {
     private final AsyncPermitLimiter inFlightLimiter;
     private final long acquireTimeoutMs;
     private final GraphQLQueryIdProvider queryIdProvider;
+    private final long requestCacheMaximumSize;
     private final AtomicLong fallbackRequestCounter = new AtomicLong();
 
     public WebClientRequest(
             WebClient webClient,
             ConnectionProviderSettings connectionProviderSettings,
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
+            @Value("${fint.webclient.request-cache-maximum-size:10000}") long requestCacheMaximumSize,
             @Value("${fint.graphql.model-version:V4}") String modelVersion,
             GraphQLQueryIdProvider queryIdProvider) {
         this.modelVersion = modelVersion;
         this.webClient = webClient;
         cache = Caffeine.from(cacheSpec).build();
         this.queryIdProvider = queryIdProvider;
+        this.requestCacheMaximumSize = requestCacheMaximumSize;
         hashFunction = Hashing.murmur3_128();
         maxConcurrentRequests = Math.max(1, connectionProviderSettings.getMaxConnections());
         inFlightLimiter = new AsyncPermitLimiter(maxConcurrentRequests);
@@ -218,7 +221,7 @@ public class WebClientRequest {
             return (Cache<ResourceRequestKey, Mono<Object>>) existing;
         }
         Cache<ResourceRequestKey, Mono<Object>> requestCache = Caffeine.newBuilder()
-                .maximumSize(10000)
+                .maximumSize(requestCacheMaximumSize)
                 .build();
         request.setAttribute(REQUEST_LOOKUP_CACHE_ATTRIBUTE, requestCache);
         return requestCache;

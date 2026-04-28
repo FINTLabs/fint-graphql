@@ -35,6 +35,7 @@ class WebClientRequestSpec extends Specification {
             webClient,
             connectionProviderSettings,
             'maximumSize=1,expireAfterWrite=1s',
+            10000,
             'V4',
             queryIdProvider)
 
@@ -61,6 +62,7 @@ class WebClientRequestSpec extends Specification {
                 configuredWebClient,
                 connectionProviderSettings,
                 'maximumSize=1,expireAfterWrite=1s',
+                10000,
                 'V4',
                 queryIdProvider
         )
@@ -155,6 +157,7 @@ class WebClientRequestSpec extends Specification {
                 webClient,
                 limitedSettings,
                 'maximumSize=1,expireAfterWrite=1s',
+                10000,
                 'V4',
                 queryIdProvider)
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/one/", "/two/"], 'org-1')
@@ -205,6 +208,7 @@ class WebClientRequestSpec extends Specification {
                 webClient,
                 constrainedSettings,
                 'maximumSize=1,expireAfterWrite=1s',
+                10000,
                 'V4',
                 queryIdProvider
         )
