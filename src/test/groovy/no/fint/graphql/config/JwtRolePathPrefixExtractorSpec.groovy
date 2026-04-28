@@ -26,4 +26,18 @@ class JwtRolePathPrefixExtractorSpec extends Specification {
                 "/utdanning/utdanningsprogram/"
         ] as Set
     }
+
+    def "extracts /felles/kodeverk/ from both supported felles kodeverk role formats"() {
+        given:
+        def authorization = TestJwtTokens.bearerWithRoles(
+                "FINT_Client_FellesKodeverk",
+                "FINT_Client_felles_kodeverk"
+        )
+
+        when:
+        def prefixes = extractor.extractAllowedPathPrefixes(authorization)
+
+        then:
+        prefixes == ["/felles/kodeverk/"] as Set
+    }
 }
