@@ -308,9 +308,17 @@ public class WebClientRequest {
         }
         URI parsed = URI.create(uri);
         if (parsed.isAbsolute()) {
-            return parsed;
+            return rootUri.resolve(toPathAndQuery(parsed));
         }
         return rootUri.resolve(uri.startsWith("/") ? uri : "/" + uri);
+    }
+
+    private String toPathAndQuery(URI uri) {
+        String path = StringUtils.defaultIfBlank(uri.getRawPath(), "/");
+        if (StringUtils.isNotBlank(uri.getRawQuery())) {
+            return path + "?" + uri.getRawQuery();
+        }
+        return path;
     }
 
     public int getMaxConcurrentRequests() {
