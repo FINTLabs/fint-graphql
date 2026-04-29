@@ -83,15 +83,16 @@ class WebClientRequestSpec extends Specification {
         request.getHeader('Host') == configuredHost
     }
 
-    def "toRequestUri keeps absolute encoded uri unchanged"() {
+    def "toRequestUri rewrites absolute encoded uri to configured root"() {
         given:
-        def absoluteLink = 'https://beta.felleskomponent.no/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4'
+        def encodedPath = '/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4'
+        String absoluteLink = "https://beta.felleskomponent.no${encodedPath}?filter=A%2FB"
 
         when:
         def requestUri = ReflectionTestUtils.invokeMethod(webClientRequest, 'toRequestUri', absoluteLink)
 
         then:
-        requestUri == URI.create(absoluteLink)
+        requestUri == URI.create(url).resolve("${encodedPath}?filter=A%2FB")
     }
 
     def "Configured WebClient preserves encoded path and overrides Host header for absolute link"() {
@@ -110,7 +111,7 @@ class WebClientRequestSpec extends Specification {
         )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/utdanning/vurdering/"], 'org-1')
         def encodedPath = '/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4'
-        def absoluteLink = server.url(encodedPath).toString()
+        def absoluteLink = "https://external.example.test${encodedPath}"
         server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
 
         when:
@@ -121,6 +122,32 @@ class WebClientRequestSpec extends Specification {
         response == 'response'
         request.path == encodedPath
         request.getHeader('Host') == configuredHost
+    }
+
+    def "Path request uses configured endpoint root regardless of WebClient base URL"() {
+        given:
+        def requestRoot = server.url('/').toString()
+        def requestWithDifferentWebClientBase = new WebClientRequest(
+                WebClient.create('http://unused.example.test'),
+                connectionProviderSettings,
+                requestRoot,
+                'beta.felleskomponent.no',
+                'maximumSize=1,expireAfterWrite=1s',
+                10000,
+                'V4',
+                queryIdProvider
+        )
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/administrasjon/fullmakt/"], 'org-1')
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+
+        when:
+        def response = requestWithDifferentWebClientBase.get('/administrasjon/fullmakt/rolle/navn/foo', String, dfe).block()
+        def request = server.takeRequest()
+
+        then:
+        response == 'response'
+        request.path == '/administrasjon/fullmakt/rolle/navn/foo'
+        request.getHeader(HttpHeaders.HOST) == 'beta.felleskomponent.no'
     }
 
     def "normalizeRequestUri maps absolute uri without path to root slash"() {
