@@ -31,7 +31,7 @@ public class ElevService {
 
     public Mono<ElevResource> getElevResource(String url, DataFetchingEnvironment dfe) {
         return webClientRequest.get(url, ElevResource.class, dfe).map(resource -> {
-            if (resource.getFeidenavn() != null && StringUtils.isEmpty(resource.getFeidenavn().getIdentifikatorverdi())) {
+            if (resource.getFeidenavn() != null && !StringUtils.hasText(resource.getFeidenavn().getIdentifikatorverdi())) {
                 resource.setFeidenavn(null);
             }
             return resource;
