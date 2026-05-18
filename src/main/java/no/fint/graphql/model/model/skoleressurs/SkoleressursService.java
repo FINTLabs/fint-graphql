@@ -7,6 +7,7 @@ import no.fint.graphql.model.Endpoints;
 import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 @Service("modelSkoleressursService")
@@ -29,7 +30,12 @@ public class SkoleressursService {
     }
 
     public Mono<SkoleressursResource> getSkoleressursResource(String url, DataFetchingEnvironment dfe) {
-        return webClientRequest.get(url, SkoleressursResource.class, dfe);
+        return webClientRequest.get(url, SkoleressursResource.class, dfe).map(resource -> {
+            if (resource.getFeidenavn() != null && !StringUtils.hasText(resource.getFeidenavn().getIdentifikatorverdi())) {
+                resource.setFeidenavn(null);
+            }
+            return resource;
+        });
     }
 }
 
