@@ -1,0 +1,111 @@
+version: 2
+
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '04:15'
+      timezone: Europe/Oslo
+    open-pull-requests-limit: 8
+    cooldown:
+      default-days: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      gradle-security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'
+      spring-framework:
+        applies-to: version-updates
+        patterns:
+          - 'org.springframework*'
+          - 'io.spring*'
+        update-types:
+          - minor
+          - patch
+      graphql-stack:
+        applies-to: version-updates
+        patterns:
+          - 'com.graphql-java:*'
+          - 'com.graphql-java-kickstart:*'
+        update-types:
+          - minor
+          - patch
+      fint-models:
+        applies-to: version-updates
+        patterns:
+          - 'no.fint:*'
+          - 'no.novari:*'
+        update-types:
+          - minor
+          - patch
+      test-tooling:
+        applies-to: version-updates
+        patterns:
+          - 'cglib:*'
+          - 'com.squareup.okhttp3:*'
+          - 'org.junit.platform:*'
+          - 'org.spockframework:*'
+        update-types:
+          - minor
+          - patch
+      routine-gradle-updates:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: tuesday
+      time: '04:15'
+      timezone: Europe/Oslo
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 5
+    commit-message:
+      prefix: ci(deps)
+    groups:
+      actions-security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'
+      routine-action-updates:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+      time: '04:15'
+      timezone: Europe/Oslo
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 5
+    commit-message:
+      prefix: build(deps)
+    groups:
+      docker-security-updates:
+        applies-to: security-updates
+        patterns:
+          - '*'
+      routine-image-updates:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
