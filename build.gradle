@@ -3,7 +3,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
     id 'groovy'
-    id 'com.github.ben-manes.versions' version '0.53.0'
+    id 'com.github.ben-manes.versions' version '0.58.0'
 }
 
 group = 'no.fintlabs'
@@ -53,13 +53,13 @@ dependencies {
 
     implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:15.1.0'
     implementation 'com.graphql-java-kickstart:graphql-java-tools:14.0.1'
-    implementation 'com.google.guava:guava:33.4.7-jre'
+    implementation 'com.google.guava:guava:33.6.0-jre'
     implementation 'com.github.ben-manes.caffeine:caffeine'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.9.1'
     implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
 
-    compileOnly 'org.projectlombok:lombok:1.18.42'
-    annotationProcessor 'org.projectlombok:lombok:1.18.42'
+    compileOnly 'org.projectlombok:lombok:1.18.46'
+    annotationProcessor 'org.projectlombok:lombok:1.18.46'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
