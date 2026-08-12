@@ -95,6 +95,17 @@ class WebClientRequestSpec extends Specification {
         requestUri == URI.create(url).resolve("${encodedPath}?filter=A%2FB")
     }
 
+    def "toRequestUri encodes invalid characters in an absolute uri"() {
+        given:
+        def uriWithSpace = 'http://felleskomponenter/domain/package/resource/idkey/foo bar'
+
+        when:
+        def requestUri = ReflectionTestUtils.invokeMethod(webClientRequest, 'toRequestUri', uriWithSpace)
+
+        then:
+        requestUri == URI.create(url).resolve('/domain/package/resource/idkey/foo%20bar')
+    }
+
     def "Configured WebClient preserves encoded path and overrides Host header for absolute link"() {
         given:
         def configuredHost = 'beta.example.test'

@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
@@ -306,7 +307,12 @@ public class WebClientRequest {
         if (StringUtils.isBlank(uri)) {
             return rootUri;
         }
-        URI parsed = URI.create(uri);
+        URI parsed;
+        try {
+            parsed = URI.create(uri);
+        } catch (IllegalArgumentException ex) {
+            parsed = UriComponentsBuilder.fromUriString(uri).build().encode().toUri();
+        }
         if (parsed.isAbsolute()) {
             return rootUri.resolve(toPathAndQuery(parsed));
         }
