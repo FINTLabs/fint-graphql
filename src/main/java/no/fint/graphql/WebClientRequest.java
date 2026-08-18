@@ -22,14 +22,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Mono;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
 import reactor.util.retry.Retry;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,17 +91,18 @@ public class WebClientRequest {
     }
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        String cacheKeyUri = normalizeRequestUri(uri);
+        String requestUri = encodeGraphQLPathArgument(uri, dfe);
+        String cacheKeyUri = normalizeRequestUri(requestUri);
         GraphQLKickstartContext context = getContext(dfe);
         HttpServletRequest request = getRequest(context);
         String authorization = getToken(request);
         Cache<ResourceRequestKey, Mono<Object>> requestCache = getRequestCache(request);
         if (requestCache == null) {
-            return getDirect(uri, type, request, authorization);
+            return getDirect(requestUri, type, request, authorization);
         }
         ResourceRequestKey key = new ResourceRequestKey(cacheKeyUri, type, authorization);
         Mono<Object> mono = requestCache.get(key,
-                ignored -> getDirect(uri, type, request, authorization)
+                ignored -> getDirect(requestUri, type, request, authorization)
                         .cast(Object.class)
                         .cache());
         return mono.cast(type);
@@ -307,16 +312,52 @@ public class WebClientRequest {
         if (StringUtils.isBlank(uri)) {
             return rootUri;
         }
-        URI parsed;
-        try {
-            parsed = URI.create(uri);
-        } catch (IllegalArgumentException ex) {
-            parsed = UriComponentsBuilder.fromUriString(uri).build().encode().toUri();
-        }
+        URI parsed = parseAndEncode(uri);
         if (parsed.isAbsolute()) {
             return rootUri.resolve(toPathAndQuery(parsed));
         }
-        return rootUri.resolve(uri.startsWith("/") ? uri : "/" + uri);
+        String pathAndQuery = toPathAndQuery(parsed);
+        return rootUri.resolve(pathAndQuery.startsWith("/") ? pathAndQuery : "/" + pathAndQuery);
+    }
+
+    private URI parseAndEncode(String uri) {
+        try {
+            return URI.create(uri);
+        } catch (IllegalArgumentException ex) {
+            String encoded = UriComponentsBuilder.fromUriString(uri)
+                    .build()
+                    .encode()
+                    .toUriString();
+            // UriComponentsBuilder cannot know that valid escapes in a partly raw URI
+            // are already encoded. Restore exactly those escapes after encoding the raw characters.
+            return URI.create(encoded.replaceAll("(?i)%25(?=[0-9a-f]{2})", "%"));
+        }
+    }
+
+    private String encodeGraphQLPathArgument(String uri, DataFetchingEnvironment dfe) {
+        if (StringUtils.isBlank(uri) || dfe == null) {
+            return uri;
+        }
+        Map<String, Object> arguments = dfe.getArguments();
+        if (arguments == null || arguments.isEmpty()) {
+            return uri;
+        }
+        String pathArgument = arguments.values().stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .filter(StringUtils::isNotEmpty)
+                .filter(uri::endsWith)
+                .max(Comparator.comparingInt(String::length))
+                .orElse(null);
+        if (pathArgument == null) {
+            return uri;
+        }
+        int argumentStart = uri.length() - pathArgument.length();
+        if (argumentStart < 1 || uri.charAt(argumentStart - 1) != '/') {
+            return uri;
+        }
+        return uri.substring(0, argumentStart)
+                + UriUtils.encodePathSegment(pathArgument, StandardCharsets.UTF_8);
     }
 
     private String toPathAndQuery(URI uri) {
