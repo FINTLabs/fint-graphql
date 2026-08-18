@@ -211,6 +211,29 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 
+    def "GraphQL query variable is encoded as a single downstream path segment"() {
+        given:
+        drainRequests()
+        def value = "Oslo kommune/øst?#%&+"
+        def expectedPath = "/administrasjon/fullmakt/rolle/navn/Oslo%20kommune%2F%C3%B8st%3F%23%25&+"
+        server.enqueue(jsonResponse('{"navn":{"identifikatorverdi":"R1"}}'))
+        def query = '''
+query Rolle($navn: String) {
+  rolle(navn: $navn) { navn { identifikatorverdi } }
+}
+'''
+
+        when:
+        def responseBody = executeQueryWithVariables(query, [navn: value])
+
+        then:
+        def body = new ObjectMapper().readValue(responseBody, Map)
+        body.errors == null || body.errors.isEmpty()
+        body.data?.rolle?.navn?.identifikatorverdi == "R1"
+        server.takeRequest(1, TimeUnit.SECONDS).path == expectedPath
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
+    }
+
     def "GraphQL resolves absolute encoded karakter link without double encoding path and with configured Host header"() {
         given:
         drainRequests()
@@ -636,6 +659,22 @@ query {
                 .bodyValue([query: query])
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus)
+                .returnResult(String)
+                .responseBody
+                .blockFirst()
+    }
+
+    private String executeQueryWithVariables(String query, Map<String, Object> variables) {
+        return webTestClient.mutate()
+                .responseTimeout(Duration.ofSeconds(20))
+                .build()
+                .post()
+                .uri("/graphql")
+                .header("Authorization", TestJwtTokens.bearerWithRoles("FINT_Client_AdministrasjonFullmakt"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue([query: query, variables: variables])
+                .exchange()
+                .expectStatus().isOk()
                 .returnResult(String)
                 .responseBody
                 .blockFirst()

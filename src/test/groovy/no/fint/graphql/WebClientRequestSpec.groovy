@@ -7,6 +7,9 @@ import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import no.fint.graphql.config.ConnectionProviderConfig
+import no.fint.graphql.model.Endpoints
+import no.fint.graphql.model.model.rolle.RolleQueryResolver
+import no.fint.graphql.model.model.rolle.RolleService
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.test.util.ReflectionTestUtils
@@ -15,6 +18,7 @@ import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import spock.lang.Specification
+import spock.lang.Unroll
 import no.fint.graphql.config.ConnectionProviderSettings
 import no.fint.graphql.config.WebClientConfig
 
@@ -106,6 +110,17 @@ class WebClientRequestSpec extends Specification {
         requestUri == URI.create(url).resolve('/domain/package/resource/idkey/foo%20bar')
     }
 
+    def "toRequestUri encodes raw characters without encoding an existing escape again"() {
+        given:
+        def partiallyEncodedLink = 'https://beta.felleskomponent.no/domain/package/resource/idkey/A%2FB C'
+
+        when:
+        def requestUri = ReflectionTestUtils.invokeMethod(webClientRequest, 'toRequestUri', partiallyEncodedLink)
+
+        then:
+        requestUri == URI.create(url).resolve('/domain/package/resource/idkey/A%2FB%20C')
+    }
+
     def "Configured WebClient preserves encoded path and overrides Host header for absolute link"() {
         given:
         def configuredHost = 'beta.example.test'
@@ -133,6 +148,61 @@ class WebClientRequestSpec extends Specification {
         response == 'response'
         request.path == encodedPath
         request.getHeader('Host') == configuredHost
+    }
+
+    def "Following an encoded HATEOAS link does not double encode its resource identifier"() {
+        given:
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/administrasjon/fullmakt/"], 'org-1')
+        def encodedIdentifier = 'A%2FB%20C%23D%3FE%25%C3%B8'
+        def hateoasLink = "https://beta.felleskomponent.no/administrasjon/fullmakt/rolle/navn/${encodedIdentifier}"
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+
+        when:
+        def response = webClientRequest.get(hateoasLink, String, dfe).block()
+        def request = server.takeRequest()
+
+        then:
+        response == 'response'
+        request.path == "/administrasjon/fullmakt/rolle/navn/${encodedIdentifier}"
+        !request.path.contains('%252F')
+    }
+
+    @Unroll
+    def "GraphQL query variable is encoded as one path segment: #description"() {
+        given:
+        def dfe = createDataFetchingEnvironmentMock(
+                'Bearer abc123',
+                null,
+                ["/administrasjon/fullmakt/"],
+                'org-1',
+                [navn: value]
+        )
+        def endpoints = new Endpoints()
+        ReflectionTestUtils.setField(endpoints, 'administrasjonFullmakt', '/administrasjon/fullmakt')
+        def service = new RolleService()
+        ReflectionTestUtils.setField(service, 'webClientRequest', webClientRequest)
+        ReflectionTestUtils.setField(service, 'endpoints', endpoints)
+        def resolver = new RolleQueryResolver()
+        ReflectionTestUtils.setField(resolver, 'service', service)
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader(HttpHeaders.CONTENT_TYPE, 'application/json')
+                .setBody('{}'))
+
+        when:
+        resolver.rolle(value, dfe).toCompletableFuture().get(2, TimeUnit.SECONDS)
+        def request = server.takeRequest()
+
+        then:
+        request.path == "/administrasjon/fullmakt/rolle/navn/${encodedValue}"
+
+        where:
+        description                  | value                    || encodedValue
+        'space'                      | 'Oslo kommune'           || 'Oslo%20kommune'
+        'slash'                      | 'administrasjon/ledelse' || 'administrasjon%2Fledelse'
+        'reserved characters'        | 'A?#%&+B'                 || 'A%3F%23%25&+B'
+        'non-ASCII characters'       | 'Blåbærsyltetøy'          || 'Bl%C3%A5b%C3%A6rsyltet%C3%B8y'
+        'literal percent escape text'| 'A%2FB'                   || 'A%252FB'
     }
 
     def "Path request uses configured endpoint root regardless of WebClient base URL"() {
@@ -362,13 +432,17 @@ class WebClientRequestSpec extends Specification {
     private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null,
                                                                      String executionId = null,
                                                                      Collection<String> allowedPrefixes = [],
-                                                                     String organisationId = null) {
-        return createDataFetchingEnvironmentMock(createServletRequest(token, allowedPrefixes, organisationId), executionId)
+                                                                     String organisationId = null,
+                                                                     Map<String, Object> arguments = [:]) {
+        return createDataFetchingEnvironmentMock(createServletRequest(token, allowedPrefixes, organisationId), executionId, arguments)
     }
 
-    private DataFetchingEnvironment createDataFetchingEnvironmentMock(MockHttpServletRequest request, String executionId = null) {
+    private DataFetchingEnvironment createDataFetchingEnvironmentMock(MockHttpServletRequest request,
+                                                                      String executionId = null,
+                                                                      Map<String, Object> arguments = [:]) {
         Mock(DataFetchingEnvironment) {
             getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest.class): request])
+            getArguments() >> arguments
             if (executionId != null) {
                 getExecutionId() >> ExecutionId.from(executionId)
             }
