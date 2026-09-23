@@ -73,7 +73,7 @@ dependencies {
         exclude group: 'org.junit.jupiter'
         exclude group: 'org.junit.platform'
     }
-    testImplementation 'com.squareup.okhttp3:mockwebserver:5.4.0'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:5.5.0'
 }
 
 jar {
