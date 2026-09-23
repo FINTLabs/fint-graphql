@@ -4,11 +4,6 @@ on:
   push:
     branches: [main]
 
-env:
-  REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 4.0.0-test-limit-requests
-  LIB_VERSION: 4.0.0
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,7 +19,7 @@ jobs:
         uses: actions/setup-java@v6.0.1
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '26.0.2+10'
 
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v6.3.0
@@ -34,6 +29,9 @@ jobs:
         with:
           gradle-version: wrapper
 
+      - name: Verify generator conversion
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
       - name: Gradle build
         run: |
           ./gradlew build
@@ -41,14 +39,14 @@ jobs:
           cp ./build/libs/${{ steps.get_repo.outputs.REPO }}.jar ./data/app.jar
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{steps.get_repo.outputs.REPO}}
           path: ./data/app.jar
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-reports
           path: build/reports/tests/test/
