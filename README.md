@@ -32,15 +32,19 @@ slik at den ikke konkurrerer med GraphQL-svaret.
 ## Oppdatere modell og skjema
 
 1. Oppdater `apiVersion` i `gradle.properties` for Java-modellbibliotekene.
-2. Kjør `./generate.sh` med Docker/Podman og Python 3.9 eller nyere tilgjengelig.
-3. Generator 1.3.1 skriver kandidater til en midlertidig mappe. Skriptet
-   `scripts/migrate-graphql-mappings.py` konverterer til eksplisitte Spring
-   GraphQL-annotasjoner. Konverteringen kan kjøres flere ganger uten nye endringer.
+2. Bygg den moderniserte CLI-en lokalt fra naborepoet:
+   `docker build --build-arg VERSION=2.0.0 -t fint-graphql-cli:2.0.0 ../fint-graphql-cli`.
+   Kjør deretter `./generate.sh` med Docker/Podman. Et annet bygget eller publisert
+   bilde kan velges med `FINT_GRAPHQL_CLI_IMAGE` (gjerne låst til digest).
+3. CLI 2.0.0 skriver kandidater med eksplisitte Spring GraphQL-annotasjoner,
+   optimaliserte importer og deklarerte skalarer direkte til en midlertidig mappe.
+   Ingen Python-transformasjon er nødvendig.
    Deretter kopieres `PersonService.txt` over generert `model/person/PersonService.java`,
    slik at sammenslåing fra administrasjon og utdanning beholdes også i kandidatene.
 4. Sammenlign og flett kandidatene inn i `src/main/resources/schema` og
    `src/main/java/no/fint/graphql/model`. Generatoren bruker taggen `v${apiVersion}`
-   fra `gradle.properties`; generatorbildet er også låst til digest.
+   fra `gradle.properties`. Standardbildet `fint-graphql-cli:2.0.0` bygges lokalt;
+   det er ikke en forutsetning at denne versjonen er publisert i et register.
 5. Behold tilpasningene i `PersonService`, relasjonsresolverne og det offentlige
    skjemaet. Generering overskriver aldri disse filene automatisk. Kjør hele
    testpakken etter fletting.
@@ -52,8 +56,12 @@ og kombinerer relasjonslenker uten duplikater mellom kildene. En vellykket kilde
 kan brukes selv om den andre ikke er tilgjengelig eller tillatt. Sammenslåingen
 endrer ikke de opprinnelige ressursene i forespørselscachen.
 
-De to tomme, ubrukte generatortypene `Grepreferanse` og `Vigoreferanse` fjernes
-under konverteringen fordi GraphQL Java krever felt på objekttyper.
+CLI-en utelater tomme objekttyper og deklarerer både `Date` og `Long`.
+Relasjonslister beholder rekkefølge, begrenset samtidighet og `null`-plasser for
+manglende svar. Tjenester med valgfritt `feidenavn` setter tomme identifikatorer
+til `null`, slik at tidligere tilpasninger i Elev og Skoleressurs beholdes.
+Go-testene for disse reglene ligger i `fint-graphql-cli`;
+`scripts/test_generate.py` tester bare staging og kopiering av `PersonService.txt`.
 
 ## Container
 

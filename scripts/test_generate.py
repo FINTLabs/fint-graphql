@@ -1,4 +1,4 @@
-"""Exercise generate.sh in isolation, with no Docker or migration execution."""
+"""Exercise staging and the custom service override without running Docker."""
 import os
 import shutil
 import subprocess
@@ -29,6 +29,7 @@ class GenerateTest(unittest.TestCase):
         # Mimic only the output layout of the container, not model generation.
         self.tool('docker', '''#!/usr/bin/env bash
 set -euo pipefail
+printf '%s\n' "$@" > docker-arguments
 while (( $# )); do
   if [[ "$1" == '-v' && "$2" == *:/src/graphql/model ]]; then
     destination="${2%:/src/graphql/model}"
@@ -38,11 +39,10 @@ while (( $# )); do
   shift
 done
 ''')
-        # Prove the custom service is restored AFTER migration, not before it.
+        # Generation must consume the modern CLI output without Python conversion.
         self.tool('python3', '''#!/usr/bin/env bash
-set -euo pipefail
-[[ "$1" == scripts/migrate-graphql-mappings.py && "$2" == --source ]]
-printf 'converted single-source service\n' > "$3/model/person/PersonService.java"
+echo 'Unexpected Python transformation' >&2
+exit 1
 ''')
 
     def tool(self, name, contents):
@@ -56,17 +56,19 @@ printf 'converted single-source service\n' > "$3/model/person/PersonService.java
         return subprocess.run(['bash', str(self.root / 'generate.sh')], cwd=self.root,
                               env=environment, capture_output=True, text=True, timeout=10)
 
-    def test_custom_service_replaces_converted_candidate_without_touching_source(self):
+    def test_custom_service_replaces_generated_candidate_without_touching_source(self):
         result = self.generate()
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
         candidates = list(self.output.glob('fint-graphql-generation.*/model/model/person/PersonService.java'))
         self.assertEqual(1, len(candidates))
         self.assertEqual((self.root / 'PersonService.txt').read_bytes(), candidates[0].read_bytes())
         self.assertEqual('existing source must remain untouched\n', self.checked_in_service.read_text())
+        arguments = (self.root / 'docker-arguments').read_text().splitlines()
+        self.assertIn('fint-graphql-cli:2.0.0', arguments)
+        self.assertEqual(['--tag', 'v4.1.0', 'generate', '--exclude', 'Fravar', '--exclude', 'Fravarstype'], arguments[-7:])
 
     def test_unexpected_generator_layout_fails_instead_of_silently_losing_custom_service(self):
         self.tool('docker', '#!/usr/bin/env bash\nexit 0\n')
-        self.tool('python3', '#!/usr/bin/env bash\nexit 0\n')
         result = self.generate()
         self.assertNotEqual(0, result.returncode)
         self.assertIn('Expected generated PersonService', result.stderr)
