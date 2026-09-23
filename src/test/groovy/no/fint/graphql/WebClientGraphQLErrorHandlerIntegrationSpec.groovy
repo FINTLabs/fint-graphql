@@ -80,6 +80,34 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         server.setDispatcher(new QueueDispatcher())
     }
 
+    def "undefined nested field returns a mapped validation error without calling downstream services"() {
+        given:
+        drainRequests()
+        def query = '''{
+  skole(skolenummer: "123") {
+    elevforhold {
+      basisgruppemedlemskap
+    }
+  }
+}'''
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery(query,
+                TestJwtTokens.bearerWithRoles('FINT_Client_UtdanningElev')), Map)
+
+        then:
+        !body.containsKey('data')
+        body.errors.size() == 1
+        body.errors[0].message.contains("Field 'basisgruppemedlemskap' in type 'Elevforhold' is undefined")
+        body.errors[0].locations == [[line: 4, column: 7]]
+        !body.errors[0].containsKey('path')
+        body.errors[0].extensions.code == 'GRAPHQL_VALIDATION_FAILED'
+        body.errors[0].extensions.validationErrorType == 'FieldUndefined'
+        body.errors[0].extensions.queryPath == ['skole', 'elevforhold', 'basisgruppemedlemskap']
+        body.errors[0].extensions.classification == 'ValidationError'
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+    }
+
     def "GraphQL maps status #status to expected error object"() {
         given:
         server.enqueue(new MockResponse.Builder().code(status).body("error").build())

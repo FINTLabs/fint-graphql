@@ -3,6 +3,7 @@ package no.fint.graphql;
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
+import graphql.validation.ValidationError;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.WriteTimeoutException;
@@ -42,6 +43,14 @@ public class WebClientGraphQLErrorHandler extends DataFetcherExceptionResolverAd
     }
 
     private GraphQLError mapWebClientError(GraphQLError error) {
+        // Exception resolvers run before the result interceptor. Their mapped
+        // errors must pass through a second time without another warning.
+        if (error instanceof RemoteAccessGraphQLError) {
+            return error;
+        }
+        if (error instanceof ValidationError validationError) {
+            return toValidationError(validationError);
+        }
         if (!(error instanceof ExceptionWhileDataFetching)) {
             log.warn("Unmapped GraphQLError: {}", error);
             return error;
@@ -79,6 +88,29 @@ public class WebClientGraphQLErrorHandler extends DataFetcherExceptionResolverAd
 
         log.warn("Unmapped ExceptionWhileDataFetching: {}", error);
         return error;
+    }
+
+    private GraphQLError toValidationError(ValidationError error) {
+        Map<String, Object> extensions = new LinkedHashMap<>(error.getExtensions());
+        extensions.putIfAbsent("code", "GRAPHQL_VALIDATION_FAILED");
+        if (error.getValidationErrorType() != null) {
+            extensions.putIfAbsent("validationErrorType", error.getValidationErrorType().toString());
+        }
+        // A validation query path describes the document, not an executed result.
+        // Keep it in extensions rather than inventing an execution error path.
+        if (!error.getQueryPath().isEmpty()) {
+            extensions.putIfAbsent("queryPath", List.copyOf(error.getQueryPath()));
+        }
+        if (extensions.equals(error.getExtensions())) {
+            return error;
+        }
+        return ValidationError.newValidationError()
+                .validationErrorType(error.getValidationErrorType())
+                .description(error.getDescription())
+                .sourceLocations(error.getLocations())
+                .queryPath(error.getQueryPath())
+                .extensions(extensions)
+                .build();
     }
 
     private GraphQLError toRemoteAccessError(ExceptionWhileDataFetching error, int status, URI uri) {
