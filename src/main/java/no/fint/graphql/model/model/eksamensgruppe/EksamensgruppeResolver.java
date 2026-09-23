@@ -76,6 +76,7 @@ public class EksamensgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsforholdService.getUndervisningsforholdResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -162,6 +163,7 @@ public class EksamensgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> eksamensgruppemedlemskapService.getEksamensgruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -182,6 +184,7 @@ public class EksamensgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> sensorService.getSensorResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

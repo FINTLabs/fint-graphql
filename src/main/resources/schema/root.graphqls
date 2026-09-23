@@ -4,6 +4,7 @@ scalar Date
 scalar Long
 
 type Query {
+	aktivitetsfravar(systemId: String): Aktivitetsfravar
 	anmerkninger(systemId: String): Anmerkninger
 	arbeidsforhold(systemId: String): Arbeidsforhold
 	arbeidslokasjon(lokasjonskode: String, organisasjonsnummer: String): Arbeidslokasjon

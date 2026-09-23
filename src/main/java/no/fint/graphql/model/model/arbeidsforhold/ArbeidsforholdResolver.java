@@ -321,6 +321,7 @@ public class ArbeidsforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> fastlonnService.getFastlonnResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -341,6 +342,7 @@ public class ArbeidsforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> fasttilleggService.getFasttilleggResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -361,6 +363,7 @@ public class ArbeidsforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> variabellonnService.getVariabellonnResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

@@ -40,13 +40,13 @@ public class UndervisningsforholdResolver {
     private ArbeidsforholdService arbeidsforholdService;
 
     @Autowired
-    private KlasseService klasseService;
-
-    @Autowired
     private TimeService timeService;
 
     @Autowired
     private SkoleService skoleService;
+
+    @Autowired
+    private KlasseService klasseService;
 
     @Autowired
     private KontaktlarergruppeService kontaktlarergruppeService;
@@ -72,26 +72,6 @@ public class UndervisningsforholdResolver {
                 .toFuture();
     }
 
-    @SchemaMapping(typeName = "Undervisningsforhold", field = "klasse")
-    public CompletionStage<List<KlasseResource>> getKlasse(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(undervisningsforhold.getKlasse()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
-                .map(Link::getHref)
-                .flatMapSequential(href -> klasseService.getKlasseResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
-                .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
-                .toFuture();
-    }
-
     @SchemaMapping(typeName = "Undervisningsforhold", field = "time")
     public CompletionStage<List<TimeResource>> getTime(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(undervisningsforhold.getTime()).orElseGet(List::of);
@@ -102,6 +82,7 @@ public class UndervisningsforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> timeService.getTimeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -123,6 +104,27 @@ public class UndervisningsforholdResolver {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "klasse")
+    public CompletionStage<List<KlasseResource>> getKlasse(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        var links = Optional.ofNullable(undervisningsforhold.getKlasse()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
+                .map(Link::getHref)
+                .flatMapSequential(href -> klasseService.getKlasseResource(href, dfe)
+                        .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
+                .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
+                .toFuture();
+    }
+
     @SchemaMapping(typeName = "Undervisningsforhold", field = "kontaktlarergruppe")
     public CompletionStage<List<KontaktlarergruppeResource>> getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(undervisningsforhold.getKontaktlarergruppe()).orElseGet(List::of);
@@ -133,6 +135,7 @@ public class UndervisningsforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> kontaktlarergruppeService.getKontaktlarergruppeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -164,6 +167,7 @@ public class UndervisningsforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsgruppeService.getUndervisningsgruppeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -184,6 +188,7 @@ public class UndervisningsforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> eksamensgruppeService.getEksamensgruppeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

@@ -41,6 +41,7 @@ public class RomResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> timeService.getTimeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -61,6 +62,7 @@ public class RomResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> eksamenService.getEksamenResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

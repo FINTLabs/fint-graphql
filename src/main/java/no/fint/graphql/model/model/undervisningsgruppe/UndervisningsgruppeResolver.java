@@ -66,6 +66,7 @@ public class UndervisningsgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsforholdService.getUndervisningsforholdResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -86,6 +87,7 @@ public class UndervisningsgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> fagService.getFagResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -106,6 +108,7 @@ public class UndervisningsgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> terminService.getTerminResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -148,6 +151,7 @@ public class UndervisningsgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> timeService.getTimeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -168,6 +172,7 @@ public class UndervisningsgruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsgruppemedlemskapService.getUndervisningsgruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

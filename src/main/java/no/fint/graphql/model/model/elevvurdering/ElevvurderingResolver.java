@@ -80,6 +80,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> sluttfagvurderingService.getSluttfagvurderingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -100,6 +101,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> underveisordensvurderingService.getUnderveisordensvurderingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -120,6 +122,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> vitnemalsmerknadService.getVitnemalsmerknadResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -140,6 +143,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> underveisfagvurderingService.getUnderveisfagvurderingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -160,6 +164,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> halvarsordensvurderingService.getHalvarsordensvurderingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -180,6 +185,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> halvarsfagvurderingService.getHalvarsfagvurderingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -200,6 +206,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> sluttordensvurderingService.getSluttordensvurderingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -220,6 +227,7 @@ public class ElevvurderingResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> eksamensvurderingService.getEksamensvurderingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

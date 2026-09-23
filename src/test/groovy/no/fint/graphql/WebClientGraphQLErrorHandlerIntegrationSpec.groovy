@@ -696,6 +696,54 @@ query {
         missingStatus << [404, 204]
     }
 
+    def "generated 4.1.0 queries and relationships serve activity absence and subjects"() {
+        given:
+        drainRequests()
+        def responses = [
+                '/utdanning/vurdering/aktivitetsfravar/systemid/A1': '''{
+                  "systemId":{"identifikatorverdi":"A1"}, "minutter":45, "kommentar":"Activity",
+                  "_links":{"fag":[{"href":"/utdanning/timeplan/fag/systemid/F1"}]}
+                }''',
+                '/utdanning/vurdering/elevfravar/systemid/E1': '''{
+                  "_links":{"aktivitetsfravar":[
+                    {"href":"/utdanning/vurdering/aktivitetsfravar/systemid/A1"},
+                    {"href":"/utdanning/vurdering/aktivitetsfravar/systemid/empty"}]}
+                }''',
+                '/utdanning/vurdering/fravarsregistrering/systemid/R1': '''{
+                  "_links":{"fag":[{"href":"/utdanning/timeplan/fag/systemid/F1"}]}
+                }''',
+                '/utdanning/timeplan/fag/systemid/F1': '{"navn":"Mathematics"}'
+        ]
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.target == '/utdanning/vurdering/aktivitetsfravar/systemid/empty') {
+                    return new MockResponse.Builder().code(204).build()
+                }
+                def payload = responses[request.target]
+                return payload ? jsonResponse(payload) : new MockResponse.Builder().code(500).body('unexpected request').build()
+            }
+        })
+        def query = '''{
+          aktivitetsfravar(systemId: "A1") { systemId { identifikatorverdi } minutter fag { navn } }
+          elevfravar(systemId: "E1") { aktivitetsfravar { kommentar minutter } }
+          fravarsregistrering(systemId: "R1") { fag { navn } }
+        }'''
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery(query,
+                TestJwtTokens.bearerWithRoles('FINT_Client_UtdanningVurdering', 'FINT_Client_UtdanningTimeplan')), Map)
+
+        then:
+        !body.errors
+        body.data.aktivitetsfravar == [systemId: [identifikatorverdi: 'A1'], minutter: 45, fag: [navn: 'Mathematics']]
+        body.data.elevfravar.aktivitetsfravar == [[kommentar: 'Activity', minutter: 45], null]
+        body.data.fravarsregistrering.fag.navn == 'Mathematics'
+        def paths = (1..5).collect { server.takeRequest(1, TimeUnit.SECONDS)?.target }
+        paths.toSet() == responses.keySet() + '/utdanning/vurdering/aktivitetsfravar/systemid/empty'
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+    }
+
     private static String expectedMessage(int status, String navn) {
         def resourcePath = "/administrasjon/fullmakt/rolle/navn/${navn}"
         if (status == 401) {

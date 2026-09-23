@@ -50,6 +50,7 @@ public class AnsvarResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> ansvarService.getAnsvarResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -70,6 +71,7 @@ public class AnsvarResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> organisasjonselementService.getOrganisasjonselementResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

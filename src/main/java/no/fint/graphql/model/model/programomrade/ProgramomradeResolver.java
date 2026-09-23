@@ -51,6 +51,7 @@ public class ProgramomradeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> fagService.getFagResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -71,6 +72,7 @@ public class ProgramomradeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> arstrinnService.getArstrinnResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -91,6 +93,7 @@ public class ProgramomradeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> utdanningsprogramService.getUtdanningsprogramResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -111,6 +114,7 @@ public class ProgramomradeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> programomrademedlemskapService.getProgramomrademedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

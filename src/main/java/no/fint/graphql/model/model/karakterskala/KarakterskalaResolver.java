@@ -36,6 +36,7 @@ public class KarakterskalaResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> karakterverdiService.getKarakterverdiResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

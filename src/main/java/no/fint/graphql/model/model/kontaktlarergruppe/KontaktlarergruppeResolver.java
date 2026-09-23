@@ -61,6 +61,7 @@ public class KontaktlarergruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> klasseService.getKlasseResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -81,6 +82,7 @@ public class KontaktlarergruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> terminService.getTerminResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -123,6 +125,7 @@ public class KontaktlarergruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsforholdService.getUndervisningsforholdResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -143,6 +146,7 @@ public class KontaktlarergruppeResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> kontaktlarergruppemedlemskapService.getKontaktlarergruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

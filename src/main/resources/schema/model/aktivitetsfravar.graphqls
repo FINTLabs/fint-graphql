@@ -1,16 +1,15 @@
 
-type Fravarsregistrering {
+type Aktivitetsfravar {
 	#  Attributes
-    foresPaVitnemal: Boolean!
+    dato: Date!
     kommentar: String
-    periode: Periode!
+    minutter: Int!
     systemId: Identifikator!
 
 
 	# Relations
     registrertAv: Skoleressurs
-    fag: Fag
-    faggruppe: Faggruppe
+    fag: Fag!
     undervisningsgruppe: Undervisningsgruppe!
     elevfravar: Elevfravar!
 }

@@ -36,6 +36,7 @@ public class VirksomhetResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> larlingService.getLarlingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

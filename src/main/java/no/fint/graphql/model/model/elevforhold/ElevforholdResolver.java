@@ -139,6 +139,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> avbruddsarsakService.getAvbruddsarsakResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -170,6 +171,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> faggruppemedlemskapService.getFaggruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -201,6 +203,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsgruppemedlemskapService.getUndervisningsgruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -221,6 +224,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> persongruppemedlemskapService.getPersongruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -241,6 +245,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> eksamensgruppemedlemskapService.getEksamensgruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -261,6 +266,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> kontaktlarergruppemedlemskapService.getKontaktlarergruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -281,6 +287,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> fravarsoversiktService.getFravarsoversiktResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -301,6 +308,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> elevtilretteleggingService.getElevtilretteleggingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -332,6 +340,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> programomrademedlemskapService.getProgramomrademedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -352,6 +361,7 @@ public class ElevforholdResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> klassemedlemskapService.getKlassemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
