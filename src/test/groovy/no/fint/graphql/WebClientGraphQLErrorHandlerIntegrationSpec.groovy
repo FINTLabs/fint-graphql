@@ -478,7 +478,7 @@ query {
         body.errors == null || body.errors.isEmpty()
         body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
         body.data?.person?.bilde == "admin-image"
-        body.data?.person?.navn != null
+        body.data?.person?.navn == [fornavn: "Ada", etternavn: "Byron", mellomnavn: null]
         body.data?.person?.personalressurs?.systemId?.identifikatorverdi == "P-1"
         body.data?.person?.elev?.systemId?.identifikatorverdi == "E-1"
     }
@@ -536,6 +536,136 @@ query {
         body.errors[0].path == ["person"]
         body.errors[0].message == "Service Unavailable for /utdanning/elev/person/fodselsnummer/${fnr}"
         assertExtensionsMatch(body.errors[0].extensions, expectedExtensions(503, "/utdanning/elev/person/fodselsnummer/${fnr}"))
+    }
+
+    def "Person query serves the permitted source with only #role"() {
+        given:
+        drainRequests()
+        def fnr = '12345678910'
+        def permittedPersonPath = "${path}/person/fodselsnummer/${fnr}".toString()
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.target == permittedPersonPath) {
+                    return jsonResponse(personResource(fnr, 'Ada', 'Lovelace', null, 'permitted', null, null))
+                }
+                return new MockResponse.Builder().code(500).body('unexpected request').build()
+            }
+        })
+
+        when:
+        def body = new ObjectMapper().readValue(executePersonQuery(fnr, TestJwtTokens.bearerWithRoles(role)), Map)
+
+        then:
+        !body.errors
+        body.data.person.bilde == 'permitted'
+        body.data.person.navn.fornavn == 'Ada'
+        server.takeRequest(1, TimeUnit.SECONDS).target == permittedPersonPath
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+
+        where:
+        role                                  | path
+        'FINT_Client_AdministrasjonPersonal'  | '/administrasjon/personal'
+        'FINT_Client_UtdanningElev'           | '/utdanning/elev'
+    }
+
+    def "Person query denies access when neither source is permitted"() {
+        given:
+        drainRequests()
+
+        when:
+        def body = new ObjectMapper().readValue(executePersonQuery('12345678910',
+                TestJwtTokens.bearerWithRoles('FINT_Client_AdministrasjonFullmakt')), Map)
+
+        then:
+        body.data.person == null
+        body.errors.size() == 1
+        body.errors[0].path == ['person']
+        body.errors[0].message == 'Forbidden'
+        body.errors[0].extensions.code == 403
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+    }
+
+    def "Person query without an identifier returns null without downstream calls"() {
+        given:
+        drainRequests()
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery(query,
+                TestJwtTokens.bearerWithRoles('FINT_Client_AdministrasjonPersonal', 'FINT_Client_UtdanningElev')), Map)
+
+        then:
+        !body.errors
+        body.data.person == null
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+
+        where:
+        query << ['{ person { bilde } }', '{ person(fodselsnummer: "") { bilde } }']
+    }
+
+    def "merged person aliases retain ordered deduplicated relationships when a parent returns #missingStatus"() {
+        given:
+        drainRequests()
+        def fnr = '12345678910'
+        def adminPath = "/administrasjon/personal/person/fodselsnummer/${fnr}"
+        def studentPath = "/utdanning/elev/person/fodselsnummer/${fnr}"
+        def sharedParent = '/utdanning/elev/person/fodselsnummer/parent-shared'
+        def missingParent = '/utdanning/elev/person/fodselsnummer/parent-missing'
+        def adminParent = '/administrasjon/personal/person/fodselsnummer/parent-admin'
+        def unavailableStatus = missingStatus
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.target == adminPath || request.target == studentPath) {
+                    def isAdmin = request.target == adminPath
+                    def person = new ObjectMapper().readValue(personResource(fnr,
+                            isAdmin ? 'Ada' : 'Grace', isAdmin ? 'Byron' : 'Hopper', null,
+                            isAdmin ? null : 'student-image', null, null), PersonResource)
+                    person.addForeldre(new Link(sharedParent))
+                    person.addForeldre(new Link(isAdmin ? adminParent : missingParent))
+                    return jsonResponse(new ObjectMapper().writeValueAsString(person))
+                }
+                if (request.target == sharedParent) {
+                    return new MockResponse.Builder().code(200).addHeader('Content-Type', 'application/json')
+                            .body(personResource('parent-shared', 'Shared', 'Parent', null, null, null, null))
+                            .bodyDelay(100, TimeUnit.MILLISECONDS).build()
+                }
+                if (request.target == adminParent) {
+                    return jsonResponse(personResource('parent-admin', 'Admin', 'Parent', null, null, null, null))
+                }
+                if (request.target == missingParent) {
+                    return new MockResponse.Builder().code(unavailableStatus).build()
+                }
+                return new MockResponse.Builder().code(500).body('unexpected request').build()
+            }
+        })
+        def selection = """person(fodselsnummer: "${fnr}") {
+            bilde navn { fornavn etternavn }
+            foreldre { fodselsnummer { identifikatorverdi } }
+            statsborgerskap { kode } parorende { navn { fornavn } }
+            larling { systemId { identifikatorverdi } } elev { systemId { identifikatorverdi } }
+        }"""
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery("{ first: ${selection} second: ${selection} }",
+                TestJwtTokens.bearerWithRoles('FINT_Client_AdministrasjonPersonal', 'FINT_Client_UtdanningElev')), Map)
+
+        then:
+        !body.errors
+        body.data.first == body.data.second
+        body.data.first.navn == [fornavn: 'Ada', etternavn: 'Byron']
+        body.data.first.bilde == 'student-image'
+        body.data.first.foreldre.collect { it?.fodselsnummer?.identifikatorverdi } == ['parent-shared', null, 'parent-admin']
+        body.data.first.statsborgerskap == []
+        body.data.first.parorende == []
+        body.data.first.larling == []
+        body.data.first.elev == null
+        def paths = (1..5).collect { server.takeRequest(1, TimeUnit.SECONDS)?.target }
+        paths.toSet() == [adminPath, studentPath, sharedParent, missingParent, adminParent].toSet()
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+
+        where:
+        missingStatus << [404, 204]
     }
 
     private static String expectedMessage(int status, String navn) {

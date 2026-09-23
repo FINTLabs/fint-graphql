@@ -79,6 +79,7 @@ public class PersonResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> landkodeService.getLandkodeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -121,6 +122,7 @@ public class PersonResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> personService.getPersonResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -174,6 +176,7 @@ public class PersonResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> kontaktpersonService.getKontaktpersonResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -194,6 +197,7 @@ public class PersonResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> personService.getPersonResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -214,6 +218,7 @@ public class PersonResolver {
                 .map(Link::getHref)
                 .flatMapSequential(href -> larlingService.getLarlingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
