@@ -31,3 +31,5 @@
 /.project
 /bin/
 /.vscode/
+
+__pycache__/
