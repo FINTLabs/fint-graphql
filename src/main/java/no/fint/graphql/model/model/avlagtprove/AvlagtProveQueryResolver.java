@@ -1,26 +1,28 @@
 
 package no.fint.graphql.model.model.avlagtprove;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.novari.fint.model.resource.utdanning.larling.AvlagtProveResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelAvlagtProveQueryResolver")
+@Controller("modelAvlagtProveQueryResolver")
 @Slf4j
-public class AvlagtProveQueryResolver implements GraphQLQueryResolver {
+public class AvlagtProveQueryResolver {
 
     @Autowired
     private AvlagtProveService service;
 
+    @QueryMapping(name = "avlagtprove")
     public CompletionStage<AvlagtProveResource> avlagtprove(
-            String systemId,
+            @Argument("systemId") String systemId,
             DataFetchingEnvironment dfe) {
 		log.info("New Query for AvlagtProve");
         if (StringUtils.isNotEmpty(systemId)) {

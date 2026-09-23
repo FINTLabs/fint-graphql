@@ -9,6 +9,7 @@ type Fravarsregistrering {
 
 	# Relations
     registrertAv: Skoleressurs
+    fag: Fag
     faggruppe: Faggruppe
     undervisningsgruppe: Undervisningsgruppe!
     elevfravar: Elevfravar!

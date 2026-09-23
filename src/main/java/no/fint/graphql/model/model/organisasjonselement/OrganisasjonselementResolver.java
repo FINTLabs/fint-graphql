@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.organisasjonselement;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.ansvar.AnsvarService;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
@@ -16,7 +15,8 @@ import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResou
 import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,8 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelOrganisasjonselementResolver")
-public class OrganisasjonselementResolver implements GraphQLResolver<OrganisasjonselementResource> {
+@Controller("modelOrganisasjonselementResolver")
+public class OrganisasjonselementResolver {
 
     @Autowired
     private AnsvarService ansvarService;
@@ -49,6 +49,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
     private ArbeidsforholdService arbeidsforholdService;
 
 
+    @SchemaMapping(typeName = "Organisasjonselement", field = "ansvar")
     public CompletionStage<List<AnsvarResource>> getAnsvar(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(organisasjonselement.getAnsvar()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -58,6 +59,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .map(Link::getHref)
                 .flatMapSequential(href -> ansvarService.getAnsvarResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -68,6 +70,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Organisasjonselement", field = "organisasjonstype")
     public CompletionStage<OrganisasjonstypeResource> getOrganisasjonstype(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
         return Flux.fromStream(organisasjonselement.getOrganisasjonstype()
                 .stream()
@@ -78,6 +81,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Organisasjonselement", field = "leder")
     public CompletionStage<PersonalressursResource> getLeder(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
         return Flux.fromStream(organisasjonselement.getLeder()
                 .stream()
@@ -88,6 +92,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Organisasjonselement", field = "overordnet")
     public CompletionStage<OrganisasjonselementResource> getOverordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
         return Flux.fromStream(organisasjonselement.getOverordnet()
                 .stream()
@@ -98,6 +103,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Organisasjonselement", field = "underordnet")
     public CompletionStage<List<OrganisasjonselementResource>> getUnderordnet(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(organisasjonselement.getUnderordnet()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -107,6 +113,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .map(Link::getHref)
                 .flatMapSequential(href -> organisasjonselementService.getOrganisasjonselementResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -117,6 +124,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Organisasjonselement", field = "skole")
     public CompletionStage<SkoleResource> getSkole(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
         return Flux.fromStream(organisasjonselement.getSkole()
                 .stream()
@@ -127,6 +135,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Organisasjonselement", field = "arbeidsforhold")
     public CompletionStage<List<ArbeidsforholdResource>> getArbeidsforhold(OrganisasjonselementResource organisasjonselement, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(organisasjonselement.getArbeidsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -136,6 +145,7 @@ public class OrganisasjonselementResolver implements GraphQLResolver<Organisasjo
                 .map(Link::getHref)
                 .flatMapSequential(href -> arbeidsforholdService.getArbeidsforholdResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

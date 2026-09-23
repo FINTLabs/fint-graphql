@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.undervisningsforhold;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
@@ -22,7 +21,8 @@ import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResou
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,20 +33,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelUndervisningsforholdResolver")
-public class UndervisningsforholdResolver implements GraphQLResolver<UndervisningsforholdResource> {
+@Controller("modelUndervisningsforholdResolver")
+public class UndervisningsforholdResolver {
 
     @Autowired
     private ArbeidsforholdService arbeidsforholdService;
-
-    @Autowired
-    private KlasseService klasseService;
 
     @Autowired
     private TimeService timeService;
 
     @Autowired
     private SkoleService skoleService;
+
+    @Autowired
+    private KlasseService klasseService;
 
     @Autowired
     private KontaktlarergruppeService kontaktlarergruppeService;
@@ -61,6 +61,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
     private EksamensgruppeService eksamensgruppeService;
 
 
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "arbeidsforhold")
     public CompletionStage<ArbeidsforholdResource> getArbeidsforhold(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(undervisningsforhold.getArbeidsforhold()
                 .stream()
@@ -71,25 +72,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .toFuture();
     }
 
-    public CompletionStage<List<KlasseResource>> getKlasse(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(undervisningsforhold.getKlasse()).orElseGet(List::of);
-        if (links.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        return Flux.fromIterable(links)
-                .map(Link::getHref)
-                .flatMapSequential(href -> klasseService.getKlasseResource(href, dfe)
-                        .map(Optional::of)
-                        .onErrorResume(WebClientResponseException.class,
-                                ex -> Mono.just(Optional.empty())),
-                        8, 1)
-                .collectList()
-                .map(list -> list.stream()
-                        .map(opt -> opt.orElse(null))
-                        .collect(Collectors.toList()))
-                .toFuture();
-    }
-
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "time")
     public CompletionStage<List<TimeResource>> getTime(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(undervisningsforhold.getTime()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -99,6 +82,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .map(Link::getHref)
                 .flatMapSequential(href -> timeService.getTimeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -109,6 +93,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "skole")
     public CompletionStage<SkoleResource> getSkole(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(undervisningsforhold.getSkole()
                 .stream()
@@ -119,15 +104,17 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .toFuture();
     }
 
-    public CompletionStage<List<KontaktlarergruppeResource>> getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
-        var links = Optional.ofNullable(undervisningsforhold.getKontaktlarergruppe()).orElseGet(List::of);
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "klasse")
+    public CompletionStage<List<KlasseResource>> getKlasse(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        var links = Optional.ofNullable(undervisningsforhold.getKlasse()).orElseGet(List::of);
         if (links.isEmpty()) {
             return CompletableFuture.completedFuture(List.of());
         }
         return Flux.fromIterable(links)
                 .map(Link::getHref)
-                .flatMapSequential(href -> kontaktlarergruppeService.getKontaktlarergruppeResource(href, dfe)
+                .flatMapSequential(href -> klasseService.getKlasseResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -138,6 +125,28 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "kontaktlarergruppe")
+    public CompletionStage<List<KontaktlarergruppeResource>> getKontaktlarergruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
+        var links = Optional.ofNullable(undervisningsforhold.getKontaktlarergruppe()).orElseGet(List::of);
+        if (links.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+        return Flux.fromIterable(links)
+                .map(Link::getHref)
+                .flatMapSequential(href -> kontaktlarergruppeService.getKontaktlarergruppeResource(href, dfe)
+                        .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
+                        .onErrorResume(WebClientResponseException.class,
+                                ex -> Mono.just(Optional.empty())),
+                        8, 1)
+                .collectList()
+                .map(list -> list.stream()
+                        .map(opt -> opt.orElse(null))
+                        .collect(Collectors.toList()))
+                .toFuture();
+    }
+
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "skoleressurs")
     public CompletionStage<SkoleressursResource> getSkoleressurs(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(undervisningsforhold.getSkoleressurs()
                 .stream()
@@ -148,6 +157,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "undervisningsgruppe")
     public CompletionStage<List<UndervisningsgruppeResource>> getUndervisningsgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(undervisningsforhold.getUndervisningsgruppe()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -157,6 +167,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsgruppeService.getUndervisningsgruppeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -167,6 +178,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Undervisningsforhold", field = "eksamensgruppe")
     public CompletionStage<List<EksamensgruppeResource>> getEksamensgruppe(UndervisningsforholdResource undervisningsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(undervisningsforhold.getEksamensgruppe()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -176,6 +188,7 @@ public class UndervisningsforholdResolver implements GraphQLResolver<Undervisnin
                 .map(Link::getHref)
                 .flatMapSequential(href -> eksamensgruppeService.getEksamensgruppeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.klassemedlemskap;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.klasse.KlasseService;
@@ -10,14 +9,15 @@ import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.novari.fint.model.resource.utdanning.elev.KlasseResource;
 import no.novari.fint.model.resource.utdanning.elev.KlassemedlemskapResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelKlassemedlemskapResolver")
-public class KlassemedlemskapResolver implements GraphQLResolver<KlassemedlemskapResource> {
+@Controller("modelKlassemedlemskapResolver")
+public class KlassemedlemskapResolver {
 
     @Autowired
     private ElevforholdService elevforholdService;
@@ -26,6 +26,7 @@ public class KlassemedlemskapResolver implements GraphQLResolver<Klassemedlemska
     private KlasseService klasseService;
 
 
+    @SchemaMapping(typeName = "Klassemedlemskap", field = "elevforhold")
     public CompletionStage<ElevforholdResource> getElevforhold(KlassemedlemskapResource klassemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(klassemedlemskap.getElevforhold()
                 .stream()
@@ -36,6 +37,7 @@ public class KlassemedlemskapResolver implements GraphQLResolver<Klassemedlemska
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Klassemedlemskap", field = "klasse")
     public CompletionStage<KlasseResource> getKlasse(KlassemedlemskapResource klassemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(klassemedlemskap.getKlasse()
                 .stream()

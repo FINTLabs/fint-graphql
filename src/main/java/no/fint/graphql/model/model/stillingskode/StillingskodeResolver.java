@@ -1,24 +1,25 @@
 
 package no.fint.graphql.model.model.stillingskode;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.novari.fint.model.resource.Link;
 import no.novari.fint.model.resource.administrasjon.kodeverk.StillingskodeResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelStillingskodeResolver")
-public class StillingskodeResolver implements GraphQLResolver<StillingskodeResource> {
+@Controller("modelStillingskodeResolver")
+public class StillingskodeResolver {
 
     @Autowired
     private StillingskodeService stillingskodeService;
 
 
+    @SchemaMapping(typeName = "Stillingskode", field = "forelder")
     public CompletionStage<StillingskodeResource> getForelder(StillingskodeResource stillingskode, DataFetchingEnvironment dfe) {
         return Flux.fromStream(stillingskode.getForelder()
                 .stream()

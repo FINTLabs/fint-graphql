@@ -9,9 +9,10 @@ import no.fint.graphql.model.Endpoints;
 import no.novari.fint.model.resource.felles.PersonResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +47,9 @@ public class PersonService {
     }
 
     private Mono<PersonLookupResult> fetchPerson(String url, DataFetchingEnvironment dfe) {
-        return getPersonResource(url, dfe)
+        // Authorization checks may throw before WebClientRequest returns a Mono.
+        // Capture those failures too so the other permitted source can still succeed.
+        return Mono.defer(() -> getPersonResource(url, dfe))
                 .map(PersonLookupResult::success)
                 .onErrorResume(error -> Mono.just(PersonLookupResult.failure(error)));
     }
@@ -58,9 +61,10 @@ public class PersonService {
                 .toList();
 
         if (!resources.isEmpty()) {
+            // Lookups are cached per request and can also be used by nested resolvers
+            // or aliases. Merge into a fresh resource, never a cached source object.
             return Mono.just(resources.stream()
-                    .reduce(this::mergePersonResources)
-                    .orElse(resources.get(0)));
+                    .reduce(new PersonResource(), this::mergePersonResources));
         }
 
         Throwable failure = selectFailure(results.stream()
@@ -74,7 +78,8 @@ public class PersonService {
     private PersonResource mergePersonResources(PersonResource intermediate, PersonResource current) {
         FintPropertyUtils.copyProperties(
                 current, intermediate,
-                pd -> !pd.getName().contentEquals("links"),
+                pd -> !pd.getName().contentEquals("links")
+                        && pd.getReadMethod() != null && pd.getWriteMethod() != null,
                 (a, b) -> b == null ? a : b
         );
         current.getLinks().forEach((link, target) -> {
@@ -85,7 +90,7 @@ public class PersonService {
                                 .distinct()
                                 .collect(Collectors.toList()));
             } else {
-                intermediate.getLinks().put(link, target);
+                intermediate.getLinks().put(link, new ArrayList<>(target));
             }
         });
         return intermediate;

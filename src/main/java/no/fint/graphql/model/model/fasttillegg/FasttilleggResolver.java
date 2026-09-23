@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.fasttillegg;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.model.lonnsart.LonnsartService;
@@ -12,14 +11,15 @@ import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResou
 import no.novari.fint.model.resource.administrasjon.personal.FasttilleggResource;
 import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelFasttilleggResolver")
-public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource> {
+@Controller("modelFasttilleggResolver")
+public class FasttilleggResolver {
 
     @Autowired
     private LonnsartService lonnsartService;
@@ -31,6 +31,7 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
     private PersonalressursService personalressursService;
 
 
+    @SchemaMapping(typeName = "Fasttillegg", field = "lonnsart")
     public CompletionStage<LonnsartResource> getLonnsart(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fasttillegg.getLonnsart()
                 .stream()
@@ -41,6 +42,7 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fasttillegg", field = "arbeidsforhold")
     public CompletionStage<ArbeidsforholdResource> getArbeidsforhold(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fasttillegg.getArbeidsforhold()
                 .stream()
@@ -51,6 +53,7 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fasttillegg", field = "anviser")
     public CompletionStage<PersonalressursResource> getAnviser(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fasttillegg.getAnviser()
                 .stream()
@@ -61,6 +64,7 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fasttillegg", field = "konterer")
     public CompletionStage<PersonalressursResource> getKonterer(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fasttillegg.getKonterer()
                 .stream()
@@ -71,6 +75,7 @@ public class FasttilleggResolver implements GraphQLResolver<FasttilleggResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fasttillegg", field = "attestant")
     public CompletionStage<PersonalressursResource> getAttestant(FasttilleggResource fasttillegg, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fasttillegg.getAttestant()
                 .stream()

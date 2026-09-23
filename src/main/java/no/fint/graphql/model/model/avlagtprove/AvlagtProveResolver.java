@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.avlagtprove;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.bevistype.BevistypeService;
 import no.fint.graphql.model.model.brevtype.BrevtypeService;
@@ -16,14 +15,15 @@ import no.novari.fint.model.resource.utdanning.kodeverk.ProvestatusResource;
 import no.novari.fint.model.resource.utdanning.larling.AvlagtProveResource;
 import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelAvlagtProveResolver")
-public class AvlagtProveResolver implements GraphQLResolver<AvlagtProveResource> {
+@Controller("modelAvlagtProveResolver")
+public class AvlagtProveResolver {
 
     @Autowired
     private ProvestatusService provestatusService;
@@ -41,6 +41,7 @@ public class AvlagtProveResolver implements GraphQLResolver<AvlagtProveResource>
     private BevistypeService bevistypeService;
 
 
+    @SchemaMapping(typeName = "AvlagtProve", field = "provestatus")
     public CompletionStage<ProvestatusResource> getProvestatus(AvlagtProveResource avlagtprove, DataFetchingEnvironment dfe) {
         return Flux.fromStream(avlagtprove.getProvestatus()
                 .stream()
@@ -51,6 +52,7 @@ public class AvlagtProveResolver implements GraphQLResolver<AvlagtProveResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "AvlagtProve", field = "larling")
     public CompletionStage<LarlingResource> getLarling(AvlagtProveResource avlagtprove, DataFetchingEnvironment dfe) {
         return Flux.fromStream(avlagtprove.getLarling()
                 .stream()
@@ -61,6 +63,7 @@ public class AvlagtProveResolver implements GraphQLResolver<AvlagtProveResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "AvlagtProve", field = "fullfortkode")
     public CompletionStage<FullfortkodeResource> getFullfortkode(AvlagtProveResource avlagtprove, DataFetchingEnvironment dfe) {
         return Flux.fromStream(avlagtprove.getFullfortkode()
                 .stream()
@@ -71,6 +74,7 @@ public class AvlagtProveResolver implements GraphQLResolver<AvlagtProveResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "AvlagtProve", field = "brevtype")
     public CompletionStage<BrevtypeResource> getBrevtype(AvlagtProveResource avlagtprove, DataFetchingEnvironment dfe) {
         return Flux.fromStream(avlagtprove.getBrevtype()
                 .stream()
@@ -81,6 +85,7 @@ public class AvlagtProveResolver implements GraphQLResolver<AvlagtProveResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "AvlagtProve", field = "bevistype")
     public CompletionStage<BevistypeResource> getBevistype(AvlagtProveResource avlagtprove, DataFetchingEnvironment dfe) {
         return Flux.fromStream(avlagtprove.getBevistype()
                 .stream()

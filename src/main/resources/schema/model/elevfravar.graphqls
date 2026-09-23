@@ -5,6 +5,7 @@ type Elevfravar {
 
 
 	# Relations
+    aktivitetsfravar: [Aktivitetsfravar]
     fravarsregistrering: [Fravarsregistrering]
     elevforhold: Elevforhold!
 }

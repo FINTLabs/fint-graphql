@@ -10,8 +10,8 @@ type Klasse {
     skolear: Skolear
     termin: [Termin]
     trinn: Arstrinn!
-    skole: Skole!
     undervisningsforhold: [Undervisningsforhold]
+    skole: Skole!
     klassemedlemskap: [Klassemedlemskap]
     kontaktlarergruppe: [Kontaktlarergruppe]
 }

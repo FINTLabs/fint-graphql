@@ -1,9 +1,9 @@
 package no.fint.graphql.config;
 
 import no.fint.graphql.BlacklistService;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
-import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.SupplierJwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -54,6 +55,6 @@ public class SecurityConfig {
     public JwtDecoder jwtDecoder(
             @Value("${fint.security.oauth2.issuer-uri:https://idp.felleskomponent.no/nidp/oauth/nam}") String issuerUri
     ) {
-        return JwtDecoders.fromIssuerLocation(issuerUri);
+        return new SupplierJwtDecoder(() -> JwtDecoders.fromIssuerLocation(issuerUri));
     }
 }

@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.karakterhistorie;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.karakterstatus.KarakterstatusService;
 import no.fint.graphql.model.model.karakterverdi.KarakterverdiService;
@@ -12,14 +11,15 @@ import no.novari.fint.model.resource.utdanning.kodeverk.KarakterstatusResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterhistorieResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelKarakterhistorieResolver")
-public class KarakterhistorieResolver implements GraphQLResolver<KarakterhistorieResource> {
+@Controller("modelKarakterhistorieResolver")
+public class KarakterhistorieResolver {
 
     @Autowired
     private SkoleressursService skoleressursService;
@@ -31,6 +31,7 @@ public class KarakterhistorieResolver implements GraphQLResolver<Karakterhistori
     private KarakterstatusService karakterstatusService;
 
 
+    @SchemaMapping(typeName = "Karakterhistorie", field = "oppdatertAv")
     public CompletionStage<SkoleressursResource> getOppdatertAv(KarakterhistorieResource karakterhistorie, DataFetchingEnvironment dfe) {
         return Flux.fromStream(karakterhistorie.getOppdatertAv()
                 .stream()
@@ -41,6 +42,7 @@ public class KarakterhistorieResolver implements GraphQLResolver<Karakterhistori
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Karakterhistorie", field = "opprinneligKarakterverdi")
     public CompletionStage<KarakterverdiResource> getOpprinneligKarakterverdi(KarakterhistorieResource karakterhistorie, DataFetchingEnvironment dfe) {
         return Flux.fromStream(karakterhistorie.getOpprinneligKarakterverdi()
                 .stream()
@@ -51,6 +53,7 @@ public class KarakterhistorieResolver implements GraphQLResolver<Karakterhistori
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Karakterhistorie", field = "opprinneligKarakterstatus")
     public CompletionStage<KarakterstatusResource> getOpprinneligKarakterstatus(KarakterhistorieResource karakterhistorie, DataFetchingEnvironment dfe) {
         return Flux.fromStream(karakterhistorie.getOpprinneligKarakterstatus()
                 .stream()
@@ -61,6 +64,7 @@ public class KarakterhistorieResolver implements GraphQLResolver<Karakterhistori
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Karakterhistorie", field = "karakterverdi")
     public CompletionStage<KarakterverdiResource> getKarakterverdi(KarakterhistorieResource karakterhistorie, DataFetchingEnvironment dfe) {
         return Flux.fromStream(karakterhistorie.getKarakterverdi()
                 .stream()
@@ -71,6 +75,7 @@ public class KarakterhistorieResolver implements GraphQLResolver<Karakterhistori
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Karakterhistorie", field = "karakterstatus")
     public CompletionStage<KarakterstatusResource> getKarakterstatus(KarakterhistorieResource karakterhistorie, DataFetchingEnvironment dfe) {
         return Flux.fromStream(karakterhistorie.getKarakterstatus()
                 .stream()

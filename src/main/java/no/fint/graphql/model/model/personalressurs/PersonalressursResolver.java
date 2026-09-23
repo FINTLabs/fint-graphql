@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.personalressurs;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.model.fullmakt.FullmaktService;
@@ -18,7 +17,8 @@ import no.novari.fint.model.resource.administrasjon.personal.PersonalressursReso
 import no.novari.fint.model.resource.felles.PersonResource;
 import no.novari.fint.model.resource.utdanning.elev.SkoleressursResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelPersonalressursResolver")
-public class PersonalressursResolver implements GraphQLResolver<PersonalressursResource> {
+@Controller("modelPersonalressursResolver")
+public class PersonalressursResolver {
 
     @Autowired
     private PersonalressurskategoriService personalressurskategoriService;
@@ -51,6 +51,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
     private SkoleressursService skoleressursService;
 
 
+    @SchemaMapping(typeName = "Personalressurs", field = "personalressurskategori")
     public CompletionStage<PersonalressurskategoriResource> getPersonalressurskategori(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         return Flux.fromStream(personalressurs.getPersonalressurskategori()
                 .stream()
@@ -61,6 +62,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Personalressurs", field = "arbeidsforhold")
     public CompletionStage<List<ArbeidsforholdResource>> getArbeidsforhold(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(personalressurs.getArbeidsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -70,6 +72,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .flatMapSequential(href -> arbeidsforholdService.getArbeidsforholdResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -80,6 +83,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Personalressurs", field = "person")
     public CompletionStage<PersonResource> getPerson(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         return Flux.fromStream(personalressurs.getPerson()
                 .stream()
@@ -90,6 +94,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Personalressurs", field = "stedfortreder")
     public CompletionStage<List<FullmaktResource>> getStedfortreder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(personalressurs.getStedfortreder()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -99,6 +104,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .flatMapSequential(href -> fullmaktService.getFullmaktResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -109,6 +115,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Personalressurs", field = "fullmakt")
     public CompletionStage<List<FullmaktResource>> getFullmakt(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(personalressurs.getFullmakt()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -118,6 +125,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .flatMapSequential(href -> fullmaktService.getFullmaktResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -128,6 +136,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Personalressurs", field = "leder")
     public CompletionStage<List<OrganisasjonselementResource>> getLeder(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(personalressurs.getLeder()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -137,6 +146,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .flatMapSequential(href -> organisasjonselementService.getOrganisasjonselementResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -147,6 +157,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Personalressurs", field = "personalansvar")
     public CompletionStage<List<ArbeidsforholdResource>> getPersonalansvar(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(personalressurs.getPersonalansvar()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -156,6 +167,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .map(Link::getHref)
                 .flatMapSequential(href -> arbeidsforholdService.getArbeidsforholdResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -166,6 +178,7 @@ public class PersonalressursResolver implements GraphQLResolver<PersonalressursR
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Personalressurs", field = "skoleressurs")
     public CompletionStage<SkoleressursResource> getSkoleressurs(PersonalressursResource personalressurs, DataFetchingEnvironment dfe) {
         return Flux.fromStream(personalressurs.getSkoleressurs()
                 .stream()

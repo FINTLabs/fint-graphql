@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.faggruppe;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.fag.FagService;
 import no.fint.graphql.model.model.faggruppemedlemskap.FaggruppemedlemskapService;
@@ -14,7 +13,8 @@ import no.novari.fint.model.resource.utdanning.timeplan.FaggruppeResource;
 import no.novari.fint.model.resource.utdanning.timeplan.FaggruppemedlemskapResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,8 +25,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelFaggruppeResolver")
-public class FaggruppeResolver implements GraphQLResolver<FaggruppeResource> {
+@Controller("modelFaggruppeResolver")
+public class FaggruppeResolver {
 
     @Autowired
     private FagService fagService;
@@ -41,6 +41,7 @@ public class FaggruppeResolver implements GraphQLResolver<FaggruppeResource> {
     private FaggruppemedlemskapService faggruppemedlemskapService;
 
 
+    @SchemaMapping(typeName = "Faggruppe", field = "fag")
     public CompletionStage<FagResource> getFag(FaggruppeResource faggruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(faggruppe.getFag()
                 .stream()
@@ -51,6 +52,7 @@ public class FaggruppeResolver implements GraphQLResolver<FaggruppeResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Faggruppe", field = "skole")
     public CompletionStage<SkoleResource> getSkole(FaggruppeResource faggruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(faggruppe.getSkole()
                 .stream()
@@ -61,6 +63,7 @@ public class FaggruppeResolver implements GraphQLResolver<FaggruppeResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Faggruppe", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(FaggruppeResource faggruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(faggruppe.getSkolear()
                 .stream()
@@ -71,6 +74,7 @@ public class FaggruppeResolver implements GraphQLResolver<FaggruppeResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Faggruppe", field = "faggruppemedlemskap")
     public CompletionStage<List<FaggruppemedlemskapResource>> getFaggruppemedlemskap(FaggruppeResource faggruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(faggruppe.getFaggruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -80,6 +84,7 @@ public class FaggruppeResolver implements GraphQLResolver<FaggruppeResource> {
                 .map(Link::getHref)
                 .flatMapSequential(href -> faggruppemedlemskapService.getFaggruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

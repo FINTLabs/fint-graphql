@@ -1,0 +1,15 @@
+
+type Aktivitetsfravar {
+	#  Attributes
+    dato: Date!
+    kommentar: String
+    minutter: Int!
+    systemId: Identifikator!
+
+
+	# Relations
+    registrertAv: Skoleressurs
+    fag: Fag!
+    undervisningsgruppe: Undervisningsgruppe!
+    elevfravar: Elevfravar!
+}

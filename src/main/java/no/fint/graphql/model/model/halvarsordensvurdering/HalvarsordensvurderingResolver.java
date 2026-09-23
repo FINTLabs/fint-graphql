@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.halvarsordensvurdering;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
 import no.fint.graphql.model.model.karakterverdi.KarakterverdiService;
@@ -12,14 +11,15 @@ import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.HalvarsordensvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelHalvarsordensvurderingResolver")
-public class HalvarsordensvurderingResolver implements GraphQLResolver<HalvarsordensvurderingResource> {
+@Controller("modelHalvarsordensvurderingResolver")
+public class HalvarsordensvurderingResolver {
 
     @Autowired
     private ElevvurderingService elevvurderingService;
@@ -31,6 +31,7 @@ public class HalvarsordensvurderingResolver implements GraphQLResolver<Halvarsor
     private SkolearService skolearService;
 
 
+    @SchemaMapping(typeName = "Halvarsordensvurdering", field = "elevvurdering")
     public CompletionStage<ElevvurderingResource> getElevvurdering(HalvarsordensvurderingResource halvarsordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsordensvurdering.getElevvurdering()
                 .stream()
@@ -41,6 +42,7 @@ public class HalvarsordensvurderingResolver implements GraphQLResolver<Halvarsor
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Halvarsordensvurdering", field = "atferd")
     public CompletionStage<KarakterverdiResource> getAtferd(HalvarsordensvurderingResource halvarsordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsordensvurdering.getAtferd()
                 .stream()
@@ -51,6 +53,7 @@ public class HalvarsordensvurderingResolver implements GraphQLResolver<Halvarsor
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Halvarsordensvurdering", field = "orden")
     public CompletionStage<KarakterverdiResource> getOrden(HalvarsordensvurderingResource halvarsordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsordensvurdering.getOrden()
                 .stream()
@@ -61,6 +64,7 @@ public class HalvarsordensvurderingResolver implements GraphQLResolver<Halvarsor
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Halvarsordensvurdering", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(HalvarsordensvurderingResource halvarsordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsordensvurdering.getSkolear()
                 .stream()

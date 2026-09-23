@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.persongruppe;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elev.ElevService;
 import no.fint.graphql.model.model.persongruppemedlemskap.PersongruppemedlemskapService;
@@ -16,7 +15,8 @@ import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.TerminResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,8 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelPersongruppeResolver")
-public class PersongruppeResolver implements GraphQLResolver<PersongruppeResource> {
+@Controller("modelPersongruppeResolver")
+public class PersongruppeResolver {
 
     @Autowired
     private ElevService elevService;
@@ -52,6 +52,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
     private SkolearService skolearService;
 
 
+    @SchemaMapping(typeName = "Persongruppe", field = "elev")
     public CompletionStage<List<ElevResource>> getElev(PersongruppeResource persongruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(persongruppe.getElev()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -61,6 +62,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .map(Link::getHref)
                 .flatMapSequential(href -> elevService.getElevResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -71,6 +73,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Persongruppe", field = "persongruppemedlemskap")
     public CompletionStage<List<PersongruppemedlemskapResource>> getPersongruppemedlemskap(PersongruppeResource persongruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(persongruppe.getPersongruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -80,6 +83,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .map(Link::getHref)
                 .flatMapSequential(href -> persongruppemedlemskapService.getPersongruppemedlemskapResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -90,6 +94,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Persongruppe", field = "termin")
     public CompletionStage<List<TerminResource>> getTermin(PersongruppeResource persongruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(persongruppe.getTermin()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -99,6 +104,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .map(Link::getHref)
                 .flatMapSequential(href -> terminService.getTerminResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -109,6 +115,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Persongruppe", field = "undervisningsforhold")
     public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(PersongruppeResource persongruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(persongruppe.getUndervisningsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -118,6 +125,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .map(Link::getHref)
                 .flatMapSequential(href -> undervisningsforholdService.getUndervisningsforholdResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -128,6 +136,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Persongruppe", field = "skole")
     public CompletionStage<List<SkoleResource>> getSkole(PersongruppeResource persongruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(persongruppe.getSkole()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -137,6 +146,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .map(Link::getHref)
                 .flatMapSequential(href -> skoleService.getSkoleResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -147,6 +157,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Persongruppe", field = "skoleressurs")
     public CompletionStage<List<SkoleressursResource>> getSkoleressurs(PersongruppeResource persongruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(persongruppe.getSkoleressurs()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -156,6 +167,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .map(Link::getHref)
                 .flatMapSequential(href -> skoleressursService.getSkoleressursResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -166,6 +178,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Persongruppe", field = "skolear")
     public CompletionStage<List<SkolearResource>> getSkolear(PersongruppeResource persongruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(persongruppe.getSkolear()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -175,6 +188,7 @@ public class PersongruppeResolver implements GraphQLResolver<PersongruppeResourc
                 .map(Link::getHref)
                 .flatMapSequential(href -> skolearService.getSkolearResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)

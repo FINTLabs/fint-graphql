@@ -1,20 +1,19 @@
 
 package no.fint.graphql.model.model.sprak;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.novari.fint.model.resource.felles.kodeverk.iso.SprakResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelSprakQueryResolver")
+@Controller("modelSprakQueryResolver")
 @Slf4j
-public class SprakQueryResolver implements GraphQLQueryResolver {
+public class SprakQueryResolver {
 
     @Autowired
     private SprakService service;

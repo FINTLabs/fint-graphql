@@ -15,16 +15,18 @@ fint:
     async-request-timeout: PT1M55S
     query-timeout: PT1M50S
 
-graphql:
-  servlet:
-    exception-handlers-enabled: true
-    async:
-      enabled: true
-
 server:
   forward-headers-strategy: framework
 
 spring:
+  graphql:
+    schema:
+      locations: classpath:schema/**/
+    graphiql:
+      enabled: true
+  mvc:
+    async:
+      request-timeout: 0
   threads:
     virtual:
       enabled: true

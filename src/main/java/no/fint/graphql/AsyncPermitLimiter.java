@@ -19,7 +19,7 @@ final class AsyncPermitLimiter {
     }
 
     Mono<Permit> acquire() {
-        return Mono.create(sink -> {
+        return Mono.<Permit>create(sink -> {
             PendingAcquire pendingAcquire = new PendingAcquire(sink);
             boolean acquiredImmediately = false;
             synchronized (this) {
@@ -35,7 +35,7 @@ final class AsyncPermitLimiter {
                 return;
             }
             sink.onCancel(() -> cancelPendingAcquire(pendingAcquire));
-        });
+        }).doOnDiscard(Permit.class, permit -> permit.release().subscribe());
     }
 
     private void cancelPendingAcquire(PendingAcquire pendingAcquire) {

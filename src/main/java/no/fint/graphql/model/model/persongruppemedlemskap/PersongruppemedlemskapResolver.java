@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.persongruppemedlemskap;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.persongruppe.PersongruppeService;
@@ -10,14 +9,15 @@ import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.novari.fint.model.resource.utdanning.elev.PersongruppeResource;
 import no.novari.fint.model.resource.utdanning.elev.PersongruppemedlemskapResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelPersongruppemedlemskapResolver")
-public class PersongruppemedlemskapResolver implements GraphQLResolver<PersongruppemedlemskapResource> {
+@Controller("modelPersongruppemedlemskapResolver")
+public class PersongruppemedlemskapResolver {
 
     @Autowired
     private ElevforholdService elevforholdService;
@@ -26,6 +26,7 @@ public class PersongruppemedlemskapResolver implements GraphQLResolver<Persongru
     private PersongruppeService persongruppeService;
 
 
+    @SchemaMapping(typeName = "Persongruppemedlemskap", field = "elevforhold")
     public CompletionStage<ElevforholdResource> getElevforhold(PersongruppemedlemskapResource persongruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(persongruppemedlemskap.getElevforhold()
                 .stream()
@@ -36,6 +37,7 @@ public class PersongruppemedlemskapResolver implements GraphQLResolver<Persongru
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Persongruppemedlemskap", field = "persongruppe")
     public CompletionStage<PersongruppeResource> getPersongruppe(PersongruppemedlemskapResource persongruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(persongruppemedlemskap.getPersongruppe()
                 .stream()

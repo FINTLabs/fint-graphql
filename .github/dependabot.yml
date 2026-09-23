@@ -30,7 +30,7 @@ updates:
         applies-to: version-updates
         patterns:
           - 'com.graphql-java:*'
-          - 'com.graphql-java-kickstart:*'
+          - 'org.springframework.graphql:*'
         update-types:
           - minor
           - patch
@@ -45,7 +45,8 @@ updates:
       test-tooling:
         applies-to: version-updates
         patterns:
-          - 'cglib:*'
+          - 'net.bytebuddy:*'
+          - 'org.apache.groovy:*'
           - 'com.squareup.okhttp3:*'
           - 'org.junit.platform:*'
           - 'org.spockframework:*'

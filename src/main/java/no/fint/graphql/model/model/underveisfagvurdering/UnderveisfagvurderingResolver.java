@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.underveisfagvurdering;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
 import no.fint.graphql.model.model.fag.FagService;
@@ -14,14 +13,15 @@ import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import no.novari.fint.model.resource.utdanning.vurdering.UnderveisfagvurderingResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelUnderveisfagvurderingResolver")
-public class UnderveisfagvurderingResolver implements GraphQLResolver<UnderveisfagvurderingResource> {
+@Controller("modelUnderveisfagvurderingResolver")
+public class UnderveisfagvurderingResolver {
 
     @Autowired
     private ElevvurderingService elevvurderingService;
@@ -36,6 +36,7 @@ public class UnderveisfagvurderingResolver implements GraphQLResolver<Underveisf
     private KarakterverdiService karakterverdiService;
 
 
+    @SchemaMapping(typeName = "Underveisfagvurdering", field = "elevvurdering")
     public CompletionStage<ElevvurderingResource> getElevvurdering(UnderveisfagvurderingResource underveisfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisfagvurdering.getElevvurdering()
                 .stream()
@@ -46,6 +47,7 @@ public class UnderveisfagvurderingResolver implements GraphQLResolver<Underveisf
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Underveisfagvurdering", field = "fag")
     public CompletionStage<FagResource> getFag(UnderveisfagvurderingResource underveisfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisfagvurdering.getFag()
                 .stream()
@@ -56,6 +58,7 @@ public class UnderveisfagvurderingResolver implements GraphQLResolver<Underveisf
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Underveisfagvurdering", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(UnderveisfagvurderingResource underveisfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisfagvurdering.getSkolear()
                 .stream()
@@ -66,6 +69,7 @@ public class UnderveisfagvurderingResolver implements GraphQLResolver<Underveisf
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Underveisfagvurdering", field = "karakter")
     public CompletionStage<KarakterverdiResource> getKarakter(UnderveisfagvurderingResource underveisfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisfagvurdering.getKarakter()
                 .stream()

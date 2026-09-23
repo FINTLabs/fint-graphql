@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.kontostreng;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.aktivitet.AktivitetService;
 import no.fint.graphql.model.model.anlegg.AnleggService;
@@ -20,14 +19,15 @@ import no.novari.fint.model.resource.Link;
 import no.novari.fint.model.resource.administrasjon.kodeverk.*;
 import no.novari.fint.model.resource.administrasjon.kompleksedatatyper.KontostrengResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelKontostrengResolver")
-public class KontostrengResolver implements GraphQLResolver<KontostrengResource> {
+@Controller("modelKontostrengResolver")
+public class KontostrengResolver {
 
     @Autowired
     private AktivitetService aktivitetService;
@@ -69,6 +69,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
     private RammeService rammeService;
 
 
+    @SchemaMapping(typeName = "Kontostreng", field = "aktivitet")
     public CompletionStage<AktivitetResource> getAktivitet(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getAktivitet()
                 .stream()
@@ -79,6 +80,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "anlegg")
     public CompletionStage<AnleggResource> getAnlegg(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getAnlegg()
                 .stream()
@@ -89,6 +91,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "ansvar")
     public CompletionStage<AnsvarResource> getAnsvar(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getAnsvar()
                 .stream()
@@ -99,6 +102,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "art")
     public CompletionStage<ArtResource> getArt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getArt()
                 .stream()
@@ -109,6 +113,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "diverse")
     public CompletionStage<DiverseResource> getDiverse(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getDiverse()
                 .stream()
@@ -119,6 +124,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "formal")
     public CompletionStage<FormalResource> getFormal(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getFormal()
                 .stream()
@@ -129,6 +135,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "funksjon")
     public CompletionStage<FunksjonResource> getFunksjon(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getFunksjon()
                 .stream()
@@ -139,6 +146,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "kontrakt")
     public CompletionStage<KontraktResource> getKontrakt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getKontrakt()
                 .stream()
@@ -149,6 +157,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "lopenummer")
     public CompletionStage<LopenummerResource> getLopenummer(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getLopenummer()
                 .stream()
@@ -159,6 +168,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "objekt")
     public CompletionStage<ObjektResource> getObjekt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getObjekt()
                 .stream()
@@ -169,6 +179,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "prosjekt")
     public CompletionStage<ProsjektResource> getProsjekt(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getProsjekt()
                 .stream()
@@ -179,6 +190,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "prosjektart")
     public CompletionStage<ProsjektartResource> getProsjektart(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getProsjektart()
                 .stream()
@@ -189,6 +201,7 @@ public class KontostrengResolver implements GraphQLResolver<KontostrengResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontostreng", field = "ramme")
     public CompletionStage<RammeResource> getRamme(KontostrengResource kontostreng, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontostreng.getRamme()
                 .stream()

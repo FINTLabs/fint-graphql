@@ -1,7 +1,9 @@
 package no.fint.graphql
 
-import com.coxautodev.graphql.tools.GraphQLResolver
-import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.stereotype.Controller
+import org.springframework.boot.test.context.TestComponent
+import org.springframework.graphql.data.method.annotation.SchemaMapping
+import tools.jackson.databind.ObjectMapper
 import graphql.ExceptionWhileDataFetching
 import graphql.GraphQLError
 import graphql.execution.DataFetcherResult
@@ -21,18 +23,16 @@ import no.novari.fint.model.resource.felles.PersonResource
 import no.novari.fint.model.resource.utdanning.elev.ElevResource
 import no.novari.fint.model.resource.utdanning.vurdering.HalvarsfagvurderingResource
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.QueueDispatcher
-import okhttp3.mockwebserver.RecordedRequest
+import mockwebserver3.Dispatcher
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
+import mockwebserver3.QueueDispatcher
+import mockwebserver3.RecordedRequest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -61,19 +61,18 @@ import java.util.concurrent.TimeUnit
 class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
     @Shared
-    private static final MockWebServer server = new MockWebServer()
+    private static final MockWebServer server = new MockWebServer().tap { start() }
 
     @Autowired
     private WebTestClient webTestClient
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
-        startServerIfNeeded()
         registry.add("fint.endpoint.root", { server.url("/").toString() })
     }
 
     def cleanupSpec() {
-        server.shutdown()
+        server.close()
     }
 
     def setup() {
@@ -81,9 +80,37 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         server.setDispatcher(new QueueDispatcher())
     }
 
+    def "undefined nested field returns a mapped validation error without calling downstream services"() {
+        given:
+        drainRequests()
+        def query = '''{
+  skole(skolenummer: "123") {
+    elevforhold {
+      basisgruppemedlemskap
+    }
+  }
+}'''
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery(query,
+                TestJwtTokens.bearerWithRoles('FINT_Client_UtdanningElev')), Map)
+
+        then:
+        !body.containsKey('data')
+        body.errors.size() == 1
+        body.errors[0].message.contains("Field 'basisgruppemedlemskap' in type 'Elevforhold' is undefined")
+        body.errors[0].locations == [[line: 4, column: 7]]
+        !body.errors[0].containsKey('path')
+        body.errors[0].extensions.code == 'GRAPHQL_VALIDATION_FAILED'
+        body.errors[0].extensions.validationErrorType == 'FieldUndefined'
+        body.errors[0].extensions.queryPath == ['skole', 'elevforhold', 'basisgruppemedlemskap']
+        body.errors[0].extensions.classification == 'ValidationError'
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+    }
+
     def "GraphQL maps status #status to expected error object"() {
         given:
-        server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
+        server.enqueue(new MockResponse.Builder().code(status).body("error").build())
         def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
 
         when:
@@ -104,7 +131,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
     def "GraphQL maps status #status to expected error object for retried requests"() {
         given:
         4.times {
-            server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
+            server.enqueue(new MockResponse.Builder().code(status).body("error").build())
         }
         def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
 
@@ -131,7 +158,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                return new MockResponse().setResponseCode(200).setBody("ok")
+                return new MockResponse.Builder().code(200).body("ok").build()
             }
         })
         // The "dedupe" path returns 3 links, two of which are identical.
@@ -159,7 +186,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
     def "GraphQL completes when DataLoader loads are enqueued late"() {
         given:
         drainRequests()
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("ok"))
+        server.enqueue(new MockResponse.Builder().code(200).body("ok").build())
         def query = 'query { rolle(navn: "late") { fullmakt { systemId { identifikatorverdi } } } }'
 
         when:
@@ -173,7 +200,7 @@ class WebClientGraphQLErrorHandlerIntegrationSpec extends Specification {
 
     def "GraphQL returns message and path for status #status"() {
         given:
-        server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
+        server.enqueue(new MockResponse.Builder().code(status).body("error").build())
         def query = 'query { rolle(navn: "bar") { navn { identifikatorverdi } } }'
 
         when:
@@ -230,7 +257,7 @@ query Rolle($navn: String) {
         def body = new ObjectMapper().readValue(responseBody, Map)
         body.errors == null || body.errors.isEmpty()
         body.data?.rolle?.navn?.identifikatorverdi == "R1"
-        server.takeRequest(1, TimeUnit.SECONDS).path == expectedPath
+        server.takeRequest(1, TimeUnit.SECONDS).target == expectedPath
         server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 
@@ -243,13 +270,13 @@ query Rolle($navn: String) {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                if (request.path == "/utdanning/vurdering/halvarsfagvurdering/systemid/${halvarsfagvurderingId}") {
+                if (request.target == "/utdanning/vurdering/halvarsfagvurdering/systemid/${halvarsfagvurderingId}") {
                     return jsonResponse(halvarsfagvurderingResource("HV-1", absoluteKarakterLink))
                 }
-                if (request.path == encodedKarakterPath) {
+                if (request.target == encodedKarakterPath) {
                     return jsonResponse(karakterverdiResource("V::4"))
                 }
-                return new MockResponse().setResponseCode(500).setBody("unexpected ${request.path}")
+                return new MockResponse.Builder().code(500).body("unexpected ${request.target}").build()
             }
         })
         def query = """
@@ -276,10 +303,10 @@ query {
         and:
         def firstRequest = server.takeRequest(1, TimeUnit.SECONDS)
         def secondRequest = server.takeRequest(1, TimeUnit.SECONDS)
-        firstRequest.path == "/utdanning/vurdering/halvarsfagvurdering/systemid/${halvarsfagvurderingId}"
-        secondRequest.path == encodedKarakterPath
-        secondRequest.getHeader('Host') == 'beta.felleskomponent.no'
-        secondRequest.path != "/utdanning/vurdering/karakterverdi/systemid/V%253A%253A4"
+        firstRequest.target == "/utdanning/vurdering/halvarsfagvurdering/systemid/${halvarsfagvurderingId}"
+        secondRequest.target == encodedKarakterPath
+        secondRequest.headers.get('Host') == 'beta.felleskomponent.no'
+        secondRequest.target != "/utdanning/vurdering/karakterverdi/systemid/V%253A%253A4"
         server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 
@@ -289,18 +316,18 @@ query {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/1")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setBody(fullmaktResource("F1"))
+                if (request.target?.contains("/administrasjon/fullmakt/fullmakt/systemid/1")) {
+                    return new MockResponse.Builder()
+                            .code(200)
+                            .body(fullmaktResource("F1")).build()
                 }
-                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/2")) {
-                    return new MockResponse().setResponseCode(403).setBody("error")
+                if (request.target?.contains("/administrasjon/fullmakt/fullmakt/systemid/2")) {
+                    return new MockResponse.Builder().code(403).body("error").build()
                 }
-                if (request.path?.contains("/administrasjon/fullmakt/fullmakt/systemid/3")) {
-                    return new MockResponse().setResponseCode(404).setBody("error")
+                if (request.target?.contains("/administrasjon/fullmakt/fullmakt/systemid/3")) {
+                    return new MockResponse.Builder().code(404).body("error").build()
                 }
-                return new MockResponse().setResponseCode(500).setBody("unexpected")
+                return new MockResponse.Builder().code(500).body("unexpected").build()
             }
         })
         def query = 'query { rolle(navn: "foo") { fullmakt { systemId { identifikatorverdi } } } }'
@@ -349,8 +376,8 @@ query {
         def fullmaktPaths = []
         (0..<6).each {
             def request = server.takeRequest(2, TimeUnit.SECONDS)
-            if (request?.path?.startsWith("/administrasjon/fullmakt/fullmakt/")) {
-                fullmaktPaths << request.path
+            if (request?.target?.startsWith("/administrasjon/fullmakt/fullmakt/")) {
+                fullmaktPaths << request.target
             }
         }
         fullmaktPaths.containsAll([
@@ -367,7 +394,7 @@ query {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                if (request.target == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
                     return jsonResponse(personResource(
                             fnr,
                             "Ada",
@@ -378,10 +405,10 @@ query {
                             null
                     ))
                 }
-                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
-                    return new MockResponse().setResponseCode(404).setBody("not found")
+                if (request.target == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse.Builder().code(404).body("not found").build()
                 }
-                return new MockResponse().setResponseCode(500).setBody("unexpected")
+                return new MockResponse.Builder().code(500).body("unexpected").build()
             }
         })
 
@@ -403,10 +430,10 @@ query {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
-                    return new MockResponse().setResponseCode(404).setBody("not found")
+                if (request.target == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse.Builder().code(404).body("not found").build()
                 }
-                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                if (request.target == "/utdanning/elev/person/fodselsnummer/${fnr}") {
                     return jsonResponse(personResource(
                             fnr,
                             "Grace",
@@ -417,7 +444,7 @@ query {
                             null
                     ))
                 }
-                return new MockResponse().setResponseCode(500).setBody("unexpected")
+                return new MockResponse.Builder().code(500).body("unexpected").build()
             }
         })
 
@@ -439,7 +466,7 @@ query {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                if (request.target == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
                     return jsonResponse(personResource(
                             fnr,
                             "Ada",
@@ -450,7 +477,7 @@ query {
                             null
                     ))
                 }
-                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                if (request.target == "/utdanning/elev/person/fodselsnummer/${fnr}") {
                     return jsonResponse(personResource(
                             fnr,
                             "Grace",
@@ -461,13 +488,13 @@ query {
                             "/utdanning/elev/elev/systemid/E-1"
                     ))
                 }
-                if (request.path == "/administrasjon/personal/personalressurs/systemid/P-1") {
+                if (request.target == "/administrasjon/personal/personalressurs/systemid/P-1") {
                     return jsonResponse(personalressursResource("P-1"))
                 }
-                if (request.path == "/utdanning/elev/elev/systemid/E-1") {
+                if (request.target == "/utdanning/elev/elev/systemid/E-1") {
                     return jsonResponse(elevResource("E-1"))
                 }
-                return new MockResponse().setResponseCode(500).setBody("unexpected")
+                return new MockResponse.Builder().code(500).body("unexpected").build()
             }
         })
 
@@ -479,7 +506,7 @@ query {
         body.errors == null || body.errors.isEmpty()
         body.data?.person?.fodselsnummer?.identifikatorverdi == fnr
         body.data?.person?.bilde == "admin-image"
-        body.data?.person?.navn != null
+        body.data?.person?.navn == [fornavn: "Ada", etternavn: "Byron", mellomnavn: null]
         body.data?.person?.personalressurs?.systemId?.identifikatorverdi == "P-1"
         body.data?.person?.elev?.systemId?.identifikatorverdi == "E-1"
     }
@@ -491,13 +518,13 @@ query {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
-                    return new MockResponse().setResponseCode(404).setBody("not found")
+                if (request.target == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse.Builder().code(404).body("not found").build()
                 }
-                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
-                    return new MockResponse().setResponseCode(404).setBody("not found")
+                if (request.target == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse.Builder().code(404).body("not found").build()
                 }
-                return new MockResponse().setResponseCode(500).setBody("unexpected")
+                return new MockResponse.Builder().code(500).body("unexpected").build()
             }
         })
 
@@ -517,13 +544,13 @@ query {
         server.setDispatcher(new Dispatcher() {
             @Override
             MockResponse dispatch(RecordedRequest request) {
-                if (request.path == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
-                    return new MockResponse().setResponseCode(404).setBody("not found")
+                if (request.target == "/administrasjon/personal/person/fodselsnummer/${fnr}") {
+                    return new MockResponse.Builder().code(404).body("not found").build()
                 }
-                if (request.path == "/utdanning/elev/person/fodselsnummer/${fnr}") {
-                    return new MockResponse().setResponseCode(503).setBody("service unavailable")
+                if (request.target == "/utdanning/elev/person/fodselsnummer/${fnr}") {
+                    return new MockResponse.Builder().code(503).body("service unavailable").build()
                 }
-                return new MockResponse().setResponseCode(500).setBody("unexpected")
+                return new MockResponse.Builder().code(500).body("unexpected").build()
             }
         })
 
@@ -537,6 +564,184 @@ query {
         body.errors[0].path == ["person"]
         body.errors[0].message == "Service Unavailable for /utdanning/elev/person/fodselsnummer/${fnr}"
         assertExtensionsMatch(body.errors[0].extensions, expectedExtensions(503, "/utdanning/elev/person/fodselsnummer/${fnr}"))
+    }
+
+    def "Person query serves the permitted source with only #role"() {
+        given:
+        drainRequests()
+        def fnr = '12345678910'
+        def permittedPersonPath = "${path}/person/fodselsnummer/${fnr}".toString()
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.target == permittedPersonPath) {
+                    return jsonResponse(personResource(fnr, 'Ada', 'Lovelace', null, 'permitted', null, null))
+                }
+                return new MockResponse.Builder().code(500).body('unexpected request').build()
+            }
+        })
+
+        when:
+        def body = new ObjectMapper().readValue(executePersonQuery(fnr, TestJwtTokens.bearerWithRoles(role)), Map)
+
+        then:
+        !body.errors
+        body.data.person.bilde == 'permitted'
+        body.data.person.navn.fornavn == 'Ada'
+        server.takeRequest(1, TimeUnit.SECONDS).target == permittedPersonPath
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+
+        where:
+        role                                  | path
+        'FINT_Client_AdministrasjonPersonal'  | '/administrasjon/personal'
+        'FINT_Client_UtdanningElev'           | '/utdanning/elev'
+    }
+
+    def "Person query denies access when neither source is permitted"() {
+        given:
+        drainRequests()
+
+        when:
+        def body = new ObjectMapper().readValue(executePersonQuery('12345678910',
+                TestJwtTokens.bearerWithRoles('FINT_Client_AdministrasjonFullmakt')), Map)
+
+        then:
+        body.data.person == null
+        body.errors.size() == 1
+        body.errors[0].path == ['person']
+        body.errors[0].message == 'Forbidden'
+        body.errors[0].extensions.code == 403
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+    }
+
+    def "Person query without an identifier returns null without downstream calls"() {
+        given:
+        drainRequests()
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery(query,
+                TestJwtTokens.bearerWithRoles('FINT_Client_AdministrasjonPersonal', 'FINT_Client_UtdanningElev')), Map)
+
+        then:
+        !body.errors
+        body.data.person == null
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+
+        where:
+        query << ['{ person { bilde } }', '{ person(fodselsnummer: "") { bilde } }']
+    }
+
+    def "merged person aliases retain ordered deduplicated relationships when a parent returns #missingStatus"() {
+        given:
+        drainRequests()
+        def fnr = '12345678910'
+        def adminPath = "/administrasjon/personal/person/fodselsnummer/${fnr}"
+        def studentPath = "/utdanning/elev/person/fodselsnummer/${fnr}"
+        def sharedParent = '/utdanning/elev/person/fodselsnummer/parent-shared'
+        def missingParent = '/utdanning/elev/person/fodselsnummer/parent-missing'
+        def adminParent = '/administrasjon/personal/person/fodselsnummer/parent-admin'
+        def unavailableStatus = missingStatus
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.target == adminPath || request.target == studentPath) {
+                    def isAdmin = request.target == adminPath
+                    def person = new ObjectMapper().readValue(personResource(fnr,
+                            isAdmin ? 'Ada' : 'Grace', isAdmin ? 'Byron' : 'Hopper', null,
+                            isAdmin ? null : 'student-image', null, null), PersonResource)
+                    person.addForeldre(new Link(sharedParent))
+                    person.addForeldre(new Link(isAdmin ? adminParent : missingParent))
+                    return jsonResponse(new ObjectMapper().writeValueAsString(person))
+                }
+                if (request.target == sharedParent) {
+                    return new MockResponse.Builder().code(200).addHeader('Content-Type', 'application/json')
+                            .body(personResource('parent-shared', 'Shared', 'Parent', null, null, null, null))
+                            .bodyDelay(100, TimeUnit.MILLISECONDS).build()
+                }
+                if (request.target == adminParent) {
+                    return jsonResponse(personResource('parent-admin', 'Admin', 'Parent', null, null, null, null))
+                }
+                if (request.target == missingParent) {
+                    return new MockResponse.Builder().code(unavailableStatus).build()
+                }
+                return new MockResponse.Builder().code(500).body('unexpected request').build()
+            }
+        })
+        def selection = """person(fodselsnummer: "${fnr}") {
+            bilde navn { fornavn etternavn }
+            foreldre { fodselsnummer { identifikatorverdi } }
+            statsborgerskap { kode } parorende { navn { fornavn } }
+            larling { systemId { identifikatorverdi } } elev { systemId { identifikatorverdi } }
+        }"""
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery("{ first: ${selection} second: ${selection} }",
+                TestJwtTokens.bearerWithRoles('FINT_Client_AdministrasjonPersonal', 'FINT_Client_UtdanningElev')), Map)
+
+        then:
+        !body.errors
+        body.data.first == body.data.second
+        body.data.first.navn == [fornavn: 'Ada', etternavn: 'Byron']
+        body.data.first.bilde == 'student-image'
+        body.data.first.foreldre.collect { it?.fodselsnummer?.identifikatorverdi } == ['parent-shared', null, 'parent-admin']
+        body.data.first.statsborgerskap == []
+        body.data.first.parorende == []
+        body.data.first.larling == []
+        body.data.first.elev == null
+        def paths = (1..5).collect { server.takeRequest(1, TimeUnit.SECONDS)?.target }
+        paths.toSet() == [adminPath, studentPath, sharedParent, missingParent, adminParent].toSet()
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
+
+        where:
+        missingStatus << [404, 204]
+    }
+
+    def "generated 4.1.0 queries and relationships serve activity absence and subjects"() {
+        given:
+        drainRequests()
+        def responses = [
+                '/utdanning/vurdering/aktivitetsfravar/systemid/A1': '''{
+                  "systemId":{"identifikatorverdi":"A1"}, "minutter":45, "kommentar":"Activity",
+                  "_links":{"fag":[{"href":"/utdanning/timeplan/fag/systemid/F1"}]}
+                }''',
+                '/utdanning/vurdering/elevfravar/systemid/E1': '''{
+                  "_links":{"aktivitetsfravar":[
+                    {"href":"/utdanning/vurdering/aktivitetsfravar/systemid/A1"},
+                    {"href":"/utdanning/vurdering/aktivitetsfravar/systemid/empty"}]}
+                }''',
+                '/utdanning/vurdering/fravarsregistrering/systemid/R1': '''{
+                  "_links":{"fag":[{"href":"/utdanning/timeplan/fag/systemid/F1"}]}
+                }''',
+                '/utdanning/timeplan/fag/systemid/F1': '{"navn":"Mathematics"}'
+        ]
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            MockResponse dispatch(RecordedRequest request) {
+                if (request.target == '/utdanning/vurdering/aktivitetsfravar/systemid/empty') {
+                    return new MockResponse.Builder().code(204).build()
+                }
+                def payload = responses[request.target]
+                return payload ? jsonResponse(payload) : new MockResponse.Builder().code(500).body('unexpected request').build()
+            }
+        })
+        def query = '''{
+          aktivitetsfravar(systemId: "A1") { systemId { identifikatorverdi } minutter fag { navn } }
+          elevfravar(systemId: "E1") { aktivitetsfravar { kommentar minutter } }
+          fravarsregistrering(systemId: "R1") { fag { navn } }
+        }'''
+
+        when:
+        def body = new ObjectMapper().readValue(executeQuery(query,
+                TestJwtTokens.bearerWithRoles('FINT_Client_UtdanningVurdering', 'FINT_Client_UtdanningTimeplan')), Map)
+
+        then:
+        !body.errors
+        body.data.aktivitetsfravar == [systemId: [identifikatorverdi: 'A1'], minutter: 45, fag: [navn: 'Mathematics']]
+        body.data.elevfravar.aktivitetsfravar == [[kommentar: 'Activity', minutter: 45], null]
+        body.data.fravarsregistrering.fag.navn == 'Mathematics'
+        def paths = (1..5).collect { server.takeRequest(1, TimeUnit.SECONDS)?.target }
+        paths.toSet() == responses.keySet() + '/utdanning/vurdering/aktivitetsfravar/systemid/empty'
+        server.takeRequest(100, TimeUnit.MILLISECONDS) == null
     }
 
     private static String expectedMessage(int status, String navn) {
@@ -581,10 +786,10 @@ query {
     }
 
     private static MockResponse jsonResponse(String body) {
-        return new MockResponse()
-                .setResponseCode(200)
+        return new MockResponse.Builder()
+                .code(200)
                 .addHeader("Content-Type", "application/json")
-                .setBody(body)
+                .body(body).build()
     }
 
     private static String personResource(
@@ -705,25 +910,11 @@ query {
         }
     }
 
-    private static void startServerIfNeeded() {
-        if (server.getPort() != -1) {
-            return
-        }
-        try {
-            server.start()
-        } catch (IOException ex) {
-            throw new RuntimeException(ex)
-        }
-    }
-
     @TestConfiguration
-    @EnableAutoConfiguration
-    @ComponentScan(basePackages = "no.fint.graphql")
     static class TestApplication {
         @Bean
         @Primary
         WebClient testWebClient() {
-            startServerIfNeeded()
             return WebClient.builder()
                     .baseUrl(server.url("/").toString())
                     .build()
@@ -774,18 +965,21 @@ query {
 
         @Bean(name = "modelRolleResolver")
         @Primary
-        GraphQLResolver<RolleResource> testRolleResolver(WebClientRequest webClientRequest) {
+        TestRolleResolver testRolleResolver(WebClientRequest webClientRequest) {
             return new TestRolleResolver(webClientRequest)
         }
     }
 
-    static class TestRolleResolver implements GraphQLResolver<RolleResource> {
+    @TestComponent
+    @Controller
+    static class TestRolleResolver {
         private final WebClientRequest webClientRequest
 
         TestRolleResolver(WebClientRequest webClientRequest) {
             this.webClientRequest = webClientRequest
         }
 
+        @SchemaMapping(typeName = "Rolle", field = "fullmakt")
         CompletionStage<DataFetcherResult<List<FullmaktResource>>> getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
             def links = rolle.getFullmakt().collect { it.href }
             def delayed = "late" == rolle?.getBeskrivelse()

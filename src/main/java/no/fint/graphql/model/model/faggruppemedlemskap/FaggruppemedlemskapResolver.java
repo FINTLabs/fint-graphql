@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.faggruppemedlemskap;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.faggruppe.FaggruppeService;
@@ -16,7 +15,8 @@ import no.novari.fint.model.resource.utdanning.kodeverk.FagstatusResource;
 import no.novari.fint.model.resource.utdanning.timeplan.FaggruppeResource;
 import no.novari.fint.model.resource.utdanning.timeplan.FaggruppemedlemskapResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,8 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelFaggruppemedlemskapResolver")
-public class FaggruppemedlemskapResolver implements GraphQLResolver<FaggruppemedlemskapResource> {
+@Controller("modelFaggruppemedlemskapResolver")
+public class FaggruppemedlemskapResolver {
 
     @Autowired
     private FagmerknadService fagmerknadService;
@@ -46,6 +46,7 @@ public class FaggruppemedlemskapResolver implements GraphQLResolver<Faggruppemed
     private FaggruppeService faggruppeService;
 
 
+    @SchemaMapping(typeName = "Faggruppemedlemskap", field = "fagmerknad")
     public CompletionStage<FagmerknadResource> getFagmerknad(FaggruppemedlemskapResource faggruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(faggruppemedlemskap.getFagmerknad()
                 .stream()
@@ -56,6 +57,7 @@ public class FaggruppemedlemskapResolver implements GraphQLResolver<Faggruppemed
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Faggruppemedlemskap", field = "fagstatus")
     public CompletionStage<FagstatusResource> getFagstatus(FaggruppemedlemskapResource faggruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(faggruppemedlemskap.getFagstatus()
                 .stream()
@@ -66,6 +68,7 @@ public class FaggruppemedlemskapResolver implements GraphQLResolver<Faggruppemed
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Faggruppemedlemskap", field = "elevforhold")
     public CompletionStage<ElevforholdResource> getElevforhold(FaggruppemedlemskapResource faggruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(faggruppemedlemskap.getElevforhold()
                 .stream()
@@ -76,6 +79,7 @@ public class FaggruppemedlemskapResolver implements GraphQLResolver<Faggruppemed
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Faggruppemedlemskap", field = "varsel")
     public CompletionStage<List<VarselResource>> getVarsel(FaggruppemedlemskapResource faggruppemedlemskap, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(faggruppemedlemskap.getVarsel()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -85,6 +89,7 @@ public class FaggruppemedlemskapResolver implements GraphQLResolver<Faggruppemed
                 .map(Link::getHref)
                 .flatMapSequential(href -> varselService.getVarselResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -95,6 +100,7 @@ public class FaggruppemedlemskapResolver implements GraphQLResolver<Faggruppemed
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Faggruppemedlemskap", field = "faggruppe")
     public CompletionStage<FaggruppeResource> getFaggruppe(FaggruppemedlemskapResource faggruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(faggruppemedlemskap.getFaggruppe()
                 .stream()

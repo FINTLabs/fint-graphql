@@ -5,19 +5,11 @@ import graphql.execution.CoercedVariables;
 import graphql.language.StringValue;
 import graphql.language.Value;
 import graphql.scalars.ExtendedScalars;
-import graphql.schema.Coercing;
-import graphql.schema.CoercingParseLiteralException;
-import graphql.schema.CoercingParseValueException;
-import graphql.schema.CoercingSerializeException;
-import graphql.schema.GraphQLScalarType;
+import graphql.schema.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -30,6 +22,11 @@ public class GraphQLScalarConfig {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     private static final ZoneId DATE_ZONE = ZoneOffset.UTC;
+
+    @Bean
+    public org.springframework.graphql.execution.RuntimeWiringConfigurer scalarWiring() {
+        return wiring -> wiring.scalar(graphQLLongScalar()).scalar(graphQLDateScalar());
+    }
 
     @Bean
     public GraphQLScalarType graphQLLongScalar() {

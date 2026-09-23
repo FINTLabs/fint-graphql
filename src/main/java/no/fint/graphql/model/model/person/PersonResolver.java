@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.person;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elev.ElevService;
 import no.fint.graphql.model.model.kjonn.KjonnService;
@@ -24,7 +23,8 @@ import no.novari.fint.model.resource.utdanning.elev.ElevResource;
 import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
 import no.novari.fint.model.resource.utdanning.ot.OtUngdomResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,8 +35,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelPersonResolver")
-public class PersonResolver implements GraphQLResolver<PersonResource> {
+@Controller("modelPersonResolver")
+public class PersonResolver {
 
     @Autowired
     private LandkodeService landkodeService;
@@ -69,6 +69,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
     private OtUngdomService otungdomService;
 
 
+    @SchemaMapping(typeName = "Person", field = "statsborgerskap")
     public CompletionStage<List<LandkodeResource>> getStatsborgerskap(PersonResource person, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(person.getStatsborgerskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -78,6 +79,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .flatMapSequential(href -> landkodeService.getLandkodeResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -88,6 +90,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "kommune")
     public CompletionStage<KommuneResource> getKommune(PersonResource person, DataFetchingEnvironment dfe) {
         return Flux.fromStream(person.getKommune()
                 .stream()
@@ -98,6 +101,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "kjonn")
     public CompletionStage<KjonnResource> getKjonn(PersonResource person, DataFetchingEnvironment dfe) {
         return Flux.fromStream(person.getKjonn()
                 .stream()
@@ -108,6 +112,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "foreldreansvar")
     public CompletionStage<List<PersonResource>> getForeldreansvar(PersonResource person, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(person.getForeldreansvar()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -117,6 +122,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .flatMapSequential(href -> personService.getPersonResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -127,6 +133,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "malform")
     public CompletionStage<SprakResource> getMalform(PersonResource person, DataFetchingEnvironment dfe) {
         return Flux.fromStream(person.getMalform()
                 .stream()
@@ -137,6 +144,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "personalressurs")
     public CompletionStage<PersonalressursResource> getPersonalressurs(PersonResource person, DataFetchingEnvironment dfe) {
         return Flux.fromStream(person.getPersonalressurs()
                 .stream()
@@ -147,6 +155,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "morsmal")
     public CompletionStage<SprakResource> getMorsmal(PersonResource person, DataFetchingEnvironment dfe) {
         return Flux.fromStream(person.getMorsmal()
                 .stream()
@@ -157,6 +166,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "parorende")
     public CompletionStage<List<KontaktpersonResource>> getParorende(PersonResource person, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(person.getParorende()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -166,6 +176,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .flatMapSequential(href -> kontaktpersonService.getKontaktpersonResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -176,6 +187,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "foreldre")
     public CompletionStage<List<PersonResource>> getForeldre(PersonResource person, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(person.getForeldre()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -185,6 +197,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .flatMapSequential(href -> personService.getPersonResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -195,6 +208,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "larling")
     public CompletionStage<List<LarlingResource>> getLarling(PersonResource person, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(person.getLarling()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -204,6 +218,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .map(Link::getHref)
                 .flatMapSequential(href -> larlingService.getLarlingResource(href, dfe)
                         .map(Optional::of)
+                        .defaultIfEmpty(Optional.empty())
                         .onErrorResume(WebClientResponseException.class,
                                 ex -> Mono.just(Optional.empty())),
                         8, 1)
@@ -214,6 +229,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "elev")
     public CompletionStage<ElevResource> getElev(PersonResource person, DataFetchingEnvironment dfe) {
         return Flux.fromStream(person.getElev()
                 .stream()
@@ -224,6 +240,7 @@ public class PersonResolver implements GraphQLResolver<PersonResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Person", field = "otungdom")
     public CompletionStage<OtUngdomResource> getOtungdom(PersonResource person, DataFetchingEnvironment dfe) {
         return Flux.fromStream(person.getOtungdom()
                 .stream()

@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.programomrademedlemskap;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
 import no.fint.graphql.model.model.programomrade.ProgramomradeService;
@@ -10,14 +9,15 @@ import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomrademedlemskapResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelProgramomrademedlemskapResolver")
-public class ProgramomrademedlemskapResolver implements GraphQLResolver<ProgramomrademedlemskapResource> {
+@Controller("modelProgramomrademedlemskapResolver")
+public class ProgramomrademedlemskapResolver {
 
     @Autowired
     private ElevforholdService elevforholdService;
@@ -26,6 +26,7 @@ public class ProgramomrademedlemskapResolver implements GraphQLResolver<Programo
     private ProgramomradeService programomradeService;
 
 
+    @SchemaMapping(typeName = "Programomrademedlemskap", field = "elevforhold")
     public CompletionStage<ElevforholdResource> getElevforhold(ProgramomrademedlemskapResource programomrademedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(programomrademedlemskap.getElevforhold()
                 .stream()
@@ -36,6 +37,7 @@ public class ProgramomrademedlemskapResolver implements GraphQLResolver<Programo
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Programomrademedlemskap", field = "programomrade")
     public CompletionStage<ProgramomradeResource> getProgramomrade(ProgramomrademedlemskapResource programomrademedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(programomrademedlemskap.getProgramomrade()
                 .stream()
