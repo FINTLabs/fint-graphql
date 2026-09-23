@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.fullmakt;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.aktivitet.AktivitetService;
 import no.fint.graphql.model.model.anlegg.AnleggService;
@@ -25,14 +24,15 @@ import no.novari.fint.model.resource.administrasjon.kodeverk.*;
 import no.novari.fint.model.resource.administrasjon.organisasjon.OrganisasjonselementResource;
 import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelFullmaktResolver")
-public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
+@Controller("modelFullmaktResolver")
+public class FullmaktResolver {
 
     @Autowired
     private RammeService rammeService;
@@ -80,6 +80,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
     private LopenummerService lopenummerService;
 
 
+    @SchemaMapping(typeName = "Fullmakt", field = "ramme")
     public CompletionStage<RammeResource> getRamme(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getRamme()
                 .stream()
@@ -90,6 +91,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "funksjon")
     public CompletionStage<FunksjonResource> getFunksjon(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getFunksjon()
                 .stream()
@@ -100,6 +102,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "objekt")
     public CompletionStage<ObjektResource> getObjekt(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getObjekt()
                 .stream()
@@ -110,6 +113,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "organisasjonselement")
     public CompletionStage<OrganisasjonselementResource> getOrganisasjonselement(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getOrganisasjonselement()
                 .stream()
@@ -120,6 +124,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "art")
     public CompletionStage<ArtResource> getArt(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getArt()
                 .stream()
@@ -130,6 +135,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "anlegg")
     public CompletionStage<AnleggResource> getAnlegg(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getAnlegg()
                 .stream()
@@ -140,6 +146,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "diverse")
     public CompletionStage<DiverseResource> getDiverse(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getDiverse()
                 .stream()
@@ -150,6 +157,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "aktivitet")
     public CompletionStage<AktivitetResource> getAktivitet(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getAktivitet()
                 .stream()
@@ -160,6 +168,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "ansvar")
     public CompletionStage<AnsvarResource> getAnsvar(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getAnsvar()
                 .stream()
@@ -170,6 +179,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "stedfortreder")
     public CompletionStage<PersonalressursResource> getStedfortreder(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getStedfortreder()
                 .stream()
@@ -180,6 +190,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "kontrakt")
     public CompletionStage<KontraktResource> getKontrakt(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getKontrakt()
                 .stream()
@@ -190,6 +201,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "fullmektig")
     public CompletionStage<PersonalressursResource> getFullmektig(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getFullmektig()
                 .stream()
@@ -200,6 +212,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "prosjekt")
     public CompletionStage<ProsjektResource> getProsjekt(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getProsjekt()
                 .stream()
@@ -210,6 +223,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "formal")
     public CompletionStage<FormalResource> getFormal(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getFormal()
                 .stream()
@@ -220,6 +234,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "rolle")
     public CompletionStage<RolleResource> getRolle(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getRolle()
                 .stream()
@@ -230,6 +245,7 @@ public class FullmaktResolver implements GraphQLResolver<FullmaktResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fullmakt", field = "lopenummer")
     public CompletionStage<LopenummerResource> getLopenummer(FullmaktResource fullmakt, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fullmakt.getLopenummer()
                 .stream()

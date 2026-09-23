@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.kontaktlarergruppe;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.klasse.KlasseService;
 import no.fint.graphql.model.model.kontaktlarergruppemedlemskap.KontaktlarergruppemedlemskapService;
@@ -18,7 +17,8 @@ import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.TerminResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelKontaktlarergruppeResolver")
-public class KontaktlarergruppeResolver implements GraphQLResolver<KontaktlarergruppeResource> {
+@Controller("modelKontaktlarergruppeResolver")
+public class KontaktlarergruppeResolver {
 
     @Autowired
     private KlasseService klasseService;
@@ -51,6 +51,7 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
     private KontaktlarergruppemedlemskapService kontaktlarergruppemedlemskapService;
 
 
+    @SchemaMapping(typeName = "Kontaktlarergruppe", field = "klasse")
     public CompletionStage<List<KlasseResource>> getKlasse(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(kontaktlarergruppe.getKlasse()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -70,6 +71,7 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontaktlarergruppe", field = "termin")
     public CompletionStage<List<TerminResource>> getTermin(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(kontaktlarergruppe.getTermin()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -89,6 +91,7 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontaktlarergruppe", field = "skole")
     public CompletionStage<SkoleResource> getSkole(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontaktlarergruppe.getSkole()
                 .stream()
@@ -99,6 +102,7 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontaktlarergruppe", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(kontaktlarergruppe.getSkolear()
                 .stream()
@@ -109,6 +113,7 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontaktlarergruppe", field = "undervisningsforhold")
     public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(kontaktlarergruppe.getUndervisningsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -128,6 +133,7 @@ public class KontaktlarergruppeResolver implements GraphQLResolver<Kontaktlarerg
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Kontaktlarergruppe", field = "gruppemedlemskap")
     public CompletionStage<List<KontaktlarergruppemedlemskapResource>> getGruppemedlemskap(KontaktlarergruppeResource kontaktlarergruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(kontaktlarergruppe.getGruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {

@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.halvarsfagvurdering;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
 import no.fint.graphql.model.model.fag.FagService;
@@ -14,14 +13,15 @@ import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.HalvarsfagvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelHalvarsfagvurderingResolver")
-public class HalvarsfagvurderingResolver implements GraphQLResolver<HalvarsfagvurderingResource> {
+@Controller("modelHalvarsfagvurderingResolver")
+public class HalvarsfagvurderingResolver {
 
     @Autowired
     private ElevvurderingService elevvurderingService;
@@ -36,6 +36,7 @@ public class HalvarsfagvurderingResolver implements GraphQLResolver<Halvarsfagvu
     private KarakterverdiService karakterverdiService;
 
 
+    @SchemaMapping(typeName = "Halvarsfagvurdering", field = "elevvurdering")
     public CompletionStage<ElevvurderingResource> getElevvurdering(HalvarsfagvurderingResource halvarsfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsfagvurdering.getElevvurdering()
                 .stream()
@@ -46,6 +47,7 @@ public class HalvarsfagvurderingResolver implements GraphQLResolver<Halvarsfagvu
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Halvarsfagvurdering", field = "fag")
     public CompletionStage<FagResource> getFag(HalvarsfagvurderingResource halvarsfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsfagvurdering.getFag()
                 .stream()
@@ -56,6 +58,7 @@ public class HalvarsfagvurderingResolver implements GraphQLResolver<Halvarsfagvu
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Halvarsfagvurdering", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(HalvarsfagvurderingResource halvarsfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsfagvurdering.getSkolear()
                 .stream()
@@ -66,6 +69,7 @@ public class HalvarsfagvurderingResolver implements GraphQLResolver<Halvarsfagvu
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Halvarsfagvurdering", field = "karakter")
     public CompletionStage<KarakterverdiResource> getKarakter(HalvarsfagvurderingResource halvarsfagvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(halvarsfagvurdering.getKarakter()
                 .stream()

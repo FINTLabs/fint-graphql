@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.eksamensgruppemedlemskap;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.betalingsstatus.BetalingsstatusService;
 import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
@@ -20,14 +19,15 @@ import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
 import no.novari.fint.model.resource.utdanning.vurdering.SensorResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelEksamensgruppemedlemskapResolver")
-public class EksamensgruppemedlemskapResolver implements GraphQLResolver<EksamensgruppemedlemskapResource> {
+@Controller("modelEksamensgruppemedlemskapResolver")
+public class EksamensgruppemedlemskapResolver {
 
     @Autowired
     private FylkeService fylkeService;
@@ -51,6 +51,7 @@ public class EksamensgruppemedlemskapResolver implements GraphQLResolver<Eksamen
     private SensorService sensorService;
 
 
+    @SchemaMapping(typeName = "Eksamensgruppemedlemskap", field = "delegertTil")
     public CompletionStage<FylkeResource> getDelegertTil(EksamensgruppemedlemskapResource eksamensgruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppemedlemskap.getDelegertTil()
                 .stream()
@@ -61,6 +62,7 @@ public class EksamensgruppemedlemskapResolver implements GraphQLResolver<Eksamen
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppemedlemskap", field = "elevforhold")
     public CompletionStage<ElevforholdResource> getElevforhold(EksamensgruppemedlemskapResource eksamensgruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppemedlemskap.getElevforhold()
                 .stream()
@@ -71,6 +73,7 @@ public class EksamensgruppemedlemskapResolver implements GraphQLResolver<Eksamen
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppemedlemskap", field = "foretrukketSkole")
     public CompletionStage<SkoleResource> getForetrukketSkole(EksamensgruppemedlemskapResource eksamensgruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppemedlemskap.getForetrukketSkole()
                 .stream()
@@ -81,6 +84,7 @@ public class EksamensgruppemedlemskapResolver implements GraphQLResolver<Eksamen
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppemedlemskap", field = "eksamensgruppe")
     public CompletionStage<EksamensgruppeResource> getEksamensgruppe(EksamensgruppemedlemskapResource eksamensgruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppemedlemskap.getEksamensgruppe()
                 .stream()
@@ -91,6 +95,7 @@ public class EksamensgruppemedlemskapResolver implements GraphQLResolver<Eksamen
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppemedlemskap", field = "nus")
     public CompletionStage<KarakterstatusResource> getNus(EksamensgruppemedlemskapResource eksamensgruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppemedlemskap.getNus()
                 .stream()
@@ -101,6 +106,7 @@ public class EksamensgruppemedlemskapResolver implements GraphQLResolver<Eksamen
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppemedlemskap", field = "betalingsstatus")
     public CompletionStage<BetalingsstatusResource> getBetalingsstatus(EksamensgruppemedlemskapResource eksamensgruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppemedlemskap.getBetalingsstatus()
                 .stream()
@@ -111,6 +117,7 @@ public class EksamensgruppemedlemskapResolver implements GraphQLResolver<Eksamen
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppemedlemskap", field = "foretrukketSensor")
     public CompletionStage<SensorResource> getForetrukketSensor(EksamensgruppemedlemskapResource eksamensgruppemedlemskap, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppemedlemskap.getForetrukketSensor()
                 .stream()

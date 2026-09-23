@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.utdanningsprogram;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.programomrade.ProgramomradeService;
 import no.fint.graphql.model.model.skole.SkoleService;
@@ -10,7 +9,8 @@ import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeRe
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.UtdanningsprogramResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -21,8 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelUtdanningsprogramResolver")
-public class UtdanningsprogramResolver implements GraphQLResolver<UtdanningsprogramResource> {
+@Controller("modelUtdanningsprogramResolver")
+public class UtdanningsprogramResolver {
 
     @Autowired
     private SkoleService skoleService;
@@ -31,6 +31,7 @@ public class UtdanningsprogramResolver implements GraphQLResolver<Utdanningsprog
     private ProgramomradeService programomradeService;
 
 
+    @SchemaMapping(typeName = "Utdanningsprogram", field = "skole")
     public CompletionStage<List<SkoleResource>> getSkole(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(utdanningsprogram.getSkole()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -50,6 +51,7 @@ public class UtdanningsprogramResolver implements GraphQLResolver<Utdanningsprog
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Utdanningsprogram", field = "programomrade")
     public CompletionStage<List<ProgramomradeResource>> getProgramomrade(UtdanningsprogramResource utdanningsprogram, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(utdanningsprogram.getProgramomrade()).orElseGet(List::of);
         if (links.isEmpty()) {

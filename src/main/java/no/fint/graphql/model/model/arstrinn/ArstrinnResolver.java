@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.arstrinn;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.klasse.KlasseService;
 import no.fint.graphql.model.model.programomrade.ProgramomradeService;
@@ -10,7 +9,8 @@ import no.novari.fint.model.resource.utdanning.elev.KlasseResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -21,8 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelArstrinnResolver")
-public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
+@Controller("modelArstrinnResolver")
+public class ArstrinnResolver {
 
     @Autowired
     private KlasseService klasseService;
@@ -31,6 +31,7 @@ public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
     private ProgramomradeService programomradeService;
 
 
+    @SchemaMapping(typeName = "Arstrinn", field = "klasse")
     public CompletionStage<List<KlasseResource>> getKlasse(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(arstrinn.getKlasse()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -50,6 +51,7 @@ public class ArstrinnResolver implements GraphQLResolver<ArstrinnResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arstrinn", field = "programomrade")
     public CompletionStage<List<ProgramomradeResource>> getProgramomrade(ArstrinnResource arstrinn, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(arstrinn.getProgramomrade()).orElseGet(List::of);
         if (links.isEmpty()) {

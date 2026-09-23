@@ -45,6 +45,6 @@ public class QueryTimeoutGraphQLError implements GraphQLError {
 
     @Override
     public graphql.ErrorClassification getErrorType() {
-        return null;
+        return graphql.ErrorType.DataFetchingException;
     }
 }

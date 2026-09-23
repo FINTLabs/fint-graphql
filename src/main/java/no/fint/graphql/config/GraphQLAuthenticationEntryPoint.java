@@ -1,7 +1,6 @@
 package no.fint.graphql.config;
 
 import graphql.ExecutionResultImpl;
-import graphql.kickstart.execution.GraphQLObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -17,10 +17,10 @@ import java.util.Collections;
 @Component
 public class GraphQLAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final GraphQLObjectMapper graphQLObjectMapper;
+    private final ObjectMapper graphQLObjectMapper;
     private final BearerTokenAuthenticationEntryPoint delegate = new BearerTokenAuthenticationEntryPoint();
 
-    public GraphQLAuthenticationEntryPoint(GraphQLObjectMapper graphQLObjectMapper) {
+    public GraphQLAuthenticationEntryPoint(ObjectMapper graphQLObjectMapper) {
         this.graphQLObjectMapper = graphQLObjectMapper;
     }
 
@@ -43,7 +43,7 @@ public class GraphQLAuthenticationEntryPoint implements AuthenticationEntryPoint
                 null,
                 Collections.singletonList(new AuthGraphQLError("Unauthorized"))
         );
-        String json = graphQLObjectMapper.serializeResultAsJson(result);
+        String json = graphQLObjectMapper.writeValueAsString(result.toSpecification());
         response.resetBuffer();
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

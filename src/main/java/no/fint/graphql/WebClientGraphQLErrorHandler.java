@@ -2,16 +2,17 @@ package no.fint.graphql;
 
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
-import graphql.kickstart.execution.error.DefaultGraphQLErrorHandler;
+import graphql.schema.DataFetchingEnvironment;
+import io.netty.channel.ConnectTimeoutException;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.timeout.WriteTimeoutException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.graphql.execution.DataFetcherExceptionResolverAdapter;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
 import reactor.netty.internal.shaded.reactor.pool.PoolAcquireTimeoutException;
-import io.netty.channel.ConnectTimeoutException;
-import io.netty.handler.timeout.ReadTimeoutException;
-import io.netty.handler.timeout.WriteTimeoutException;
 
 import java.net.URI;
 import java.util.Collections;
@@ -22,14 +23,22 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
+public class WebClientGraphQLErrorHandler extends DataFetcherExceptionResolverAdapter {
 
     @Override
+    protected GraphQLError resolveToSingleError(Throwable exception, DataFetchingEnvironment environment) {
+        var original = new ExceptionWhileDataFetching(environment.getExecutionStepInfo().getPath(),
+                exception, environment.getField().getSourceLocation());
+        GraphQLError mapped = mapWebClientError(original);
+        return mapped != original ? mapped : null;
+    }
+
+    // Also maps errors explicitly returned in DataFetcherResult, preserving partial results.
     public List<GraphQLError> processErrors(List<GraphQLError> errors) {
         List<GraphQLError> mapped = errors.stream()
                 .map(this::mapWebClientError)
                 .collect(Collectors.toList());
-        return super.processErrors(mapped);
+        return mapped;
     }
 
     private GraphQLError mapWebClientError(GraphQLError error) {
@@ -44,7 +53,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
 
         if (exception instanceof WebClientResponseException) {
             WebClientResponseException webClientException = (WebClientResponseException) exception;
-            int status = webClientException.getRawStatusCode();
+            int status = webClientException.getStatusCode().value();
             URI uri = webClientException.getRequest() != null ? webClientException.getRequest().getURI() : null;
             return toRemoteAccessError(dataFetchingError, status, uri);
         }
@@ -82,7 +91,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
         } else if (status == 404) {
             message = "Resource not found at " + resourcePath;
         } else {
-            message = HttpStatus.resolve(status).getReasonPhrase() + " for " + resourcePath;
+            message = (HttpStatus.resolve(status) != null ? HttpStatus.resolve(status).getReasonPhrase() : "HTTP " + status) + " for " + resourcePath;
         }
         return new RemoteAccessGraphQLError(
                 message,
@@ -318,7 +327,7 @@ public class WebClientGraphQLErrorHandler extends DefaultGraphQLErrorHandler {
 
         @Override
         public graphql.ErrorClassification getErrorType() {
-            return null;
+            return graphql.ErrorType.DataFetchingException;
         }
     }
 }

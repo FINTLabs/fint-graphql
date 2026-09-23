@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.klasse;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arstrinn.ArstrinnService;
 import no.fint.graphql.model.model.klassemedlemskap.KlassemedlemskapService;
@@ -20,7 +19,8 @@ import no.novari.fint.model.resource.utdanning.kodeverk.TerminResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ArstrinnResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,8 +31,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelKlasseResolver")
-public class KlasseResolver implements GraphQLResolver<KlasseResource> {
+@Controller("modelKlasseResolver")
+public class KlasseResolver {
 
     @Autowired
     private SkolearService skolearService;
@@ -56,6 +56,7 @@ public class KlasseResolver implements GraphQLResolver<KlasseResource> {
     private KontaktlarergruppeService kontaktlarergruppeService;
 
 
+    @SchemaMapping(typeName = "Klasse", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(KlasseResource klasse, DataFetchingEnvironment dfe) {
         return Flux.fromStream(klasse.getSkolear()
                 .stream()
@@ -66,6 +67,7 @@ public class KlasseResolver implements GraphQLResolver<KlasseResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Klasse", field = "termin")
     public CompletionStage<List<TerminResource>> getTermin(KlasseResource klasse, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(klasse.getTermin()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -85,6 +87,7 @@ public class KlasseResolver implements GraphQLResolver<KlasseResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Klasse", field = "trinn")
     public CompletionStage<ArstrinnResource> getTrinn(KlasseResource klasse, DataFetchingEnvironment dfe) {
         return Flux.fromStream(klasse.getTrinn()
                 .stream()
@@ -95,6 +98,7 @@ public class KlasseResolver implements GraphQLResolver<KlasseResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Klasse", field = "skole")
     public CompletionStage<SkoleResource> getSkole(KlasseResource klasse, DataFetchingEnvironment dfe) {
         return Flux.fromStream(klasse.getSkole()
                 .stream()
@@ -105,6 +109,7 @@ public class KlasseResolver implements GraphQLResolver<KlasseResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Klasse", field = "undervisningsforhold")
     public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(KlasseResource klasse, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(klasse.getUndervisningsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -124,6 +129,7 @@ public class KlasseResolver implements GraphQLResolver<KlasseResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Klasse", field = "klassemedlemskap")
     public CompletionStage<List<KlassemedlemskapResource>> getKlassemedlemskap(KlasseResource klasse, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(klasse.getKlassemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -143,6 +149,7 @@ public class KlasseResolver implements GraphQLResolver<KlasseResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Klasse", field = "kontaktlarergruppe")
     public CompletionStage<List<KontaktlarergruppeResource>> getKontaktlarergruppe(KlasseResource klasse, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(klasse.getKontaktlarergruppe()).orElseGet(List::of);
         if (links.isEmpty()) {

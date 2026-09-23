@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.skoleressurs;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.person.PersonService;
 import no.fint.graphql.model.model.personalressurs.PersonalressursService;
@@ -16,7 +15,8 @@ import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.novari.fint.model.resource.utdanning.vurdering.SensorResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,8 +27,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelSkoleressursResolver")
-public class SkoleressursResolver implements GraphQLResolver<SkoleressursResource> {
+@Controller("modelSkoleressursResolver")
+public class SkoleressursResolver {
 
     @Autowired
     private PersonService personService;
@@ -46,6 +46,7 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
     private SensorService sensorService;
 
 
+    @SchemaMapping(typeName = "Skoleressurs", field = "person")
     public CompletionStage<PersonResource> getPerson(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         return Flux.fromStream(skoleressurs.getPerson()
                 .stream()
@@ -56,6 +57,7 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Skoleressurs", field = "personalressurs")
     public CompletionStage<PersonalressursResource> getPersonalressurs(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         return Flux.fromStream(skoleressurs.getPersonalressurs()
                 .stream()
@@ -66,6 +68,7 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Skoleressurs", field = "undervisningsforhold")
     public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(skoleressurs.getUndervisningsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -85,6 +88,7 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Skoleressurs", field = "skole")
     public CompletionStage<List<SkoleResource>> getSkole(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(skoleressurs.getSkole()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -104,6 +108,7 @@ public class SkoleressursResolver implements GraphQLResolver<SkoleressursResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Skoleressurs", field = "sensor")
     public CompletionStage<List<SensorResource>> getSensor(SkoleressursResource skoleressurs, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(skoleressurs.getSensor()).orElseGet(List::of);
         if (links.isEmpty()) {

@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.fravarsregistrering;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevfravar.ElevfravarService;
 import no.fint.graphql.model.model.faggruppe.FaggruppeService;
@@ -14,14 +13,15 @@ import no.novari.fint.model.resource.utdanning.timeplan.UndervisningsgruppeResou
 import no.novari.fint.model.resource.utdanning.vurdering.ElevfravarResource;
 import no.novari.fint.model.resource.utdanning.vurdering.FravarsregistreringResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelFravarsregistreringResolver")
-public class FravarsregistreringResolver implements GraphQLResolver<FravarsregistreringResource> {
+@Controller("modelFravarsregistreringResolver")
+public class FravarsregistreringResolver {
 
     @Autowired
     private SkoleressursService skoleressursService;
@@ -36,6 +36,7 @@ public class FravarsregistreringResolver implements GraphQLResolver<Fravarsregis
     private ElevfravarService elevfravarService;
 
 
+    @SchemaMapping(typeName = "Fravarsregistrering", field = "registrertAv")
     public CompletionStage<SkoleressursResource> getRegistrertAv(FravarsregistreringResource fravarsregistrering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fravarsregistrering.getRegistrertAv()
                 .stream()
@@ -46,6 +47,7 @@ public class FravarsregistreringResolver implements GraphQLResolver<Fravarsregis
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fravarsregistrering", field = "faggruppe")
     public CompletionStage<FaggruppeResource> getFaggruppe(FravarsregistreringResource fravarsregistrering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fravarsregistrering.getFaggruppe()
                 .stream()
@@ -56,6 +58,7 @@ public class FravarsregistreringResolver implements GraphQLResolver<Fravarsregis
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fravarsregistrering", field = "undervisningsgruppe")
     public CompletionStage<UndervisningsgruppeResource> getUndervisningsgruppe(FravarsregistreringResource fravarsregistrering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fravarsregistrering.getUndervisningsgruppe()
                 .stream()
@@ -66,6 +69,7 @@ public class FravarsregistreringResolver implements GraphQLResolver<Fravarsregis
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fravarsregistrering", field = "elevfravar")
     public CompletionStage<ElevfravarResource> getElevfravar(FravarsregistreringResource fravarsregistrering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(fravarsregistrering.getElevfravar()
                 .stream()

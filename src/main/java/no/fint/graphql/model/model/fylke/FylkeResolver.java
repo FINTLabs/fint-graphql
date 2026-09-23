@@ -1,14 +1,14 @@
 
 package no.fint.graphql.model.model.fylke;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.kommune.KommuneService;
 import no.novari.fint.model.resource.Link;
 import no.novari.fint.model.resource.felles.kodeverk.FylkeResource;
 import no.novari.fint.model.resource.felles.kodeverk.KommuneResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,13 +19,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelFylkeResolver")
-public class FylkeResolver implements GraphQLResolver<FylkeResource> {
+@Controller("modelFylkeResolver")
+public class FylkeResolver {
 
     @Autowired
     private KommuneService kommuneService;
 
 
+    @SchemaMapping(typeName = "Fylke", field = "kommune")
     public CompletionStage<List<KommuneResource>> getKommune(FylkeResource fylke, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(fylke.getKommune()).orElseGet(List::of);
         if (links.isEmpty()) {

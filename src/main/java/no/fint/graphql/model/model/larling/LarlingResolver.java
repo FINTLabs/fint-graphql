@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.larling;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.avlagtprove.AvlagtProveService;
 import no.fint.graphql.model.model.person.PersonService;
@@ -14,7 +13,8 @@ import no.novari.fint.model.resource.utdanning.larling.AvlagtProveResource;
 import no.novari.fint.model.resource.utdanning.larling.LarlingResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -25,8 +25,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelLarlingResolver")
-public class LarlingResolver implements GraphQLResolver<LarlingResource> {
+@Controller("modelLarlingResolver")
+public class LarlingResolver {
 
     @Autowired
     private PersonService personService;
@@ -41,6 +41,7 @@ public class LarlingResolver implements GraphQLResolver<LarlingResource> {
     private AvlagtProveService avlagtproveService;
 
 
+    @SchemaMapping(typeName = "Larling", field = "person")
     public CompletionStage<PersonResource> getPerson(LarlingResource larling, DataFetchingEnvironment dfe) {
         return Flux.fromStream(larling.getPerson()
                 .stream()
@@ -51,6 +52,7 @@ public class LarlingResolver implements GraphQLResolver<LarlingResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Larling", field = "bedrift")
     public CompletionStage<VirksomhetResource> getBedrift(LarlingResource larling, DataFetchingEnvironment dfe) {
         return Flux.fromStream(larling.getBedrift()
                 .stream()
@@ -61,6 +63,7 @@ public class LarlingResolver implements GraphQLResolver<LarlingResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Larling", field = "programomrade")
     public CompletionStage<ProgramomradeResource> getProgramomrade(LarlingResource larling, DataFetchingEnvironment dfe) {
         return Flux.fromStream(larling.getProgramomrade()
                 .stream()
@@ -71,6 +74,7 @@ public class LarlingResolver implements GraphQLResolver<LarlingResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Larling", field = "avlagtprove")
     public CompletionStage<List<AvlagtProveResource>> getAvlagtprove(LarlingResource larling, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(larling.getAvlagtprove()).orElseGet(List::of);
         if (links.isEmpty()) {

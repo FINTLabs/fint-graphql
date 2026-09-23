@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.fag;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
 import no.fint.graphql.model.model.elevtilrettelegging.ElevtilretteleggingService;
@@ -18,7 +17,8 @@ import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeRe
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource;
 import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,8 +29,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelFagResolver")
-public class FagResolver implements GraphQLResolver<FagResource> {
+@Controller("modelFagResolver")
+public class FagResolver {
 
     @Autowired
     private SkoleService skoleService;
@@ -51,6 +51,7 @@ public class FagResolver implements GraphQLResolver<FagResource> {
     private EksamensgruppeService eksamensgruppeService;
 
 
+    @SchemaMapping(typeName = "Fag", field = "skole")
     public CompletionStage<List<SkoleResource>> getSkole(FagResource fag, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(fag.getSkole()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -70,6 +71,7 @@ public class FagResolver implements GraphQLResolver<FagResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fag", field = "tilrettelegging")
     public CompletionStage<List<ElevtilretteleggingResource>> getTilrettelegging(FagResource fag, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(fag.getTilrettelegging()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -89,6 +91,7 @@ public class FagResolver implements GraphQLResolver<FagResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fag", field = "programomrade")
     public CompletionStage<List<ProgramomradeResource>> getProgramomrade(FagResource fag, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(fag.getProgramomrade()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -108,6 +111,7 @@ public class FagResolver implements GraphQLResolver<FagResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fag", field = "faggruppe")
     public CompletionStage<List<FaggruppeResource>> getFaggruppe(FagResource fag, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(fag.getFaggruppe()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -127,6 +131,7 @@ public class FagResolver implements GraphQLResolver<FagResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fag", field = "undervisningsgruppe")
     public CompletionStage<List<UndervisningsgruppeResource>> getUndervisningsgruppe(FagResource fag, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(fag.getUndervisningsgruppe()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -146,6 +151,7 @@ public class FagResolver implements GraphQLResolver<FagResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Fag", field = "eksamensgruppe")
     public CompletionStage<List<EksamensgruppeResource>> getEksamensgruppe(FagResource fag, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(fag.getEksamensgruppe()).orElseGet(List::of);
         if (links.isEmpty()) {

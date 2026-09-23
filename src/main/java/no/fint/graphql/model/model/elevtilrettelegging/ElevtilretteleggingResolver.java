@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.elevtilrettelegging;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.eksamensform.EksamensformService;
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
@@ -14,14 +13,15 @@ import no.novari.fint.model.resource.utdanning.kodeverk.EksamensformResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.TilretteleggingResource;
 import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelElevtilretteleggingResolver")
-public class ElevtilretteleggingResolver implements GraphQLResolver<ElevtilretteleggingResource> {
+@Controller("modelElevtilretteleggingResolver")
+public class ElevtilretteleggingResolver {
 
     @Autowired
     private ElevforholdService elevforholdService;
@@ -36,6 +36,7 @@ public class ElevtilretteleggingResolver implements GraphQLResolver<Elevtilrette
     private EksamensformService eksamensformService;
 
 
+    @SchemaMapping(typeName = "Elevtilrettelegging", field = "elev")
     public CompletionStage<ElevforholdResource> getElev(ElevtilretteleggingResource elevtilrettelegging, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevtilrettelegging.getElev()
                 .stream()
@@ -46,6 +47,7 @@ public class ElevtilretteleggingResolver implements GraphQLResolver<Elevtilrette
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevtilrettelegging", field = "fag")
     public CompletionStage<FagResource> getFag(ElevtilretteleggingResource elevtilrettelegging, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevtilrettelegging.getFag()
                 .stream()
@@ -56,6 +58,7 @@ public class ElevtilretteleggingResolver implements GraphQLResolver<Elevtilrette
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevtilrettelegging", field = "tilrettelegging")
     public CompletionStage<TilretteleggingResource> getTilrettelegging(ElevtilretteleggingResource elevtilrettelegging, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevtilrettelegging.getTilrettelegging()
                 .stream()
@@ -66,6 +69,7 @@ public class ElevtilretteleggingResolver implements GraphQLResolver<Elevtilrette
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevtilrettelegging", field = "eksamensform")
     public CompletionStage<EksamensformResource> getEksamensform(ElevtilretteleggingResource elevtilrettelegging, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevtilrettelegging.getEksamensform()
                 .stream()

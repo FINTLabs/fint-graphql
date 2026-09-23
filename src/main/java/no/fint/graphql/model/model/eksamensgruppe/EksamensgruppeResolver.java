@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.eksamensgruppe;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.eksamen.EksamenService;
 import no.fint.graphql.model.model.eksamensform.EksamensformService;
@@ -24,7 +23,8 @@ import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppeResource;
 import no.novari.fint.model.resource.utdanning.vurdering.EksamensgruppemedlemskapResource;
 import no.novari.fint.model.resource.utdanning.vurdering.SensorResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,8 +35,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelEksamensgruppeResolver")
-public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeResource> {
+@Controller("modelEksamensgruppeResolver")
+public class EksamensgruppeResolver {
 
     @Autowired
     private UndervisningsforholdService undervisningsforholdService;
@@ -66,6 +66,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
     private SensorService sensorService;
 
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "undervisningsforhold")
     public CompletionStage<List<UndervisningsforholdResource>> getUndervisningsforhold(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(eksamensgruppe.getUndervisningsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -85,6 +86,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "eksamen")
     public CompletionStage<EksamenResource> getEksamen(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppe.getEksamen()
                 .stream()
@@ -95,6 +97,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "fag")
     public CompletionStage<FagResource> getFag(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppe.getFag()
                 .stream()
@@ -105,6 +108,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "skole")
     public CompletionStage<SkoleResource> getSkole(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppe.getSkole()
                 .stream()
@@ -115,6 +119,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "termin")
     public CompletionStage<TerminResource> getTermin(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppe.getTermin()
                 .stream()
@@ -125,6 +130,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "eksamensform")
     public CompletionStage<EksamensformResource> getEksamensform(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppe.getEksamensform()
                 .stream()
@@ -135,6 +141,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensgruppe.getSkolear()
                 .stream()
@@ -145,6 +152,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "gruppemedlemskap")
     public CompletionStage<List<EksamensgruppemedlemskapResource>> getGruppemedlemskap(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(eksamensgruppe.getGruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -164,6 +172,7 @@ public class EksamensgruppeResolver implements GraphQLResolver<EksamensgruppeRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensgruppe", field = "sensor")
     public CompletionStage<List<SensorResource>> getSensor(EksamensgruppeResource eksamensgruppe, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(eksamensgruppe.getSensor()).orElseGet(List::of);
         if (links.isEmpty()) {

@@ -1,14 +1,14 @@
 
 package no.fint.graphql.model.model.rolle;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.fullmakt.FullmaktService;
 import no.novari.fint.model.resource.Link;
 import no.novari.fint.model.resource.administrasjon.fullmakt.FullmaktResource;
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,13 +19,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelRolleResolver")
-public class RolleResolver implements GraphQLResolver<RolleResource> {
+@Controller("modelRolleResolver")
+public class RolleResolver {
 
     @Autowired
     private FullmaktService fullmaktService;
 
 
+    @SchemaMapping(typeName = "Rolle", field = "fullmakt")
     public CompletionStage<List<FullmaktResource>> getFullmakt(RolleResource rolle, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(rolle.getFullmakt()).orElseGet(List::of);
         if (links.isEmpty()) {

@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.underveisordensvurdering;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
 import no.fint.graphql.model.model.karakterverdi.KarakterverdiService;
@@ -12,14 +11,15 @@ import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.KarakterverdiResource;
 import no.novari.fint.model.resource.utdanning.vurdering.UnderveisordensvurderingResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelUnderveisordensvurderingResolver")
-public class UnderveisordensvurderingResolver implements GraphQLResolver<UnderveisordensvurderingResource> {
+@Controller("modelUnderveisordensvurderingResolver")
+public class UnderveisordensvurderingResolver {
 
     @Autowired
     private ElevvurderingService elevvurderingService;
@@ -31,6 +31,7 @@ public class UnderveisordensvurderingResolver implements GraphQLResolver<Underve
     private SkolearService skolearService;
 
 
+    @SchemaMapping(typeName = "Underveisordensvurdering", field = "elevvurdering")
     public CompletionStage<ElevvurderingResource> getElevvurdering(UnderveisordensvurderingResource underveisordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisordensvurdering.getElevvurdering()
                 .stream()
@@ -41,6 +42,7 @@ public class UnderveisordensvurderingResolver implements GraphQLResolver<Underve
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Underveisordensvurdering", field = "atferd")
     public CompletionStage<KarakterverdiResource> getAtferd(UnderveisordensvurderingResource underveisordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisordensvurdering.getAtferd()
                 .stream()
@@ -51,6 +53,7 @@ public class UnderveisordensvurderingResolver implements GraphQLResolver<Underve
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Underveisordensvurdering", field = "orden")
     public CompletionStage<KarakterverdiResource> getOrden(UnderveisordensvurderingResource underveisordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisordensvurdering.getOrden()
                 .stream()
@@ -61,6 +64,7 @@ public class UnderveisordensvurderingResolver implements GraphQLResolver<Underve
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Underveisordensvurdering", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(UnderveisordensvurderingResource underveisordensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(underveisordensvurdering.getSkolear()
                 .stream()

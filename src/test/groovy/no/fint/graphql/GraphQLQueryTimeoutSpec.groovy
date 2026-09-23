@@ -1,12 +1,12 @@
 package no.fint.graphql
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import graphql.schema.DataFetchingEnvironment
 import no.fint.graphql.model.model.rolle.RolleService
 import no.novari.fint.model.felles.kompleksedatatyper.Identifikator
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -26,7 +26,6 @@ import java.time.Duration
         properties = [
                 "spring.profiles.active=timeout-test",
                 "spring.main.allow-bean-definition-overriding=true",
-                "graphql.servlet.async-mode-enabled=true",
                 "fint.graphql.query-timeout=PT0.2S",
                 "fint.graphql.async-request-timeout=PT2S"
         ]

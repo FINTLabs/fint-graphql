@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.variabellonn;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 import no.fint.graphql.model.model.lonnsart.LonnsartService;
@@ -12,14 +11,15 @@ import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResou
 import no.novari.fint.model.resource.administrasjon.personal.PersonalressursResource;
 import no.novari.fint.model.resource.administrasjon.personal.VariabellonnResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelVariabellonnResolver")
-public class VariabellonnResolver implements GraphQLResolver<VariabellonnResource> {
+@Controller("modelVariabellonnResolver")
+public class VariabellonnResolver {
 
     @Autowired
     private LonnsartService lonnsartService;
@@ -31,6 +31,7 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
     private PersonalressursService personalressursService;
 
 
+    @SchemaMapping(typeName = "Variabellonn", field = "lonnsart")
     public CompletionStage<LonnsartResource> getLonnsart(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return Flux.fromStream(variabellonn.getLonnsart()
                 .stream()
@@ -41,6 +42,7 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Variabellonn", field = "arbeidsforhold")
     public CompletionStage<ArbeidsforholdResource> getArbeidsforhold(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return Flux.fromStream(variabellonn.getArbeidsforhold()
                 .stream()
@@ -51,6 +53,7 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Variabellonn", field = "anviser")
     public CompletionStage<PersonalressursResource> getAnviser(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return Flux.fromStream(variabellonn.getAnviser()
                 .stream()
@@ -61,6 +64,7 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Variabellonn", field = "konterer")
     public CompletionStage<PersonalressursResource> getKonterer(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return Flux.fromStream(variabellonn.getKonterer()
                 .stream()
@@ -71,6 +75,7 @@ public class VariabellonnResolver implements GraphQLResolver<VariabellonnResourc
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Variabellonn", field = "attestant")
     public CompletionStage<PersonalressursResource> getAttestant(VariabellonnResource variabellonn, DataFetchingEnvironment dfe) {
         return Flux.fromStream(variabellonn.getAttestant()
                 .stream()

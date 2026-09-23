@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.eksamensvurdering;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.eksamensgruppe.EksamensgruppeService;
 import no.fint.graphql.model.model.elevvurdering.ElevvurderingService;
@@ -14,14 +13,15 @@ import no.novari.fint.model.resource.utdanning.kodeverk.SkolearResource;
 import no.novari.fint.model.resource.utdanning.timeplan.FagResource;
 import no.novari.fint.model.resource.utdanning.vurdering.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelEksamensvurderingResolver")
-public class EksamensvurderingResolver implements GraphQLResolver<EksamensvurderingResource> {
+@Controller("modelEksamensvurderingResolver")
+public class EksamensvurderingResolver {
 
     @Autowired
     private EksamensgruppeService eksamensgruppeService;
@@ -42,6 +42,7 @@ public class EksamensvurderingResolver implements GraphQLResolver<Eksamensvurder
     private KarakterverdiService karakterverdiService;
 
 
+    @SchemaMapping(typeName = "Eksamensvurdering", field = "eksamensgruppe")
     public CompletionStage<EksamensgruppeResource> getEksamensgruppe(EksamensvurderingResource eksamensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensvurdering.getEksamensgruppe()
                 .stream()
@@ -52,6 +53,7 @@ public class EksamensvurderingResolver implements GraphQLResolver<Eksamensvurder
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensvurdering", field = "karakterhistorie")
     public CompletionStage<KarakterhistorieResource> getKarakterhistorie(EksamensvurderingResource eksamensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensvurdering.getKarakterhistorie()
                 .stream()
@@ -62,6 +64,7 @@ public class EksamensvurderingResolver implements GraphQLResolver<Eksamensvurder
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensvurdering", field = "elevvurdering")
     public CompletionStage<ElevvurderingResource> getElevvurdering(EksamensvurderingResource eksamensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensvurdering.getElevvurdering()
                 .stream()
@@ -72,6 +75,7 @@ public class EksamensvurderingResolver implements GraphQLResolver<Eksamensvurder
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensvurdering", field = "fag")
     public CompletionStage<FagResource> getFag(EksamensvurderingResource eksamensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensvurdering.getFag()
                 .stream()
@@ -82,6 +86,7 @@ public class EksamensvurderingResolver implements GraphQLResolver<Eksamensvurder
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensvurdering", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(EksamensvurderingResource eksamensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensvurdering.getSkolear()
                 .stream()
@@ -92,6 +97,7 @@ public class EksamensvurderingResolver implements GraphQLResolver<Eksamensvurder
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Eksamensvurdering", field = "karakter")
     public CompletionStage<KarakterverdiResource> getKarakter(EksamensvurderingResource eksamensvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(eksamensvurdering.getKarakter()
                 .stream()

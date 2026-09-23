@@ -1,6 +1,6 @@
 package no.fint.graphql
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 
 import java.nio.charset.StandardCharsets
 import java.util.Base64

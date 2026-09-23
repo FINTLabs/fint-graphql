@@ -10,8 +10,8 @@ import no.fint.graphql.config.ConnectionProviderConfig
 import no.fint.graphql.model.Endpoints
 import no.fint.graphql.model.model.rolle.RolleQueryResolver
 import no.fint.graphql.model.model.rolle.RolleService
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
 import org.springframework.test.util.ReflectionTestUtils
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.MockHttpServletRequest
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
 
 class WebClientRequestSpec extends Specification {
 
-    private MockWebServer server = new MockWebServer()
+    private MockWebServer server = new MockWebServer().tap { start() }
     private String url = server.url('/').toString()
     private WebClient webClient = WebClient.create(url)
     private BlacklistService blacklistService = Mock(BlacklistService)
@@ -45,10 +45,14 @@ class WebClientRequestSpec extends Specification {
             'V4',
             queryIdProvider)
 
+    def cleanup() {
+        server.close()
+    }
+
     def "Get request with token"() {
         given:
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+        server.enqueue(new MockResponse.Builder().code(200).body("response").build())
 
         when:
         def response = webClientRequest.get(url, String, dfe).block()
@@ -56,8 +60,8 @@ class WebClientRequestSpec extends Specification {
 
         then:
         response == 'response'
-        request.getHeader(HttpHeaders.AUTHORIZATION) == 'Bearer abc123'
-        request.getHeader('x-org-id') == 'org-1'
+        request.headers.get(HttpHeaders.AUTHORIZATION) == 'Bearer abc123'
+        request.headers.get('x-org-id') == 'org-1'
     }
 
     def "Configured WebClient sends Host header based on fint.endpoint.host"() {
@@ -76,7 +80,7 @@ class WebClientRequestSpec extends Specification {
         )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
         def resourceUrl = server.url('/administrasjon/fullmakt/rolle/navn/foo').toString()
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+        server.enqueue(new MockResponse.Builder().code(200).body("response").build())
 
         when:
         def response = configuredRequest.get(resourceUrl, String, dfe).block()
@@ -84,7 +88,7 @@ class WebClientRequestSpec extends Specification {
 
         then:
         response == 'response'
-        request.getHeader('Host') == configuredHost
+        request.headers.get('Host') == configuredHost
     }
 
     def "toRequestUri rewrites absolute encoded uri to configured root"() {
@@ -138,7 +142,7 @@ class WebClientRequestSpec extends Specification {
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/utdanning/vurdering/"], 'org-1')
         def encodedPath = '/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4'
         def absoluteLink = "https://external.example.test${encodedPath}"
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+        server.enqueue(new MockResponse.Builder().code(200).body("response").build())
 
         when:
         def response = configuredRequest.get(absoluteLink, String, dfe).block()
@@ -146,8 +150,8 @@ class WebClientRequestSpec extends Specification {
 
         then:
         response == 'response'
-        request.path == encodedPath
-        request.getHeader('Host') == configuredHost
+        request.target == encodedPath
+        request.headers.get('Host') == configuredHost
     }
 
     def "Following an encoded HATEOAS link does not double encode its resource identifier"() {
@@ -155,7 +159,7 @@ class WebClientRequestSpec extends Specification {
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/administrasjon/fullmakt/"], 'org-1')
         def encodedIdentifier = 'A%2FB%20C%23D%3FE%25%C3%B8'
         def hateoasLink = "https://beta.felleskomponent.no/administrasjon/fullmakt/rolle/navn/${encodedIdentifier}"
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+        server.enqueue(new MockResponse.Builder().code(200).body("response").build())
 
         when:
         def response = webClientRequest.get(hateoasLink, String, dfe).block()
@@ -163,8 +167,8 @@ class WebClientRequestSpec extends Specification {
 
         then:
         response == 'response'
-        request.path == "/administrasjon/fullmakt/rolle/navn/${encodedIdentifier}"
-        !request.path.contains('%252F')
+        request.target == "/administrasjon/fullmakt/rolle/navn/${encodedIdentifier}"
+        !request.target.contains('%252F')
     }
 
     @Unroll
@@ -184,17 +188,17 @@ class WebClientRequestSpec extends Specification {
         ReflectionTestUtils.setField(service, 'endpoints', endpoints)
         def resolver = new RolleQueryResolver()
         ReflectionTestUtils.setField(resolver, 'service', service)
-        server.enqueue(new MockResponse()
-                .setResponseCode(200)
+        server.enqueue(new MockResponse.Builder()
+                .code(200)
                 .setHeader(HttpHeaders.CONTENT_TYPE, 'application/json')
-                .setBody('{}'))
+                .body('{}').build())
 
         when:
         resolver.rolle(value, dfe).toCompletableFuture().get(2, TimeUnit.SECONDS)
         def request = server.takeRequest()
 
         then:
-        request.path == "/administrasjon/fullmakt/rolle/navn/${encodedValue}"
+        request.target == "/administrasjon/fullmakt/rolle/navn/${encodedValue}"
 
         where:
         description                  | value                    || encodedValue
@@ -219,7 +223,7 @@ class WebClientRequestSpec extends Specification {
                 queryIdProvider
         )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/administrasjon/fullmakt/"], 'org-1')
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+        server.enqueue(new MockResponse.Builder().code(200).body("response").build())
 
         when:
         def response = requestWithDifferentWebClientBase.get('/administrasjon/fullmakt/rolle/navn/foo', String, dfe).block()
@@ -227,8 +231,8 @@ class WebClientRequestSpec extends Specification {
 
         then:
         response == 'response'
-        request.path == '/administrasjon/fullmakt/rolle/navn/foo'
-        request.getHeader(HttpHeaders.HOST) == 'beta.felleskomponent.no'
+        request.target == '/administrasjon/fullmakt/rolle/navn/foo'
+        request.headers.get(HttpHeaders.HOST) == 'beta.felleskomponent.no'
     }
 
     def "normalizeRequestUri maps absolute uri without path to root slash"() {
@@ -242,14 +246,14 @@ class WebClientRequestSpec extends Specification {
     def "Get request includes x-fint-model-version header"() {
         given:
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+        server.enqueue(new MockResponse.Builder().code(200).body("response").build())
 
         when:
         webClientRequest.get(url, String, dfe).block()
         def request = server.takeRequest()
 
         then:
-        request.getHeader('x-fint-model-version') == 'V4'
+        request.headers.get('x-fint-model-version') == 'V4'
     }
 
     def "Get request without token"() {
@@ -267,7 +271,7 @@ class WebClientRequestSpec extends Specification {
     def "Get request returns status #status as WebClientResponseException"() {
         given:
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
-        server.enqueue(new MockResponse().setResponseCode(status).setBody("error"))
+        server.enqueue(new MockResponse.Builder().code(status).body("error").build())
         def handler = new WebClientGraphQLErrorHandler()
         def path = ["query", "resource"]
 
@@ -276,7 +280,7 @@ class WebClientRequestSpec extends Specification {
 
         then:
         def ex = thrown(WebClientResponseException)
-        ex.rawStatusCode == status
+        ex.statusCode.value() == status
         def error = new ExceptionWhileDataFetching(ResultPath.fromList(path), ex, new SourceLocation(1, 1))
         def mapped = handler.processErrors([error])
         mapped.size() == 1
@@ -302,13 +306,13 @@ class WebClientRequestSpec extends Specification {
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/one/", "/two/"], 'org-1')
         def firstUrl = server.url('/one').toString()
         def secondUrl = server.url('/two').toString()
-        server.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("one")
-                .setBodyDelay(500, TimeUnit.MILLISECONDS))
-        server.enqueue(new MockResponse()
-                .setResponseCode(200)
-                .setBody("two"))
+        server.enqueue(new MockResponse.Builder()
+                .code(200)
+                .body("one")
+                .bodyDelay(500, TimeUnit.MILLISECONDS).build())
+        server.enqueue(new MockResponse.Builder()
+                .code(200)
+                .body("two").build())
 
         when:
         def future1 = limitedRequest.get(firstUrl, String, dfe).toFuture()
@@ -363,7 +367,7 @@ class WebClientRequestSpec extends Specification {
     def "Request scoped cache deduplicates identical resource fetches"() {
         given:
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/"], 'org-1')
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("response"))
+        server.enqueue(new MockResponse.Builder().code(200).body("response").build())
 
         when:
         def response = reactor.core.publisher.Mono.zip(
@@ -387,8 +391,8 @@ class WebClientRequestSpec extends Specification {
         def dfe = createDataFetchingEnvironmentMock(servletRequest, 'query-1')
         def firstUrl = server.url('/first').toString()
         def secondUrl = server.url('/second').toString()
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("one"))
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("two"))
+        server.enqueue(new MockResponse.Builder().code(200).body("one").build())
+        server.enqueue(new MockResponse.Builder().code(200).body("two").build())
 
         when:
         def response = reactor.core.publisher.Mono.zip(
@@ -427,6 +431,26 @@ class WebClientRequestSpec extends Specification {
             return "Resource not found at ${resourcePath}"
         }
         throw IllegalArgumentException("Message for status code " + status + " is not defined yet")
+    }
+
+    def "concurrent queries keep resource caches and request counters isolated"() {
+        given:
+        def first = createDataFetchingEnvironmentMock('Bearer first', null, ['/'], 'org-first')
+        def second = createDataFetchingEnvironmentMock('Bearer second', null, ['/'], 'org-second')
+        server.enqueue(new MockResponse.Builder().code(200).body('first').build())
+        server.enqueue(new MockResponse.Builder().code(200).body('second').build())
+
+        when:
+        def result = reactor.core.publisher.Mono.zip(
+                webClientRequest.get(url, String, first), webClientRequest.get(url, String, second)).block()
+        def requests = [server.takeRequest(1, TimeUnit.SECONDS), server.takeRequest(1, TimeUnit.SECONDS)]
+
+        then:
+        [result.t1, result.t2].toSet() == ['first', 'second'].toSet()
+        requests.collect { it.headers.get('Authorization') }.toSet() == ['Bearer first', 'Bearer second'].toSet()
+        requests.collect { it.headers.get('x-org-id') }.toSet() == ['org-first', 'org-second'].toSet()
+        GraphQLRequestAttributes.nextRequestSequence(first.graphQlContext.get(HttpServletRequest)) == 2
+        GraphQLRequestAttributes.nextRequestSequence(second.graphQlContext.get(HttpServletRequest)) == 2
     }
 
     private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null,

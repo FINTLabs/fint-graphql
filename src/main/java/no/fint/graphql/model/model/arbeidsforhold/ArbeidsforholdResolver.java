@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.arbeidsforhold;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.aktivitet.AktivitetService;
 import no.fint.graphql.model.model.anlegg.AnleggService;
@@ -32,7 +31,8 @@ import no.novari.fint.model.resource.administrasjon.organisasjon.Organisasjonsel
 import no.novari.fint.model.resource.administrasjon.personal.*;
 import no.novari.fint.model.resource.utdanning.elev.UndervisningsforholdResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,8 +43,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelArbeidsforholdResolver")
-public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdResource> {
+@Controller("modelArbeidsforholdResolver")
+public class ArbeidsforholdResolver {
 
     @Autowired
     private AktivitetService aktivitetService;
@@ -113,6 +113,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
     private UndervisningsforholdService undervisningsforholdService;
 
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "aktivitet")
     public CompletionStage<AktivitetResource> getAktivitet(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getAktivitet()
                 .stream()
@@ -123,6 +124,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "anlegg")
     public CompletionStage<AnleggResource> getAnlegg(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getAnlegg()
                 .stream()
@@ -133,6 +135,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "ansvar")
     public CompletionStage<AnsvarResource> getAnsvar(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getAnsvar()
                 .stream()
@@ -143,6 +146,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "arbeidsforholdstype")
     public CompletionStage<ArbeidsforholdstypeResource> getArbeidsforholdstype(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getArbeidsforholdstype()
                 .stream()
@@ -153,6 +157,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "art")
     public CompletionStage<ArtResource> getArt(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getArt()
                 .stream()
@@ -163,6 +168,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "diverse")
     public CompletionStage<DiverseResource> getDiverse(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getDiverse()
                 .stream()
@@ -173,6 +179,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "formal")
     public CompletionStage<FormalResource> getFormal(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getFormal()
                 .stream()
@@ -183,6 +190,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "funksjon")
     public CompletionStage<FunksjonResource> getFunksjon(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getFunksjon()
                 .stream()
@@ -193,6 +201,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "kontrakt")
     public CompletionStage<KontraktResource> getKontrakt(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getKontrakt()
                 .stream()
@@ -203,6 +212,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "lopenummer")
     public CompletionStage<LopenummerResource> getLopenummer(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getLopenummer()
                 .stream()
@@ -213,6 +223,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "objekt")
     public CompletionStage<ObjektResource> getObjekt(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getObjekt()
                 .stream()
@@ -223,6 +234,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "prosjekt")
     public CompletionStage<ProsjektResource> getProsjekt(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getProsjekt()
                 .stream()
@@ -233,6 +245,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "ramme")
     public CompletionStage<RammeResource> getRamme(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getRamme()
                 .stream()
@@ -243,6 +256,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "stillingskode")
     public CompletionStage<StillingskodeResource> getStillingskode(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getStillingskode()
                 .stream()
@@ -253,6 +267,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "timerPerUke")
     public CompletionStage<UketimetallResource> getTimerPerUke(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getTimerPerUke()
                 .stream()
@@ -263,6 +278,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "arbeidslokasjon")
     public CompletionStage<ArbeidslokasjonResource> getArbeidslokasjon(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getArbeidslokasjon()
                 .stream()
@@ -273,6 +289,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "arbeidssted")
     public CompletionStage<OrganisasjonselementResource> getArbeidssted(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getArbeidssted()
                 .stream()
@@ -283,6 +300,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "personalleder")
     public CompletionStage<PersonalressursResource> getPersonalleder(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getPersonalleder()
                 .stream()
@@ -293,6 +311,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "fastlonn")
     public CompletionStage<List<FastlonnResource>> getFastlonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(arbeidsforhold.getFastlonn()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -312,6 +331,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "fasttillegg")
     public CompletionStage<List<FasttilleggResource>> getFasttillegg(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(arbeidsforhold.getFasttillegg()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -331,6 +351,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "variabellonn")
     public CompletionStage<List<VariabellonnResource>> getVariabellonn(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(arbeidsforhold.getVariabellonn()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -350,6 +371,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "personalressurs")
     public CompletionStage<PersonalressursResource> getPersonalressurs(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getPersonalressurs()
                 .stream()
@@ -360,6 +382,7 @@ public class ArbeidsforholdResolver implements GraphQLResolver<ArbeidsforholdRes
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Arbeidsforhold", field = "undervisningsforhold")
     public CompletionStage<UndervisningsforholdResource> getUndervisningsforhold(ArbeidsforholdResource arbeidsforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(arbeidsforhold.getUndervisningsforhold()
                 .stream()

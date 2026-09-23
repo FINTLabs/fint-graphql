@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.otungdom;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.otenhet.OtEnhetService;
 import no.fint.graphql.model.model.otstatus.OtStatusService;
@@ -14,14 +13,15 @@ import no.novari.fint.model.resource.utdanning.kodeverk.OtStatusResource;
 import no.novari.fint.model.resource.utdanning.ot.OtUngdomResource;
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.ProgramomradeResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelOtUngdomResolver")
-public class OtUngdomResolver implements GraphQLResolver<OtUngdomResource> {
+@Controller("modelOtUngdomResolver")
+public class OtUngdomResolver {
 
     @Autowired
     private PersonService personService;
@@ -36,6 +36,7 @@ public class OtUngdomResolver implements GraphQLResolver<OtUngdomResource> {
     private ProgramomradeService programomradeService;
 
 
+    @SchemaMapping(typeName = "OtUngdom", field = "person")
     public CompletionStage<PersonResource> getPerson(OtUngdomResource otungdom, DataFetchingEnvironment dfe) {
         return Flux.fromStream(otungdom.getPerson()
                 .stream()
@@ -46,6 +47,7 @@ public class OtUngdomResolver implements GraphQLResolver<OtUngdomResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "OtUngdom", field = "status")
     public CompletionStage<OtStatusResource> getStatus(OtUngdomResource otungdom, DataFetchingEnvironment dfe) {
         return Flux.fromStream(otungdom.getStatus()
                 .stream()
@@ -56,6 +58,7 @@ public class OtUngdomResolver implements GraphQLResolver<OtUngdomResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "OtUngdom", field = "enhet")
     public CompletionStage<OtEnhetResource> getEnhet(OtUngdomResource otungdom, DataFetchingEnvironment dfe) {
         return Flux.fromStream(otungdom.getEnhet()
                 .stream()
@@ -66,6 +69,7 @@ public class OtUngdomResolver implements GraphQLResolver<OtUngdomResource> {
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "OtUngdom", field = "programomrade")
     public CompletionStage<ProgramomradeResource> getProgramomrade(OtUngdomResource otungdom, DataFetchingEnvironment dfe) {
         return Flux.fromStream(otungdom.getProgramomrade()
                 .stream()

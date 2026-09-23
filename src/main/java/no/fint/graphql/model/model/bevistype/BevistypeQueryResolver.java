@@ -1,20 +1,19 @@
 
 package no.fint.graphql.model.model.bevistype;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import no.novari.fint.model.resource.utdanning.kodeverk.BevistypeResource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Mono;
 
 import java.util.concurrent.CompletionStage;
 
-@Component("modelBevistypeQueryResolver")
+@Controller("modelBevistypeQueryResolver")
 @Slf4j
-public class BevistypeQueryResolver implements GraphQLQueryResolver {
+public class BevistypeQueryResolver {
 
     @Autowired
     private BevistypeService service;

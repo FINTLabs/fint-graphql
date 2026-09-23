@@ -1,14 +1,14 @@
 
 package no.fint.graphql.model.model.arbeidslokasjon;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.arbeidsforhold.ArbeidsforholdService;
 import no.novari.fint.model.resource.Link;
 import no.novari.fint.model.resource.administrasjon.organisasjon.ArbeidslokasjonResource;
 import no.novari.fint.model.resource.administrasjon.personal.ArbeidsforholdResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,13 +19,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelArbeidslokasjonResolver")
-public class ArbeidslokasjonResolver implements GraphQLResolver<ArbeidslokasjonResource> {
+@Controller("modelArbeidslokasjonResolver")
+public class ArbeidslokasjonResolver {
 
     @Autowired
     private ArbeidsforholdService arbeidsforholdService;
 
 
+    @SchemaMapping(typeName = "Arbeidslokasjon", field = "arbeidsforhold")
     public CompletionStage<List<ArbeidsforholdResource>> getArbeidsforhold(ArbeidslokasjonResource arbeidslokasjon, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(arbeidslokasjon.getArbeidsforhold()).orElseGet(List::of);
         if (links.isEmpty()) {

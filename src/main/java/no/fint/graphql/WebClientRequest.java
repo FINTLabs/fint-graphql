@@ -6,7 +6,6 @@ import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import graphql.GraphQLContext;
-import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.schema.DataFetchingEnvironment;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutException;
@@ -32,11 +31,10 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Component
@@ -93,7 +91,7 @@ public class WebClientRequest {
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
         String requestUri = encodeGraphQLPathArgument(uri, dfe);
         String cacheKeyUri = normalizeRequestUri(requestUri);
-        GraphQLKickstartContext context = getContext(dfe);
+        GraphQLContext context = dfe != null ? dfe.getGraphQlContext() : null;
         HttpServletRequest request = getRequest(context);
         String authorization = getToken(request);
         Cache<ResourceRequestKey, Mono<Object>> requestCache = getRequestCache(request);
@@ -448,24 +446,7 @@ public class WebClientRequest {
         return requestSequence > 0 ? Long.toString(requestSequence) : "unknown";
     }
 
-    private GraphQLKickstartContext getContext(DataFetchingEnvironment dataFetchingEnvironment) {
-        if (dataFetchingEnvironment == null) {
-            return null;
-        }
-        GraphQLContext graphQLContext = dataFetchingEnvironment.getGraphQlContext();
-        if (graphQLContext == null) {
-            return null;
-        }
-        HashMap<Object, Object> contextMap = new HashMap<>();
-        graphQLContext.stream().forEach(entry -> contextMap.put(entry.getKey(), entry.getValue()));
-        return GraphQLKickstartContext.of(contextMap);
-    }
-
-    private HttpServletRequest getRequest(GraphQLKickstartContext context) {
-        if (context == null || context.getMapOfContext() == null) {
-            return null;
-        }
-        Object request = context.getMapOfContext().get(HttpServletRequest.class);
-        return request instanceof HttpServletRequest ? (HttpServletRequest) request : null;
+    private HttpServletRequest getRequest(GraphQLContext context) {
+        return context != null ? context.get(HttpServletRequest.class) : null;
     }
 }

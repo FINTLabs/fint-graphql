@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.elevforhold;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.avbruddsarsak.AvbruddsarsakService;
 import no.fint.graphql.model.model.eksamensgruppemedlemskap.EksamensgruppemedlemskapService;
@@ -33,7 +32,8 @@ import no.novari.fint.model.resource.utdanning.vurdering.ElevfravarResource;
 import no.novari.fint.model.resource.utdanning.vurdering.ElevvurderingResource;
 import no.novari.fint.model.resource.utdanning.vurdering.FravarsoversiktResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,8 +44,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelElevforholdResolver")
-public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource> {
+@Controller("modelElevforholdResolver")
+public class ElevforholdResolver {
 
     @Autowired
     private ElevService elevService;
@@ -96,6 +96,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
     private KlassemedlemskapService klassemedlemskapService;
 
 
+    @SchemaMapping(typeName = "Elevforhold", field = "elev")
     public CompletionStage<ElevResource> getElev(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevforhold.getElev()
                 .stream()
@@ -106,6 +107,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "kategori")
     public CompletionStage<ElevkategoriResource> getKategori(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevforhold.getKategori()
                 .stream()
@@ -116,6 +118,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "skole")
     public CompletionStage<SkoleResource> getSkole(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevforhold.getSkole()
                 .stream()
@@ -126,6 +129,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "avbruddsarsak")
     public CompletionStage<List<AvbruddsarsakResource>> getAvbruddsarsak(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getAvbruddsarsak()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -145,6 +149,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "fravarsregistreringer")
     public CompletionStage<ElevfravarResource> getFravarsregistreringer(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevforhold.getFravarsregistreringer()
                 .stream()
@@ -155,6 +160,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "faggruppemedlemskap")
     public CompletionStage<List<FaggruppemedlemskapResource>> getFaggruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getFaggruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -174,6 +180,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "skolear")
     public CompletionStage<SkolearResource> getSkolear(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevforhold.getSkolear()
                 .stream()
@@ -184,6 +191,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "undervisningsgruppemedlemskap")
     public CompletionStage<List<UndervisningsgruppemedlemskapResource>> getUndervisningsgruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getUndervisningsgruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -203,6 +211,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "persongruppemedlemskap")
     public CompletionStage<List<PersongruppemedlemskapResource>> getPersongruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getPersongruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -222,6 +231,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "eksamensgruppemedlemskap")
     public CompletionStage<List<EksamensgruppemedlemskapResource>> getEksamensgruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getEksamensgruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -241,6 +251,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "kontaktlarergruppemedlemskap")
     public CompletionStage<List<KontaktlarergruppemedlemskapResource>> getKontaktlarergruppemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getKontaktlarergruppemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -260,6 +271,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "elevfravar")
     public CompletionStage<List<FravarsoversiktResource>> getElevfravar(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getElevfravar()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -279,6 +291,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "tilrettelegging")
     public CompletionStage<List<ElevtilretteleggingResource>> getTilrettelegging(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getTilrettelegging()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -298,6 +311,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "elevvurdering")
     public CompletionStage<ElevvurderingResource> getElevvurdering(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevforhold.getElevvurdering()
                 .stream()
@@ -308,6 +322,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "programomrademedlemskap")
     public CompletionStage<List<ProgramomrademedlemskapResource>> getProgramomrademedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getProgramomrademedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -327,6 +342,7 @@ public class ElevforholdResolver implements GraphQLResolver<ElevforholdResource>
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevforhold", field = "klassemedlemskap")
     public CompletionStage<List<KlassemedlemskapResource>> getKlassemedlemskap(ElevforholdResource elevforhold, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevforhold.getKlassemedlemskap()).orElseGet(List::of);
         if (links.isEmpty()) {

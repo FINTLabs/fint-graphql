@@ -1,7 +1,6 @@
 
 package no.fint.graphql.model.model.elevvurdering;
 
-import com.coxautodev.graphql.tools.GraphQLResolver;
 import graphql.schema.DataFetchingEnvironment;
 import no.fint.graphql.model.model.eksamensvurdering.EksamensvurderingService;
 import no.fint.graphql.model.model.elevforhold.ElevforholdService;
@@ -17,7 +16,8 @@ import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource;
 import no.novari.fint.model.resource.utdanning.kodeverk.VitnemalsmerknadResource;
 import no.novari.fint.model.resource.utdanning.vurdering.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,8 +28,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Component("modelElevvurderingResolver")
-public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResource> {
+@Controller("modelElevvurderingResolver")
+public class ElevvurderingResolver {
 
     @Autowired
     private ElevforholdService elevforholdService;
@@ -59,6 +59,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
     private EksamensvurderingService eksamensvurderingService;
 
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "elevforhold")
     public CompletionStage<ElevforholdResource> getElevforhold(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         return Flux.fromStream(elevvurdering.getElevforhold()
                 .stream()
@@ -69,6 +70,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "sluttfagvurdering")
     public CompletionStage<List<SluttfagvurderingResource>> getSluttfagvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getSluttfagvurdering()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -88,6 +90,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "underveisordensvurdering")
     public CompletionStage<List<UnderveisordensvurderingResource>> getUnderveisordensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getUnderveisordensvurdering()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -107,6 +110,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "vitnemalsmerknad")
     public CompletionStage<List<VitnemalsmerknadResource>> getVitnemalsmerknad(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getVitnemalsmerknad()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -126,6 +130,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "underveisfagvurdering")
     public CompletionStage<List<UnderveisfagvurderingResource>> getUnderveisfagvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getUnderveisfagvurdering()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -145,6 +150,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "halvarsordensvurdering")
     public CompletionStage<List<HalvarsordensvurderingResource>> getHalvarsordensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getHalvarsordensvurdering()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -164,6 +170,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "halvarsfagvurdering")
     public CompletionStage<List<HalvarsfagvurderingResource>> getHalvarsfagvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getHalvarsfagvurdering()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -183,6 +190,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "sluttordensvurdering")
     public CompletionStage<List<SluttordensvurderingResource>> getSluttordensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getSluttordensvurdering()).orElseGet(List::of);
         if (links.isEmpty()) {
@@ -202,6 +210,7 @@ public class ElevvurderingResolver implements GraphQLResolver<ElevvurderingResou
                 .toFuture();
     }
 
+    @SchemaMapping(typeName = "Elevvurdering", field = "eksamensvurdering")
     public CompletionStage<List<EksamensvurderingResource>> getEksamensvurdering(ElevvurderingResource elevvurdering, DataFetchingEnvironment dfe) {
         var links = Optional.ofNullable(elevvurdering.getEksamensvurdering()).orElseGet(List::of);
         if (links.isEmpty()) {
