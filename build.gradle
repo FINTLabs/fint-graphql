@@ -8,6 +8,17 @@ plugins {
 
 group = 'no.fintlabs'
 
+def isMacOs = providers.systemProperty('os.name').get().startsWith('Mac')
+
+if (!isMacOs) {
+    // Reactor Netty also brings macOS DNS artifacts transitively. Keep both the
+    // provider class and native libraries out of Linux CI and container builds.
+    configurations.configureEach {
+        exclude group: 'io.netty', module: 'netty-resolver-dns-native-macos'
+        exclude group: 'io.netty', module: 'netty-resolver-dns-classes-macos'
+    }
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(26)
@@ -30,6 +41,11 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-webclient'
+    if (isMacOs) {
+        // Spring Boot manages the version; support both Intel and Apple Silicon locally.
+        runtimeOnly 'io.netty:netty-resolver-dns-native-macos::osx-aarch_64'
+        runtimeOnly 'io.netty:netty-resolver-dns-native-macos::osx-x86_64'
+    }
     implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
