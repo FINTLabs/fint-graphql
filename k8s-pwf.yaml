@@ -80,12 +80,12 @@ spec:
             - name: TZ
               value: Europe/Oslo
             - name: JAVA_TOOL_OPTIONS
-              value: -XX:+ExitOnOutOfMemoryError -verbose:gc -Xmx1G --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED
+              value: -XX:+ExitOnOutOfMemoryError -verbose:gc -Xmx1G --enable-native-access=ALL-UNNAMED
             - name: server.servlet.context-path
               value: "/graphql"
             - name: management.server.port
               value: "8081"
-            - name: graphiql.endpoint.graphql
-              value: "/graphql/graphql"
+            - name: spring.graphql.graphiql.enabled
+              value: "true"
             - name: logging.level.org.springframework.web.reactive.function.client.ExchangeFunctions
               value: "DEBUG"

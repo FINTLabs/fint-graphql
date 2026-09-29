@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(26) }
+}
+
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(26) }
+}
+
+dependencies {
+    testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.1.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'com.graphql-java:graphql-java'
+    testImplementation gradleTestKit()
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+def modelFile = rootProject.layout.projectDirectory.file(
+        ".gradle/fint-model/${apiVersion}/${modelSha256}/FINT-informasjonsmodell.xml")
+
+tasks.register('downloadFintModel', JavaExec) {
+    group = 'build setup'
+    description = 'Fetch and verify the pinned information model, or verify the offline cache.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'no.fint.graphql.generator.ModelDownload'
+    args apiVersion, modelSha256, modelFile.asFile.absolutePath, gradle.startParameter.offline.toString()
+    // Always verify cached bytes, including during offline and up-to-date builds.
+}
+
+tasks.named('test') {
+    dependsOn 'downloadFintModel'
+    useJUnitPlatform()
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    systemProperty 'fint.model.file', modelFile.asFile.absolutePath
+    systemProperty 'fint.model.version', apiVersion
+    systemProperty 'fint.model.sha256', modelSha256
+    systemProperty 'fint.app.directory', project(':app').layout.projectDirectory.asFile.absolutePath
+    systemProperty 'fint.repository.directory', rootProject.layout.projectDirectory.asFile.absolutePath
+    systemProperty 'fint.gradle.home', gradle.gradleHomeDir.absolutePath
+    systemProperty 'fint.gradle.user.home', gradle.gradleUserHomeDir.absolutePath
+}

@@ -1,20 +1,122 @@
 # FINT GraphQL
 
-Rutine for å hente inn modell og publisere løsningen er omarbeidet i november 2024.
+## Bygg og test
+
+Prosjektet bruker Java **26** (Temurin 26.0.2+10), Spring Boot **4.1.1** og Gradle
+**9.7.1**. Sett `JAVA_HOME` til en JDK 26-installasjon og bruk alltid wrapperen:
+
+```sh
+./gradlew clean build
+```
+
+Testene bruker Spock 2.4, Groovy 5, Byte Buddy og lokale MockWebServer-servere.
+De trenger ikke tilgang til FINT eller produksjonens identitetsleverandør.
+Spring Boot styrer versjonene til Spring, GraphQL Java, Jackson, Reactor og
+JUnit. Modellbibliotekene fra Novari er oppgradert til 4.1.0; modellheaderen
+`x-fint-model-version` er fortsatt `V4`.
+
+Spring for GraphQL erstatter GraphQL Kickstart. Jackson 3 brukes til JSON.
+Den ubrukte transitive Jackson 2 databind-avhengigheten er ekskludert fra
+Novari-modellene. Jackson-annotasjoner og Jackson 2 core beholdes fordi modellene
+refererer til disse typene; Spring Boot styrer versjonene.
+`spring.threads.virtual.enabled=true` aktiverer virtuelle tråder for servlet-
+forespørsler og Spring sine blokkerende GraphQL-metoder. WebClient og eksisterende
+asynkrone resolvere beholder sin reaktive kjøring og tilkoblingsbegrensning.
+
+`fint.graphql.query-timeout` og `fint.graphql.async-request-timeout` beholdes.
+Den minste positive verdien brukes som frist; hvis begge er null eller negative,
+settes ingen GraphQL-frist. Tidsavbrudd gir fortsatt HTTP 200 med feilkoden
+`QUERY_TIMEOUT` for JSON-klienter. Spring MVC sin separate frist er deaktivert
+slik at den ikke konkurrerer med GraphQL-svaret.
+
+## Modulene og kodegenerering
+
+Rotprosjektet samler `app` (Spring Boot-applikasjonen) og `model-generator`
+(internt Java-basert byggeverktøy). Generatoren publiseres ikke, har ingen
+CLI-distribusjon og inngår ikke i applikasjonens runtime-classpath eller boot-JAR.
+Den trenger verken Jackson, Go, Docker eller et utsjekket naborepo.
+
+`./gradlew build` genererer Java-kilder og GraphQL-skjema automatisk før
+kompilering og ressurskopiering. Bare generering kan kjøres med
+`./gradlew :app:generateGraphql` eller `./generate.sh`.
+Resultatet ligger i `app/build/generated/graphql/java` og
+`app/build/generated/graphql/resources/schema`; ikke rediger disse filene.
+Håndskrevet kode og tester ligger under `app/src`.
+
+Modellen lastes ned fra `FINTLabs/fint-informasjonsmodell`, taggen
+`v${apiVersion}`, og kontrolleres mot `modelSha256` i `gradle.properties`.
+Den verifiserte råfilen lagres under `.gradle/fint-model/<versjon>/<sha256>/`.
+Denne cachen overlever `clean`. Første bygg trenger GitHub-tilgang; senere
+bygg kan kjøres med `./gradlew --offline clean build` når også Gradle-avhengighetene
+er cachet. Sjekksummen kontrolleres ved hver bruk. Manglende offline-cache,
+HTTP-feil eller feil sjekksum stopper bygget uten fallback til en annen modell.
+Ved korrupt cache: fjern den berørte modellfilen og kjør på nytt med nettverk.
+
+Genereringen omfatter administrasjon, utdanning og felles, med `Fravar` og
+`Fravarstype` ekskludert. `PersonService` er håndskrevet og utelates fra generering;
+persontjenesten har én implementasjon under `app/src/main/java`.
+Den beholder ikke-nullverdier fra administrasjon, fyller manglende verdier fra
+utdanning og kombinerer relasjonslenker uten duplikater uten å endre cachede
+ressurser. En vellykket kilde kan brukes selv om den andre feiler.
+
+Relasjonslister beholder rekkefølge, maksimalt åtte samtidige oppslag og
+`null`-plasser ved manglende svar. Valgfrie tomme Feide-identifikatorer normaliseres
+til `null`. Tomme GraphQL-objekttyper utelates, og `Date` og `Long` deklareres.
 
 ## Oppdatere modell og skjema
 
-* Oppdater `version`-feltet i [gradle.properties](gradle.properties)
-* Kjør `generate.sh` for å generere modell og skjema.
-* Rename disse metodenavnene
-  * getOtUngdom -> getOtungdom
-  * getAvlagtProve -> getAvlagtprove
-* Verifiser at tjenesten bygger (kjør den lokalt)
+1. Oppdater `apiVersion` for både XMI-modellen og Novari-bibliotekene.
+2. Hent `FINT-informasjonsmodell.xml` fra den tilsvarende versjonstaggen, kontroller
+   opprinnelsen og sett `modelSha256` til SHA-256 av råfilen, før tegnsettkonvertering.
+3. Kjør `./gradlew :app:generateGraphql`, gjennomgå forskjellene mot sist godkjente
+   skjema og Java-kode, og oppdater referansedataene beskrevet i
+   [generatorens testgrunnlag](model-generator/src/test/resources/baseline/README.md).
+   Referanser skal ikke oppdateres automatisk for å gjøre en feilende test grønn.
+4. Kjør `./gradlew clean build` og containerbygget. Hele testpakken må bestå før
+   modellen tas i bruk. Endringer i offentlig skjema må gjennomgås eksplisitt.
 
-Om du vil gjøre en opprydding og generere hele modellen på nytt:
-* Slett mappen `/src/main/resources/schema`
-* Slett mappen `/src/main/java/no/fint/graphql/model`
-* Følg instruksene i [## Oppdatere modell og skjema](#oppdatere-modell-og-skjema) for å generere modellen på nytt.
+Generatorens tester sammenligner alle filer med både den tidligere Go-generatoren
+og applikasjonen ved migreringen, med en separat gjennomgått referanse for
+URI-maler og rutekatalogen. Java sammenlignes som syntakstrær, og skjema som
+GraphQL-syntakstrær; kommentarer og formatering påvirker ikke sammenligningen.
+Gradle TestKit tester inkrementelle bygg, endret generator/modell, offline-cache,
+sjekksumfeil og opprydding. Applikasjonstestene kjører mot de genererte kildene.
+
+Jackson 3.1.5 brukes allerede og er verifisert med Novari 4.1.0. Jackson 2 databind
+er fortsatt ekskludert. Jackson 2 core trengs av `TypeReference`-referanser i
+Novari-bibliotekene; å fjerne denne krever oppdatering av bibliotekene, ikke av
+GraphQL-generatoren. Delte Jackson-annotasjoner brukes også av Jackson 3.
+Spring Boot styrer Jackson-versjonene.
+
+## Metrikker for kall til FINT
+
+`http.client.requests` bruker stabile URI-maler, for eksempel
+`/administrasjon/fullmakt/rolle/navn/{value}`. Identifikatorer og query-parametre
+inngår ikke i `uri`-etiketten. Den genererte katalogen inneholder 228 ruter,
+inkludert samlinger og begge personkildene. Ukjente lenker samles under `/unknown`.
+Endringer i `fint.endpoint.*` påvirker rutematching, men ikke de kanoniske etikettene.
+
+`management.metrics.web.client.max-uri-tags` er satt til 256. En regresjonstest
+kontrollerer at hele katalogen og reserverte etiketter får plass. Ved modellendring
+må katalog og grense vurderes samlet; antall identifikatorverdier skal aldri
+påvirke antall URI-etiketter. Cache og tilgangskontroll bruker fortsatt konkrete
+ressursadresser.
+
+Ved utrulling: tilpass dashboards som tidligere grupperte på `uri="none"`, og
+kontroller i eksisterende overvåkning at antallet URI-etiketter er stabilt og at
+loggen ikke viser advarsler om maksimalgrensen. Actuator-eksponeringen er uendret;
+endringen åpner ikke nye metrikkeendepunkter.
+
+## Container
+
+```sh
+docker build -t fint-graphql:local .
+docker run --rm -p 8080:8080 fint-graphql:local
+```
+
+Begge Temurin-bildene er låst til versjon og digest. Byggesteget bruker Gradle-
+wrapperen og kjører testene; kjørebildet kjører som UID 10001. Oppdater både tag
+og digest ved fremtidige bildeoppgraderinger.
 
 ## Hvordan publisere ny versjon
 
@@ -25,8 +127,19 @@ Om du vil gjøre en opprydding og generere hele modellen på nytt:
 
 ## Teste lokalt
 
-Applikasjonen skal kunne testes lokalt uten noen konfigurasjon.  
-Start `Application` fra IDE-en din og gå til http://localhost:8080/graphiql
+Start `Application` fra IDE-en eller kjør `./gradlew :app:bootRun`.
+GraphQL er tilgjengelig på `POST /graphql`, og GraphiQL på `/graphiql`.
+GraphiQL og GraphQL krever autentisering; send et gyldig bearer-token for den
+konfigurerte utstederen. `fint.security.oauth2.issuer-uri` kan peke på en lokal
+utsteder. Metadata hentes først når et token skal verifiseres.
+
+`/schema.json` og `/actuator/health`, inkludert liveness/readiness, er offentlige.
+Ved `server.servlet.context-path=/graphql` blir GraphQL-adressen
+`/graphql/graphql`; GraphiQL beregner denne adressen automatisk. Ved egen
+`management.server.port` ligger helseendepunktene på denne porten.
+
+Eksemplene under må tilpasses feltene og identifikatorargumentene i gjeldende
+skjema; rotfeltene returnerer enkeltressurser.
 
 ## Spørringer
 
