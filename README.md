@@ -76,7 +76,8 @@ til `null`. Tomme GraphQL-objekttyper utelates, og `Date` og `Long` deklareres.
    modellen tas i bruk. Endringer i offentlig skjema må gjennomgås eksplisitt.
 
 Generatorens tester sammenligner alle filer med både den tidligere Go-generatoren
-og applikasjonen ved migreringen. Java sammenlignes som syntakstrær, og skjema som
+og applikasjonen ved migreringen, med en separat gjennomgått referanse for
+URI-maler og rutekatalogen. Java sammenlignes som syntakstrær, og skjema som
 GraphQL-syntakstrær; kommentarer og formatering påvirker ikke sammenligningen.
 Gradle TestKit tester inkrementelle bygg, endret generator/modell, offline-cache,
 sjekksumfeil og opprydding. Applikasjonstestene kjører mot de genererte kildene.
@@ -86,6 +87,25 @@ er fortsatt ekskludert. Jackson 2 core trengs av `TypeReference`-referanser i
 Novari-bibliotekene; å fjerne denne krever oppdatering av bibliotekene, ikke av
 GraphQL-generatoren. Delte Jackson-annotasjoner brukes også av Jackson 3.
 Spring Boot styrer Jackson-versjonene.
+
+## Metrikker for kall til FINT
+
+`http.client.requests` bruker stabile URI-maler, for eksempel
+`/administrasjon/fullmakt/rolle/navn/{value}`. Identifikatorer og query-parametre
+inngår ikke i `uri`-etiketten. Den genererte katalogen inneholder 228 ruter,
+inkludert samlinger og begge personkildene. Ukjente lenker samles under `/unknown`.
+Endringer i `fint.endpoint.*` påvirker rutematching, men ikke de kanoniske etikettene.
+
+`management.metrics.web.client.max-uri-tags` er satt til 256. En regresjonstest
+kontrollerer at hele katalogen og reserverte etiketter får plass. Ved modellendring
+må katalog og grense vurderes samlet; antall identifikatorverdier skal aldri
+påvirke antall URI-etiketter. Cache og tilgangskontroll bruker fortsatt konkrete
+ressursadresser.
+
+Ved utrulling: tilpass dashboards som tidligere grupperte på `uri="none"`, og
+kontroller i eksisterende overvåkning at antallet URI-etiketter er stabilt og at
+loggen ikke viser advarsler om maksimalgrensen. Actuator-eksponeringen er uendret;
+endringen åpner ikke nye metrikkeendepunkter.
 
 ## Container
 
