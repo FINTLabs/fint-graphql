@@ -27,8 +27,8 @@ class GenerationParityTest {
     private static final String PERSON_SERVICE = "model/model/person/PersonService.java";
 
     @Test
-    void everyLegacyFileAndThePublishedApplicationContractArePreserved() throws Exception {
-        // Explicitly updating these references is part of a future model version upgrade.
+    void unchangedHistoricalFilesAndReviewedTemplateChangesArePreserved() throws Exception {
+        // Historical references remain frozen; reviewed implementation changes are a separate overlay.
         assertEquals("4.1.0", System.getProperty("fint.model.version"));
         assertEquals("ff2e292de2ccb6fe9c334fe46ae1cb3b1eae2b919545345731b2dd3247b9b826", System.getProperty("fint.model.sha256"));
         var model = new XmiParser().parse(Path.of(System.getProperty("fint.model.file")));
@@ -37,14 +37,29 @@ class GenerationParityTest {
         var legacy = baseline("legacy");
         var generated = generator.generate(model, legacyOptions);
         assertEquals(394, legacy.size());
-        assertSourcesEqual(legacy, generated);
+        assertSourcesEqual(withTemplateReference(legacy, "legacy"), generated);
 
         var application = new TreeMap<>(generator.generate(model, GraphqlGenerator.Options.application()));
         assertFalse(application.containsKey(PERSON_SERVICE), "PersonService must only have one hand-maintained implementation");
         var person = Path.of(System.getProperty("fint.app.directory"), "src/main/java/no/fint/graphql", PERSON_SERVICE);
         application.put(PERSON_SERVICE, Files.readString(person));
-        assertSourcesEqual(baseline("application"), application);
+        assertSourcesEqual(withTemplateReference(baseline("application"), "application"), application);
         assertEquals(generated, generator.generate(model, legacyOptions), "Rendering must not mutate the input model");
+    }
+
+    private static Map<String, String> withTemplateReference(Map<String, String> historical, String variant) throws Exception {
+        var expected = new TreeMap<>(historical);
+        var reference = baseline("uri-templates");
+        assertEquals(106, reference.size(), "Review any new implementation-reference entries explicitly");
+        reference.forEach((name, source) -> {
+            if (name.startsWith("common/") || name.startsWith(variant + "/")) {
+                String path = name.substring(name.indexOf('/') + 1);
+                assertTrue(path.endsWith("Service.java") || path.equals("model/ResourceRoutes.java"), path);
+                expected.put(path, source);
+            }
+        });
+        assertEquals(395, expected.size());
+        return expected;
     }
 
     private static void assertSourcesEqual(Map<String, String> expected, Map<String, String> actual) throws Exception {

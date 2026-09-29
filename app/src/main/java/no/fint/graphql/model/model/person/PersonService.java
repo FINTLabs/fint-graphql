@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,13 +32,10 @@ public class PersonService {
     public Mono<PersonResource> getPersonResourceById(String id, String value, DataFetchingEnvironment dfe) {
         return Mono.just(Stream
                         .of(endpoints.getAdministrasjonPersonal(), endpoints.getUtdanningElev())
-                        .map(e -> e + "/person/"
-                                + id
-                                + "/"
-                                + value)
+                        .map(e -> e + "/person/" + id + "/{value}")
                         .toList())
                 .flatMapMany(reactor.core.publisher.Flux::fromIterable)
-                .concatMap(url -> fetchPerson(url, dfe))
+                .concatMap(template -> fetchPerson(template, value, dfe))
                 .collectList()
                 .flatMap(this::resolvePersonResults);
     }
@@ -46,10 +44,10 @@ public class PersonService {
         return webClientRequest.get(url, PersonResource.class, dfe);
     }
 
-    private Mono<PersonLookupResult> fetchPerson(String url, DataFetchingEnvironment dfe) {
+    private Mono<PersonLookupResult> fetchPerson(String template, String value, DataFetchingEnvironment dfe) {
         // Authorization checks may throw before WebClientRequest returns a Mono.
         // Capture those failures too so the other permitted source can still succeed.
-        return Mono.defer(() -> getPersonResource(url, dfe))
+        return Mono.defer(() -> webClientRequest.get(template, Map.of("value", value), PersonResource.class, dfe))
                 .map(PersonLookupResult::success)
                 .onErrorResume(error -> Mono.just(PersonLookupResult.failure(error)));
     }

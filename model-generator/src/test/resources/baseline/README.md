@@ -33,13 +33,14 @@ contain the original file bytes. They can be inspected with `unzip -l` and
 
 ## Deliberate differences
 
-There is exactly one functional difference between the references:
+There is exactly one functional difference between the historical references:
 `model/model/person/PersonService.java`. The application merges data from
 administration and education, preserves cached input objects and supports a
 successful source when the other source fails. The Go output uses a single
 endpoint. Production generation omits this service, and the maintained Java
-implementation in `app` supplies it. The parity test verifies both the unmodified
-legacy generator output and the complete application output including that file.
+implementation in `app` supplies it. The parity test originally verified the unmodified legacy generator output and
+the complete application output including that file. The reviewed template
+overlay below now describes the intentional implementation changes.
 
 All other 393 files retain the same Java and GraphQL syntax. Java generation
 improves error handling, ID-based reference resolution, XML security, deterministic
@@ -62,3 +63,29 @@ behavior requires regression tests in addition to updating reference data.
 
 The port is derived from the MIT-licensed FINTLabs generator. Its original
 copyright and permission notice are retained in `model-generator/LICENSE`.
+
+## URI template implementation reference
+
+`uri-templates.zip` is a separate, reviewed overlay captured 2026-09-29 from
+this change's working tree, based on commit
+`b5fe61957f5f651417bc036bc262988075273f32`. It uses the same pinned model and
+SHA-256 above. The two historical archives are unchanged.
+
+- Archive SHA-256: `770d227ac39bef4dc1cc42e8cbad35c5b8b9efce3c916ff6f47f7e5f2fd0219c`.
+- 106 entries with sorted paths and fixed ZIP timestamps: `common/` contains
+  103 generated services and `ResourceRoutes.java`; `legacy/` and `application/`
+  each contain their respective Person service.
+- All 104 generated service changes were checked against the historical source
+  using an independent transformation: values move into `Map.of("value", value)`,
+  URI paths use `{value}`, and response normalization is shared by both lookup
+  forms. Existing Feide normalization is preserved.
+- The handwritten Person service retains merging/error handling and switches
+  both lookups to the template overload. The new catalog contains 228 collection
+  and identifier templates, including both Person sources. Configured prefixes
+  affect matching, while metric labels use canonical model paths.
+
+`GenerationParityTest` overlays only these explicitly reviewed service/catalog
+files. All other Java and GraphQL syntax still matches the historical references;
+the resulting inventory is 395 files. New generator and application regression
+tests cover behavior separately. Reference archives are never regenerated during
+tests. Future changes must be reviewed before this overlay is updated.

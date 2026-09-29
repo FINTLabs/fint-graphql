@@ -72,6 +72,7 @@ public final class GraphqlGenerator {
                 .append("): ").append(type.name).append('\n');
         result.put("schema/root.graphqls", root.append("}\n").toString());
         result.put("model/Endpoints.java", endpoints(endpoints));
+        result.put("model/ResourceRoutes.java", resourceRoutes(selected));
         return result;
     }
 
@@ -156,6 +157,7 @@ public final class GraphqlGenerator {
                 import graphql.schema.DataFetchingEnvironment;
                 import no.fint.graphql.WebClientRequest;
                 import no.fint.graphql.model.Endpoints;
+                import java.util.Map;
                 import %s;
                 import org.springframework.beans.factory.annotation.Autowired;
                 import org.springframework.stereotype.Service;
@@ -169,18 +171,22 @@ public final class GraphqlGenerator {
                     private Endpoints endpoints;
 
                     public Mono<%sResource> get%sResourceById(String id, String value, DataFetchingEnvironment dfe) {
-                        return get%sResource(
-                            endpoints.get%s() + "/%s/" + id + "/" + value,
-                            dfe);
+                        return normalize(webClientRequest.get(
+                            endpoints.get%s() + "/%s/" + id + "/{value}",
+                            Map.of("value", value), %sResource.class, dfe));
                     }
 
                     public Mono<%sResource> get%sResource(String url, DataFetchingEnvironment dfe) {
-                        return webClientRequest.get(url, %sResource.class, dfe)%s;
+                        return normalize(webClientRequest.get(url, %sResource.class, dfe));
+                    }
+
+                    private Mono<%sResource> normalize(Mono<%sResource> response) {
+                        return response%s;
                     }
                 }
                 """.formatted(type.javaPackage(), type.resourceClass(), feide ? "import org.springframework.util.StringUtils;\n" : "",
-                type.name, type.name, type.name, type.name, type.name, upper(endpointName(type.endpointPath())), type.lowerName(),
-                type.name, type.name, type.name, feide ? """
+                type.name, type.name, type.name, type.name, upper(endpointName(type.endpointPath())), type.lowerName(), type.name,
+                type.name, type.name, type.name, type.name, type.name, feide ? """
                 .map(resource -> {
                             if (resource.getFeidenavn() != null && !StringUtils.hasText(resource.getFeidenavn().getIdentifikatorverdi())) {
                                 resource.setFeidenavn(null);
@@ -259,6 +265,45 @@ public final class GraphqlGenerator {
         String ordinary = unique.stream().filter(s -> !s.startsWith("java.")).map(s -> "import " + s + ";").collect(Collectors.joining("\n"));
         String java = unique.stream().filter(s -> s.startsWith("java.")).map(s -> "import " + s + ";").collect(Collectors.joining("\n"));
         return ordinary + (java.isEmpty() ? "" : "\n\n" + java);
+    }
+
+    private static String resourceRoutes(List<Type> types) {
+        var routes = new TreeMap<String, String>();
+        for (var type : types) {
+            if (!type.mainClass()) continue;
+            var paths = new LinkedHashSet<String>();
+            paths.add(type.endpointPath());
+            if (type.packageName.equals("no.novari.fint.model.felles") && type.name.equals("Person")) {
+                paths.add("administrasjon/personal");
+                paths.add("utdanning/elev");
+            }
+            for (var path : paths) {
+                String collection = "/" + path + "/" + type.lowerName();
+                routes.put(collection, path);
+                for (var id : type.identifiers()) {
+                    routes.put(collection + "/" + id.name().toLowerCase(Locale.ROOT) + "/{value}", path);
+                }
+            }
+        }
+        var text = new StringBuilder("""
+                package no.fint.graphql.model;
+
+                import java.util.List;
+                import no.fint.graphql.UriRouteCatalog;
+                import org.springframework.core.env.Environment;
+                import org.springframework.stereotype.Component;
+
+                @Component
+                public class ResourceRoutes extends UriRouteCatalog {
+                    public ResourceRoutes(Environment environment) {
+                        super(List.of(
+                """);
+        var entries = new ArrayList<String>();
+        routes.forEach((route, path) -> entries.add(
+                "            new Route(environment.getProperty(\"fint.endpoint." + path.replace('/', '.')
+                        + "\", \"/" + path + "\") + \"" + route.substring(path.length() + 1)
+                        + "\", \"" + route + "\")"));
+        return text.append(String.join(",\n", entries)).append("\n        ));\n    }\n}\n").toString();
     }
 
     private static String endpoints(Set<String> paths) {

@@ -7,6 +7,8 @@ import graphql.execution.ResultPath
 import graphql.language.SourceLocation
 import graphql.schema.DataFetchingEnvironment
 import no.fint.graphql.config.ConnectionProviderConfig
+import no.fint.graphql.model.ResourceRoutes
+import org.springframework.mock.env.MockEnvironment
 import no.fint.graphql.model.Endpoints
 import no.fint.graphql.model.model.rolle.RolleQueryResolver
 import no.fint.graphql.model.model.rolle.RolleService
@@ -34,6 +36,7 @@ class WebClientRequestSpec extends Specification {
     private WebClient webClient = WebClient.create(url)
     private BlacklistService blacklistService = Mock(BlacklistService)
     private ConnectionProviderSettings connectionProviderSettings = new ConnectionProviderSettings(maxConnections: 100)
+    private UriRouteCatalog routeCatalog = new ResourceRoutes(new MockEnvironment())
     private GraphQLQueryIdProvider queryIdProvider = new GraphQLQueryIdProvider()
     private WebClientRequest webClientRequest = new WebClientRequest(
             webClient,
@@ -43,7 +46,8 @@ class WebClientRequestSpec extends Specification {
             'maximumSize=1,expireAfterWrite=1s',
             10000,
             'V4',
-            queryIdProvider)
+            queryIdProvider,
+            routeCatalog)
 
     def cleanup() {
         server.close()
@@ -76,7 +80,8 @@ class WebClientRequestSpec extends Specification {
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
-                queryIdProvider
+                queryIdProvider,
+                routeCatalog
         )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/"], 'org-1')
         def resourceUrl = server.url('/administrasjon/fullmakt/rolle/navn/foo').toString()
@@ -137,7 +142,8 @@ class WebClientRequestSpec extends Specification {
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
-                queryIdProvider
+                queryIdProvider,
+                routeCatalog
         )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/utdanning/vurdering/"], 'org-1')
         def encodedPath = '/utdanning/vurdering/karakterverdi/systemid/V%3A%3A4'
@@ -220,7 +226,8 @@ class WebClientRequestSpec extends Specification {
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
-                queryIdProvider
+                queryIdProvider,
+                routeCatalog
         )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ["/administrasjon/fullmakt/"], 'org-1')
         server.enqueue(new MockResponse.Builder().code(200).body("response").build())
@@ -302,7 +309,9 @@ class WebClientRequestSpec extends Specification {
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
-                queryIdProvider)
+                queryIdProvider,
+                routeCatalog
+        )
         def dfe = createDataFetchingEnvironmentMock('Bearer abc123', 'query-1', ["/one/", "/two/"], 'org-1')
         def firstUrl = server.url('/one').toString()
         def secondUrl = server.url('/two').toString()
@@ -355,7 +364,8 @@ class WebClientRequestSpec extends Specification {
                 'maximumSize=1,expireAfterWrite=1s',
                 10000,
                 'V4',
-                queryIdProvider
+                queryIdProvider,
+                routeCatalog
         )
 
         then:

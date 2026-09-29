@@ -40,8 +40,8 @@ class PersonServiceSpec extends Specification {
         student.addElev(new Link('/student/1'))
         student.addForeldre(new Link('/parent/shared'))
         student.addForeldre(new Link('/parent/student'))
-        webClientRequest.get('/administrasjon/personal/person/fodselsnummer/12345678910', PersonResource, environment) >> Mono.just(admin)
-        webClientRequest.get('/utdanning/elev/person/fodselsnummer/12345678910', PersonResource, environment) >> Mono.just(student)
+        webClientRequest.get('/administrasjon/personal/person/fodselsnummer/{value}', [value: '12345678910'], PersonResource, environment) >> Mono.just(admin)
+        webClientRequest.get('/utdanning/elev/person/fodselsnummer/{value}', [value: '12345678910'], PersonResource, environment) >> Mono.just(student)
 
         when:
         def merged = service.getPersonResourceById('fodselsnummer', '12345678910', environment).block(Duration.ofSeconds(2))
@@ -75,10 +75,10 @@ class PersonServiceSpec extends Specification {
     def "an immediate failure for #failingPath does not discard the other permitted lookup"() {
         given:
         def permitted = new PersonResource(bilde: 'permitted')
-        webClientRequest.get("${failingPath}/person/fodselsnummer/123", PersonResource, environment) >> {
+        webClientRequest.get("${failingPath}/person/fodselsnummer/{value}", [value: '123'], PersonResource, environment) >> {
             throw new UnauthorizedResourceAccessException('Forbidden', failingPath, '1', '1')
         }
-        webClientRequest.get("${permittedPath}/person/fodselsnummer/123", PersonResource, environment) >> Mono.just(permitted)
+        webClientRequest.get("${permittedPath}/person/fodselsnummer/{value}", [value: '123'], PersonResource, environment) >> Mono.just(permitted)
 
         expect:
         service.getPersonResourceById('fodselsnummer', '123', environment).block(Duration.ofSeconds(2)).bilde == 'permitted'

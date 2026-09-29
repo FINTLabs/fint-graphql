@@ -947,8 +947,7 @@ query {
                         return Mono.just(rolle)
                     }
                     if (!"foo".equals(value)) {
-                        def url = endpoints.getAdministrasjonFullmakt() + "/rolle/" + id + "/" + value
-                        return webClientRequest.get(url, RolleResource.class, dfe)
+                        return super.getRolleResourceById(id, value, dfe)
                     }
                     def rolle = new RolleResource()
                     rolle.setBeskrivelse("Test rolle")

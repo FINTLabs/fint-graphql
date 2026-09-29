@@ -107,6 +107,30 @@ class GraphqlGeneratorTest {
     }
 
     @Test
+    void lookupsSeparateRawValuesAndRoutesIncludeInheritedIdentifiersAndPersonSources() {
+        var parent = main("Base");
+        var child = main("Elev");
+        child.attributes.clear();
+        child.parent = parent;
+        var files = generate(child);
+        var service = files.get("model/model/elev/ElevService.java");
+        assertTrue(service.contains("endpoints.getUtdanningElev() + \"/elev/\" + id + \"/{value}\""));
+        assertTrue(service.contains("Map.of(\"value\", value), ElevResource.class, dfe)"));
+        assertTrue(service.contains("normalize(webClientRequest.get(url, ElevResource.class, dfe))"));
+        assertFalse(service.contains("+ value"));
+        var routes = files.get("model/ResourceRoutes.java");
+        assertTrue(routes.contains("\"/utdanning/elev/elev\""));
+        assertTrue(routes.contains("\"/utdanning/elev/elev/systemid/{value}\""));
+        assertTrue(routes.contains("environment.getProperty(\"fint.endpoint.utdanning.elev\""));
+
+        var person = new Type("person", "Person", "no.novari.fint.model.felles", false, "hovedklasse");
+        person.attributes.add(attribute(person, "fodselsnummer", "Identifikator", false, false));
+        routes = generate(person).get("model/ResourceRoutes.java");
+        assertTrue(routes.contains("\"/administrasjon/personal/person/fodselsnummer/{value}\""));
+        assertTrue(routes.contains("\"/utdanning/elev/person/fodselsnummer/{value}\""));
+    }
+
+    @Test
     void resourceImportThresholdDeduplicatesAndSorts() {
         String pkg = "no.novari.fint.model.resource.administrasjon.kodeverk.";
         var resources = List.of(pkg + "ArtResource", pkg + "AnleggResource", pkg + "AnsvarResource", pkg + "FunksjonResource", pkg + "RammeResource");

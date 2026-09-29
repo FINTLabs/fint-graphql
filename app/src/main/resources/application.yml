@@ -32,6 +32,10 @@ spring:
       enabled: true
 
 management:
+  metrics:
+    web:
+      client:
+        max-uri-tags: 256
   endpoints:
     web:
       exposure:

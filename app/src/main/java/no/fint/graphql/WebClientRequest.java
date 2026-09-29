@@ -30,7 +30,7 @@ import reactor.util.retry.Retry;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,6 +50,7 @@ public class WebClientRequest {
     private final String modelVersion;
     private final String hostHeader;
     private final WebClient webClient;
+    private final UriRouteCatalog routeCatalog;
     private final URI rootUri;
     private final Cache<HashCode, Object> cache;
     private final HashFunction hashFunction;
@@ -68,10 +69,12 @@ public class WebClientRequest {
             @Value("${fint.webclient.cache-spec:maximumSize=10000,expireAfterWrite=10m}") String cacheSpec,
             @Value("${fint.webclient.request-cache-maximum-size:10000}") long requestCacheMaximumSize,
             @Value("${fint.graphql.model-version:V4}") String modelVersion,
-            GraphQLQueryIdProvider queryIdProvider) {
+            GraphQLQueryIdProvider queryIdProvider,
+            UriRouteCatalog routeCatalog) {
         this.modelVersion = modelVersion;
         this.hostHeader = hostHeader;
         this.webClient = webClient;
+        this.routeCatalog = routeCatalog;
         this.rootUri = URI.create(StringUtils.appendIfMissing(rootUrl, "/"));
         cache = Caffeine.from(cacheSpec).build();
         this.queryIdProvider = queryIdProvider;
@@ -88,19 +91,28 @@ public class WebClientRequest {
                 acquireTimeoutMs);
     }
 
+    /** Variables are raw path-segment values, not already encoded link fragments. */
+    public <T> Mono<T> get(String template, Map<String, String> variables, Class<T> type,
+                           DataFetchingEnvironment dfe) {
+        Map<String, String> encoded = new HashMap<>();
+        variables.forEach((key, value) -> encoded.put(key,
+                UriUtils.encodePathSegment(value, StandardCharsets.UTF_8)));
+        String uri = UriComponentsBuilder.fromUriString(template).build().expand(encoded).toUriString();
+        return get(uri, type, dfe);
+    }
+
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
-        String requestUri = encodeGraphQLPathArgument(uri, dfe);
-        String cacheKeyUri = normalizeRequestUri(requestUri);
+        String cacheKeyUri = normalizeRequestUri(uri);
         GraphQLContext context = dfe != null ? dfe.getGraphQlContext() : null;
         HttpServletRequest request = getRequest(context);
         String authorization = getToken(request);
         Cache<ResourceRequestKey, Mono<Object>> requestCache = getRequestCache(request);
         if (requestCache == null) {
-            return getDirect(requestUri, type, request, authorization);
+            return getDirect(uri, type, request, authorization);
         }
         ResourceRequestKey key = new ResourceRequestKey(cacheKeyUri, type, authorization);
         Mono<Object> mono = requestCache.get(key,
-                ignored -> getDirect(requestUri, type, request, authorization)
+                ignored -> getDirect(uri, type, request, authorization)
                         .cast(Object.class)
                         .cache());
         return mono.cast(type);
@@ -136,7 +148,9 @@ public class WebClientRequest {
             throw new UnauthorizedResourceAccessException("Forbidden", uri, queryIdValue, requestIdValue);
         }
 
-        final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get().uri(toRequestUri(uri));
+        URI resolvedUri = toRequestUri(uri);
+        final WebClient.RequestHeadersSpec<?> webClientRequest = webClient.get()
+                .uri(routeCatalog.template(resolvedUri), ignored -> resolvedUri);
         webClientRequest.header(HttpHeaders.AUTHORIZATION, token);
         webClientRequest.header(HttpHeaders.HOST, hostHeader);
         webClientRequest.header(ORG_ID_HEADER, organisationId);
@@ -330,32 +344,6 @@ public class WebClientRequest {
             // are already encoded. Restore exactly those escapes after encoding the raw characters.
             return URI.create(encoded.replaceAll("(?i)%25(?=[0-9a-f]{2})", "%"));
         }
-    }
-
-    private String encodeGraphQLPathArgument(String uri, DataFetchingEnvironment dfe) {
-        if (StringUtils.isBlank(uri) || dfe == null) {
-            return uri;
-        }
-        Map<String, Object> arguments = dfe.getArguments();
-        if (arguments == null || arguments.isEmpty()) {
-            return uri;
-        }
-        String pathArgument = arguments.values().stream()
-                .filter(String.class::isInstance)
-                .map(String.class::cast)
-                .filter(StringUtils::isNotEmpty)
-                .filter(uri::endsWith)
-                .max(Comparator.comparingInt(String::length))
-                .orElse(null);
-        if (pathArgument == null) {
-            return uri;
-        }
-        int argumentStart = uri.length() - pathArgument.length();
-        if (argumentStart < 1 || uri.charAt(argumentStart - 1) != '/') {
-            return uri;
-        }
-        return uri.substring(0, argumentStart)
-                + UriUtils.encodePathSegment(pathArgument, StandardCharsets.UTF_8);
     }
 
     private String toPathAndQuery(URI uri) {
