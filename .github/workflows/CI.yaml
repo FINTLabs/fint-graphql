@@ -29,14 +29,11 @@ jobs:
         with:
           gradle-version: wrapper
 
-      - name: Verify generation staging and custom service preservation
-        run: python3 -m unittest discover -s scripts -p 'test_*.py'
-
       - name: Gradle build
         run: |
           ./gradlew build
           mkdir data
-          cp ./build/libs/${{ steps.get_repo.outputs.REPO }}.jar ./data/app.jar
+          cp ./app/build/libs/fint-graphql.jar ./data/app.jar
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v7.0.1
@@ -49,5 +46,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: test-reports
-          path: build/reports/tests/test/
+          path: |
+            app/build/reports/tests/test/
+            model-generator/build/reports/tests/test/
           retention-days: 3

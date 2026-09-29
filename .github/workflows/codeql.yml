@@ -4,8 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/main/java/**'
-      - 'build.gradle'
+      - 'app/src/main/java/**'
+      - 'model-generator/src/main/java/**'
+      - '**/build.gradle'
       - 'settings.gradle'
       - 'gradle.properties'
       - 'gradle/**'
@@ -13,8 +14,9 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'src/main/java/**'
-      - 'build.gradle'
+      - 'app/src/main/java/**'
+      - 'model-generator/src/main/java/**'
+      - '**/build.gradle'
       - 'settings.gradle'
       - 'gradle.properties'
       - 'gradle/**'
@@ -64,7 +66,7 @@ jobs:
       # Compile production sources explicitly so CodeQL sees the exact Gradle
       # classpath, annotation processors, and generated model code used at runtime.
       - name: Compile production code
-        run: ./gradlew --no-daemon compileJava
+        run: ./gradlew --no-daemon :app:compileJava :model-generator:compileJava
 
       - name: Analyze Java
         uses: github/codeql-action/analyze@v4.38.1

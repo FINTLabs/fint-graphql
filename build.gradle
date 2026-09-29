@@ -1,99 +1,18 @@
 plugins {
-    id 'org.springframework.boot' version '4.1.1'
-    id 'io.spring.dependency-management' version '1.1.7'
-    id 'java'
-    id 'groovy'
-    id 'io.github.ben-manes.versions' version '0.64.0'
+    id 'base'
+    id 'org.springframework.boot' version '4.1.1' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+    id 'io.github.ben-manes.versions' version '0.64.0' apply false
 }
 
-group = 'no.fintlabs'
-
-def isMacOs = providers.systemProperty('os.name').get().startsWith('Mac')
-
-if (!isMacOs) {
-    // Reactor Netty also brings macOS DNS artifacts transitively. Keep both the
-    // provider class and native libraries out of Linux CI and container builds.
-    configurations.configureEach {
-        exclude group: 'io.netty', module: 'netty-resolver-dns-native-macos'
-        exclude group: 'io.netty', module: 'netty-resolver-dns-classes-macos'
+allprojects {
+    group = 'no.fintlabs'
+    repositories {
+        maven { url 'https://repo.fintlabs.no/releases' }
+        mavenCentral()
     }
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(26)
-    }
-}
-
-tasks.withType(GroovyCompile).configureEach {
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(26)
-    }
-}
-
-repositories {
-    maven {
-        url "https://repo.fintlabs.no/releases"
-    }
-    mavenCentral()
-}
-
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    implementation 'org.springframework.boot:spring-boot-starter-webclient'
-    if (isMacOs) {
-        // Spring Boot manages the version; support both Intel and Apple Silicon locally.
-        runtimeOnly 'io.netty:netty-resolver-dns-native-macos::osx-aarch_64'
-        runtimeOnly 'io.netty:netty-resolver-dns-native-macos::osx-x86_64'
-    }
-    implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
-    implementation('commons-beanutils:commons-beanutils:1.11.0') {
-        exclude group: 'commons-logging', module: 'commons-logging'
-    }
-    implementation("no.novari:fint-utdanning-resource-model-java:${apiVersion}") {
-        // Models use shared Jackson annotations and legacy TypeReference, but no Jackson 2 databind APIs.
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-    }
-    implementation("no.novari:fint-administrasjon-resource-model-java:${apiVersion}") {
-        // Models use shared Jackson annotations and legacy TypeReference, but no Jackson 2 databind APIs.
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-    }
-
-    implementation 'org.springframework.boot:spring-boot-starter-graphql'
-    implementation 'com.graphql-java:graphql-java-extended-scalars:24.0'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'com.google.guava:guava:33.7.1-jre'
-    implementation 'com.github.ben-manes.caffeine:caffeine'
-    implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
-
-    compileOnly 'org.projectlombok:lombok:1.18.48'
-    annotationProcessor 'org.projectlombok:lombok:1.18.48'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-registry-prometheus'
-
-    testImplementation 'org.spockframework:spock-spring:2.4-groovy-5.0'
-    testImplementation 'org.spockframework:spock-core:2.4-groovy-5.0'
-    testImplementation 'net.bytebuddy:byte-buddy'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-graphql-test'
-    testImplementation 'com.squareup.okhttp3:mockwebserver3:5.5.0'
-    testImplementation 'io.projectreactor:reactor-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-}
-
-jar {
-    enabled = false
-}
-
-bootJar {
-    enabled = true
-}
-
-test {
-    useJUnitPlatform()
-    jvmArgs '--enable-native-access=ALL-UNNAMED'
-}
+tasks.named('build') { dependsOn ':app:build', ':model-generator:build' }
+tasks.named('check') { dependsOn ':app:check', ':model-generator:check' }
+tasks.named('clean') { dependsOn ':app:clean', ':model-generator:clean' }

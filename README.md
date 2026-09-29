@@ -29,39 +29,63 @@ settes ingen GraphQL-frist. Tidsavbrudd gir fortsatt HTTP 200 med feilkoden
 `QUERY_TIMEOUT` for JSON-klienter. Spring MVC sin separate frist er deaktivert
 slik at den ikke konkurrerer med GraphQL-svaret.
 
+## Modulene og kodegenerering
+
+Rotprosjektet samler `app` (Spring Boot-applikasjonen) og `model-generator`
+(internt Java-basert byggeverktøy). Generatoren publiseres ikke, har ingen
+CLI-distribusjon og inngår ikke i applikasjonens runtime-classpath eller boot-JAR.
+Den trenger verken Jackson, Go, Docker eller et utsjekket naborepo.
+
+`./gradlew build` genererer Java-kilder og GraphQL-skjema automatisk før
+kompilering og ressurskopiering. Bare generering kan kjøres med
+`./gradlew :app:generateGraphql` eller `./generate.sh`.
+Resultatet ligger i `app/build/generated/graphql/java` og
+`app/build/generated/graphql/resources/schema`; ikke rediger disse filene.
+Håndskrevet kode og tester ligger under `app/src`.
+
+Modellen lastes ned fra `FINTLabs/fint-informasjonsmodell`, taggen
+`v${apiVersion}`, og kontrolleres mot `modelSha256` i `gradle.properties`.
+Den verifiserte råfilen lagres under `.gradle/fint-model/<versjon>/<sha256>/`.
+Denne cachen overlever `clean`. Første bygg trenger GitHub-tilgang; senere
+bygg kan kjøres med `./gradlew --offline clean build` når også Gradle-avhengighetene
+er cachet. Sjekksummen kontrolleres ved hver bruk. Manglende offline-cache,
+HTTP-feil eller feil sjekksum stopper bygget uten fallback til en annen modell.
+Ved korrupt cache: fjern den berørte modellfilen og kjør på nytt med nettverk.
+
+Genereringen omfatter administrasjon, utdanning og felles, med `Fravar` og
+`Fravarstype` ekskludert. `PersonService` er håndskrevet og utelates fra generering;
+persontjenesten har én implementasjon under `app/src/main/java`.
+Den beholder ikke-nullverdier fra administrasjon, fyller manglende verdier fra
+utdanning og kombinerer relasjonslenker uten duplikater uten å endre cachede
+ressurser. En vellykket kilde kan brukes selv om den andre feiler.
+
+Relasjonslister beholder rekkefølge, maksimalt åtte samtidige oppslag og
+`null`-plasser ved manglende svar. Valgfrie tomme Feide-identifikatorer normaliseres
+til `null`. Tomme GraphQL-objekttyper utelates, og `Date` og `Long` deklareres.
+
 ## Oppdatere modell og skjema
 
-1. Oppdater `apiVersion` i `gradle.properties` for Java-modellbibliotekene.
-2. Bygg den moderniserte CLI-en lokalt fra naborepoet:
-   `docker build --build-arg VERSION=2.0.0 -t fint-graphql-cli:2.0.0 ../fint-graphql-cli`.
-   Kjør deretter `./generate.sh` med Docker/Podman. Et annet bygget eller publisert
-   bilde kan velges med `FINT_GRAPHQL_CLI_IMAGE` (gjerne låst til digest).
-3. CLI 2.0.0 skriver kandidater med eksplisitte Spring GraphQL-annotasjoner,
-   optimaliserte importer og deklarerte skalarer direkte til en midlertidig mappe.
-   Ingen Python-transformasjon er nødvendig.
-   Deretter kopieres `PersonService.txt` over generert `model/person/PersonService.java`,
-   slik at sammenslåing fra administrasjon og utdanning beholdes også i kandidatene.
-4. Sammenlign og flett kandidatene inn i `src/main/resources/schema` og
-   `src/main/java/no/fint/graphql/model`. Generatoren bruker taggen `v${apiVersion}`
-   fra `gradle.properties`. Standardbildet `fint-graphql-cli:2.0.0` bygges lokalt;
-   det er ikke en forutsetning at denne versjonen er publisert i et register.
-5. Behold tilpasningene i `PersonService`, relasjonsresolverne og det offentlige
-   skjemaet. Generering overskriver aldri disse filene automatisk. Kjør hele
-   testpakken etter fletting.
+1. Oppdater `apiVersion` for både XMI-modellen og Novari-bibliotekene.
+2. Hent `FINT-informasjonsmodell.xml` fra den tilsvarende versjonstaggen, kontroller
+   opprinnelsen og sett `modelSha256` til SHA-256 av råfilen, før tegnsettkonvertering.
+3. Kjør `./gradlew :app:generateGraphql`, gjennomgå forskjellene mot sist godkjente
+   skjema og Java-kode, og oppdater referansedataene beskrevet i
+   [generatorens testgrunnlag](model-generator/src/test/resources/baseline/README.md).
+   Referanser skal ikke oppdateres automatisk for å gjøre en feilende test grønn.
+4. Kjør `./gradlew clean build` og containerbygget. Hele testpakken må bestå før
+   modellen tas i bruk. Endringer i offentlig skjema må gjennomgås eksplisitt.
 
-`PersonService.txt` og `src/main/java/no/fint/graphql/model/model/person/PersonService.java`
-skal oppdateres sammen; en test kontrollerer at innholdet er identisk. Personoppslag
-beholder ikke-nullverdier fra administrasjon, fyller manglende verdier fra utdanning
-og kombinerer relasjonslenker uten duplikater mellom kildene. En vellykket kilde
-kan brukes selv om den andre ikke er tilgjengelig eller tillatt. Sammenslåingen
-endrer ikke de opprinnelige ressursene i forespørselscachen.
+Generatorens tester sammenligner alle filer med både den tidligere Go-generatoren
+og applikasjonen ved migreringen. Java sammenlignes som syntakstrær, og skjema som
+GraphQL-syntakstrær; kommentarer og formatering påvirker ikke sammenligningen.
+Gradle TestKit tester inkrementelle bygg, endret generator/modell, offline-cache,
+sjekksumfeil og opprydding. Applikasjonstestene kjører mot de genererte kildene.
 
-CLI-en utelater tomme objekttyper og deklarerer både `Date` og `Long`.
-Relasjonslister beholder rekkefølge, begrenset samtidighet og `null`-plasser for
-manglende svar. Tjenester med valgfritt `feidenavn` setter tomme identifikatorer
-til `null`, slik at tidligere tilpasninger i Elev og Skoleressurs beholdes.
-Go-testene for disse reglene ligger i `fint-graphql-cli`;
-`scripts/test_generate.py` tester bare staging og kopiering av `PersonService.txt`.
+Jackson 3.1.5 brukes allerede og er verifisert med Novari 4.1.0. Jackson 2 databind
+er fortsatt ekskludert. Jackson 2 core trengs av `TypeReference`-referanser i
+Novari-bibliotekene; å fjerne denne krever oppdatering av bibliotekene, ikke av
+GraphQL-generatoren. Delte Jackson-annotasjoner brukes også av Jackson 3.
+Spring Boot styrer Jackson-versjonene.
 
 ## Container
 
@@ -83,7 +107,7 @@ og digest ved fremtidige bildeoppgraderinger.
 
 ## Teste lokalt
 
-Start `Application` fra IDE-en eller kjør `./gradlew bootRun`.
+Start `Application` fra IDE-en eller kjør `./gradlew :app:bootRun`.
 GraphQL er tilgjengelig på `POST /graphql`, og GraphiQL på `/graphiql`.
 GraphiQL og GraphQL krever autentisering; send et gyldig bearer-token for den
 konfigurerte utstederen. `fint.security.oauth2.issuer-uri` kan peke på en lokal
