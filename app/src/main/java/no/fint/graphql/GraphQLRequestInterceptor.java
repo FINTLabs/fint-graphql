@@ -44,8 +44,9 @@ public class GraphQLRequestInterceptor implements WebGraphQlInterceptor {
             }
         }).build());
         log.info("GraphQL query received queryId={} path={} client={} remote={}", queryId,
-                servletRequest.getRequestURI(), servletRequest.getHeader(GraphQLRequestAttributes.CLIENT_HEADER),
-                servletRequest.getRemoteAddr());
+                LogSanitizer.singleLine(servletRequest.getRequestURI()),
+                LogSanitizer.singleLine(servletRequest.getHeader(GraphQLRequestAttributes.CLIENT_HEADER)),
+                LogSanitizer.singleLine(servletRequest.getRemoteAddr()));
         return chain.next(request).doFinally(signal -> log.info(
                 "GraphQL query completed queryId={} durationMs={}", queryId, (System.nanoTime() - startNanos) / 1_000_000));
     }

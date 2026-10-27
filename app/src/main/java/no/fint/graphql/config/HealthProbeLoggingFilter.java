@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import no.fint.graphql.LogSanitizer;
 import no.fint.graphql.WebClientRequest;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,8 +73,8 @@ public class HealthProbeLoggingFilter extends OncePerRequestFilter {
         } catch (ServletException | IOException | RuntimeException ex) {
             completed.set(true);
             log.warn("Actuator health probe failed with exception path={} remote={} durationMs={} diagnostics={} indicators={}",
-                    request.getRequestURI(),
-                    request.getRemoteAddr(),
+                    LogSanitizer.singleLine(request.getRequestURI()),
+                    LogSanitizer.singleLine(request.getRemoteAddr()),
                     elapsedMs(startNanos),
                     diagnostics(),
                     describeHealthIndicators(),
@@ -89,16 +90,16 @@ public class HealthProbeLoggingFilter extends OncePerRequestFilter {
             if (status >= 500 || durationMs >= slowThresholdMs()) {
                 log.warn("Actuator health probe completed status={} path={} remote={} durationMs={} diagnostics={} indicators={}",
                         status,
-                        request.getRequestURI(),
-                        request.getRemoteAddr(),
+                        LogSanitizer.singleLine(request.getRequestURI()),
+                        LogSanitizer.singleLine(request.getRemoteAddr()),
                         durationMs,
                         diagnostics(),
                         describeHealthIndicators());
             } else if (slowWarningLogged.get()) {
                 log.info("Actuator health probe recovered status={} path={} remote={} durationMs={}",
                         status,
-                        request.getRequestURI(),
-                        request.getRemoteAddr(),
+                        LogSanitizer.singleLine(request.getRequestURI()),
+                        LogSanitizer.singleLine(request.getRemoteAddr()),
                         durationMs);
             }
         }
@@ -112,8 +113,8 @@ public class HealthProbeLoggingFilter extends OncePerRequestFilter {
         if (thresholdMs <= 0L) {
             return null;
         }
-        String path = request.getRequestURI();
-        String remote = request.getRemoteAddr();
+        String path = LogSanitizer.singleLine(request.getRequestURI());
+        String remote = LogSanitizer.singleLine(request.getRemoteAddr());
         return scheduler.schedule(() -> {
             if (completed.get()) {
                 return;
