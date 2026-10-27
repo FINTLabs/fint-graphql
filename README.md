@@ -9,6 +9,10 @@ Prosjektet bruker Java **26** (Temurin 26.0.2+10), Spring Boot **4.1.1** og Grad
 ./gradlew clean build
 ```
 
+Gradle kan også startes med JDK 21 eller nyere og laster da ned manglende
+Java 26-toolchain via Foojay-resolveren i `settings.gradle`. Dette brukes av
+GitHubs automatiske dependency submission, som starter med Java 21.
+
 Testene bruker Spock 2.4, Groovy 5, Byte Buddy og lokale MockWebServer-servere.
 De trenger ikke tilgang til FINT eller produksjonens identitetsleverandør.
 Spring Boot styrer versjonene til Spring, GraphQL Java, Jackson, Reactor og
