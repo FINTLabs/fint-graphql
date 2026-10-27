@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-java@v6.0.1
         with:
           distribution: 'temurin'
-          java-version: '26.0.2+10'
+          java-version: '27'
 
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0

@@ -2,16 +2,23 @@
 
 ## Bygg og test
 
-Prosjektet bruker Java **26** (Temurin 26.0.2+10), Spring Boot **4.1.1** og Gradle
-**9.7.1**. Sett `JAVA_HOME` til en JDK 26-installasjon og bruk alltid wrapperen:
+Prosjektet bruker Java **27** (Temurin), Spring Boot **4.1.2** og Gradle
+**9.8.2**. Sett `JAVA_HOME` til en JDK 27-installasjon og bruk alltid wrapperen:
 
 ```sh
 ./gradlew clean build
 ```
 
 Gradle kan også startes med JDK 21 eller nyere og laster da ned manglende
-Java 26-toolchain via Foojay-resolveren i `settings.gradle`. Dette brukes av
+Java 27-toolchain via Foojay-resolveren i `settings.gradle`. Dette brukes av
 GitHubs automatiske dependency submission, som starter med Java 21.
+CI installerer nyeste tilgjengelige Temurin 27-oppdatering.
+`javaVersion=27` i `gradle.properties` styrer toolchain for begge modulene.
+CodeQL støtter foreløpig bygg til og med Java 26. CodeQL bruker derfor Ubuntu
+24.04, Temurin 26 og `-PjavaVersion=26`; vanlige bygg og containere bruker Java 27.
+Docker-bygget bruker digest-låste JDK- og JRE-bilder på Ubuntu 26.04 (Resolute).
+Nyeste publiserte Temurin 27-containerbilder er foreløpig `27_35`; de kan ha
+en eldre Java-oppdatering enn CI. Dependabot følger nye bildeversjoner og digester.
 
 Testene bruker Spock 2.4, Groovy 5, Byte Buddy og lokale MockWebServer-servere.
 De trenger ikke tilgang til FINT eller produksjonens identitetsleverandør.
@@ -23,6 +30,10 @@ Spring for GraphQL erstatter GraphQL Kickstart. Jackson 3 brukes til JSON.
 Den ubrukte transitive Jackson 2 databind-avhengigheten er ekskludert fra
 Novari-modellene. Jackson-annotasjoner og Jackson 2 core beholdes fordi modellene
 refererer til disse typene; Spring Boot styrer versjonene.
+Spring Boot 4.1.2 styrer Jackson 3 (`3.1.7`), Jackson 2 (`2.21.7`), Tomcat
+(`11.0.27`) og Lombok. Tidligere Jackson- og Tomcat-overstyringer er fjernet.
+Byggepluginenes classpath har fortsatt en minimumsversjon av Commons Lang
+(`3.20.0`), siden Boot-pluginens Commons Compress ellers trekker inn `3.16.0`.
 `spring.threads.virtual.enabled=true` aktiverer virtuelle tråder for servlet-
 forespørsler og Spring sine blokkerende GraphQL-metoder. WebClient og eksisterende
 asynkrone resolvere beholder sin reaktive kjøring og tilkoblingsbegrensning.

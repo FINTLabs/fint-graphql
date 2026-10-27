@@ -2,16 +2,18 @@ plugins {
     id 'java'
 }
 
+def targetJavaVersion = JavaLanguageVersion.of(providers.gradleProperty('javaVersion').get().toInteger())
+
 java {
-    toolchain { languageVersion = JavaLanguageVersion.of(26) }
+    toolchain { languageVersion = targetJavaVersion }
 }
 
 tasks.withType(JavaExec).configureEach {
-    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(26) }
+    javaLauncher = javaToolchains.launcherFor { languageVersion = targetJavaVersion }
 }
 
 dependencies {
-    testImplementation platform('org.springframework.boot:spring-boot-dependencies:4.1.1')
+    testImplementation platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'com.graphql-java:graphql-java'
     testImplementation gradleTestKit()

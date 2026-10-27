@@ -1,6 +1,6 @@
 plugins {
     // GitHub's automatic dependency submission runs on Java 21; provision the
-    // Java 26 toolchain required by both modules when it is not preinstalled.
+    // Java 27 toolchain required by both modules when it is not preinstalled.
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 

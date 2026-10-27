@@ -35,7 +35,7 @@ concurrency:
 jobs:
   java:
     name: Java security analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       actions: read
@@ -46,11 +46,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
 
-      - name: Set up Java 26
+      - name: Set up Java 26 for CodeQL
         uses: actions/setup-java@v6.0.1
         with:
           distribution: temurin
-          java-version: '26.0.2+10'
+          java-version: '26'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
@@ -63,10 +63,11 @@ jobs:
           dependency-caching: true
           queries: security-extended
 
-      # Compile production sources explicitly so CodeQL sees the exact Gradle
-      # classpath, annotation processors, and generated model code used at runtime.
+      # CodeQL supports builds through Java 26. Analyze the same production
+      # sources, dependencies, and generated model code using that toolchain;
+      # normal builds and containers default to Java 27 in gradle.properties.
       - name: Compile production code
-        run: ./gradlew --no-daemon :app:compileJava :model-generator:compileJava
+        run: ./gradlew --no-daemon -PjavaVersion=26 :app:compileJava :model-generator:compileJava
 
       - name: Analyze Java
         uses: github/codeql-action/analyze@v4.38.1
@@ -75,7 +76,7 @@ jobs:
 
   actions:
     name: GitHub Actions security analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       actions: read
