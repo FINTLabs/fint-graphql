@@ -1,5 +1,5 @@
 .gradle
-/build/
+**/build/
 !gradle/wrapper/gradle-wrapper.jar
 
 ### STS ###
@@ -24,3 +24,5 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+.git
+**/__pycache__/

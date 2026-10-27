@@ -4,10 +4,8 @@ on:
   push:
     branches: [main]
 
-env:
-  REGISTRY_NAME: fintlabsacr
-  MODEL_VERSION: 4.0.0-test-limit-requests
-  LIB_VERSION: 4.0.0
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -24,13 +22,13 @@ jobs:
         uses: actions/setup-java@v6.0.1
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '27'
 
       - name: Gradle Wrapper Validation
-        uses: gradle/actions/wrapper-validation@v6.3.0
+        uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
       - name: Gradle Setup
-        uses: gradle/actions/setup-gradle@v6.3.0
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
         with:
           gradle-version: wrapper
 
@@ -38,18 +36,20 @@ jobs:
         run: |
           ./gradlew build
           mkdir data
-          cp ./build/libs/${{ steps.get_repo.outputs.REPO }}.jar ./data/app.jar
+          cp ./app/build/libs/fint-graphql.jar ./data/app.jar
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{steps.get_repo.outputs.REPO}}
           path: ./data/app.jar
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: test-reports
-          path: build/reports/tests/test/
+          path: |
+            app/build/reports/tests/test/
+            model-generator/build/reports/tests/test/
           retention-days: 3

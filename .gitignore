@@ -1,5 +1,5 @@
 .gradle
-/build/
+**/build/
 !gradle/wrapper/gradle-wrapper.jar
 
 ### STS ###
@@ -31,3 +31,5 @@
 /.project
 /bin/
 /.vscode/
+
+__pycache__/

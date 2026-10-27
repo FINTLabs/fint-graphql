@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-
-docker run \
-  -v "${PWD}/src/main/resources/schema:/src/graphql/schema" \
-  -v "${PWD}/src/main/java/no/fint/graphql/model:/src/graphql/model" \
-  ghcr.io/fintlabs/fint-graphql-cli:1.3.1 \
-  generate --exclude Fravar --exclude Fravarstype
-
-cp PersonService.txt src/main/java/no/fint/graphql/model/felles/person/PersonService.java
-
-echo Schema and models generated.  Please remember to clean up ${PWD}/src/main/{resources/schema,java/no/fint/graphql/model} before commit.
+set -euo pipefail
+cd "$(dirname "$0")"
+exec ./gradlew :app:generateGraphql "$@"

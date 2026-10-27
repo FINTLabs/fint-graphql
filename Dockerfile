@@ -1,9 +1,12 @@
-FROM gradle:9.7.1-jdk25 AS builder
-USER root
+FROM eclipse-temurin:27_35-jdk-resolute@sha256:e665e17ae608e91002f8a6271842b61b9d436e8f23c2cab00ec4d2da9620ad43 AS builder
+WORKDIR /workspace
 COPY . .
-RUN gradle --no-daemon build
+RUN ./gradlew --no-daemon build
 
-FROM gcr.io/distroless/java25
-ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError --sun-misc-unsafe-memory-access=allow --enable-native-access=ALL-UNNAMED"
-COPY --from=builder /home/gradle/build/libs/fint-graphql*.jar /data/fint-graphql.jar
-CMD ["/data/fint-graphql.jar"]
+FROM eclipse-temurin:27_35-jre-resolute@sha256:492896faf0de16f8959951fcc97e84d6b1db7b1cbc327e732b4e740cd27409e9
+WORKDIR /data
+ENV JAVA_TOOL_OPTIONS="-XX:+ExitOnOutOfMemoryError --enable-native-access=ALL-UNNAMED"
+COPY --from=builder --chown=10001:10001 /workspace/app/build/libs/fint-graphql.jar /data/fint-graphql.jar
+USER 10001:10001
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/data/fint-graphql.jar"]
