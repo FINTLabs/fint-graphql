@@ -3,9 +3,12 @@ package no.fint.graphql;
 import com.google.common.hash.Hashing;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.extern.slf4j.Slf4j;
+import no.fint.graphql.config.RelationPaginationSettings;
 import no.novari.fint.model.resource.Link;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
+import org.dataloader.BatchLoaderEnvironment;
+import org.dataloader.DataLoader;
+import org.springframework.graphql.execution.BatchLoaderRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Flux;
@@ -25,7 +28,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Loads large relation lists by walking the target collection's pages instead of requesting
@@ -42,35 +47,76 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class RelationPageFetcher {
 
+    private static final String BATCH_LOADER = "relationPages";
+
     private final WebClientRequest webClientRequest;
     private final ObjectMapper objectMapper;
-    private final int threshold;
-    private final int pageSize;
+    private final RelationPaginationSettings settings;
 
     public RelationPageFetcher(
             WebClientRequest webClientRequest,
             ObjectMapper objectMapper,
-            @Value("${fint.graphql.relation-pagination.threshold:50}") int threshold,
-            @Value("${fint.graphql.relation-pagination.page-size:500}") int pageSize) {
-        if (threshold < 0) {
-            throw new IllegalArgumentException("fint.graphql.relation-pagination.threshold must not be negative");
-        }
-        // The client API answers size=0 with the whole collection, so it can never mean "a page".
-        if (pageSize <= 0) {
-            throw new IllegalArgumentException("fint.graphql.relation-pagination.page-size must be positive");
-        }
+            RelationPaginationSettings settings,
+            BatchLoaderRegistry batchLoaderRegistry) {
         this.webClientRequest = webClientRequest;
         this.objectMapper = objectMapper;
-        this.threshold = threshold;
-        this.pageSize = pageSize;
+        this.settings = settings;
+        batchLoaderRegistry.<BatchKey, Object>forName(BATCH_LOADER).registerMappedBatchLoader(this::loadBatch);
     }
 
-    /** Completes when the query cache holds what the pages could provide. Never fails on a page error. */
-    public <T> Mono<Void> prefetch(List<Link> links, Class<T> type, DataFetchingEnvironment dfe) {
-        if (links.size() <= threshold) {
+    /** For list relations. Completes when the query cache holds what the pages could provide. Never fails on a page error. */
+    public <T> Mono<Void> prefetch(String parent, String relation, List<Link> links, Class<T> type,
+                                   DataFetchingEnvironment dfe) {
+        if (settings.configuredThreshold(parent, relation).isPresent()) {
+            return loadWithSiblings(new RelationKey(parent, relation, type), links, dfe);
+        }
+        return walkLargeCollections(links.stream().map(Link::getHref).toList(), settings.getThreshold(), type, dfe);
+    }
+
+    /** For single-valued relations, which are only ever read from pages when configured. */
+    public <T> Mono<Void> prefetchSingle(String parent, String relation, List<Link> links, Class<T> type,
+                                         DataFetchingEnvironment dfe) {
+        if (settings.configuredThreshold(parent, relation).isEmpty()) {
             return Mono.empty();
         }
-        return Flux.fromIterable(groupByCollection(links).entrySet())
+        return loadWithSiblings(new RelationKey(parent, relation, type), links, dfe);
+    }
+
+    /**
+     * Each parent's resolver only sees its own links. Going through a DataLoader holds them back
+     * until every resolver at this query level has run, so they are counted together and share
+     * one walk. This must be called while the resolver runs, not on subscription.
+     */
+    private Mono<Void> loadWithSiblings(RelationKey relation, List<Link> links, DataFetchingEnvironment dfe) {
+        DataLoader<BatchKey, Object> loader = dfe.getDataLoader(BATCH_LOADER);
+        CompletableFuture<?>[] loads = links.stream()
+                .map(Link::getHref)
+                .filter(StringUtils::isNotBlank)
+                .map(href -> loader.load(new BatchKey(relation, href), dfe))
+                .toArray(CompletableFuture[]::new);
+        return Mono.fromFuture(CompletableFuture.allOf(loads));
+    }
+
+    private Mono<Map<BatchKey, Object>> loadBatch(Set<BatchKey> keys, BatchLoaderEnvironment environment) {
+        DataFetchingEnvironment dfe = (DataFetchingEnvironment) environment.getKeyContextsList().getFirst();
+        Map<RelationKey, List<String>> byRelation = keys.stream().collect(Collectors.groupingBy(
+                BatchKey::relation, Collectors.mapping(BatchKey::href, Collectors.toList())));
+        return Flux.fromIterable(byRelation.entrySet())
+                .flatMap(batch -> {
+                    RelationKey relation = batch.getKey();
+                    int threshold = settings.configuredThreshold(relation.parent(), relation.name()).orElseThrow();
+                    return walkLargeCollections(batch.getValue(), threshold, relation.type(), dfe);
+                })
+                // The loaded values are unused: resolvers read the query cache afterwards.
+                .then(Mono.just(Map.of()));
+    }
+
+    private <T> Mono<Void> walkLargeCollections(List<String> hrefs, int threshold, Class<T> type,
+                                                DataFetchingEnvironment dfe) {
+        if (hrefs.size() <= threshold) {
+            return Mono.empty();
+        }
+        return Flux.fromIterable(groupByCollection(hrefs).entrySet())
                 .filter(group -> group.getValue().size() > threshold)
                 .flatMap(group -> webClientRequest.oncePerQuery(
                         walkKey(group.getKey(), group.getValue()), type,
@@ -79,13 +125,13 @@ public class RelationPageFetcher {
     }
 
     /** Resource id to the relation hrefs naming it, per collection. Links without an id stay individual. */
-    private Map<String, Map<String, Set<String>>> groupByCollection(List<Link> links) {
+    private Map<String, Map<String, Set<String>>> groupByCollection(List<String> hrefs) {
         Map<String, Map<String, Set<String>>> collections = new LinkedHashMap<>();
-        for (Link link : links) {
-            parse(link.getHref()).ifPresent(id -> collections
+        for (String href : hrefs) {
+            parse(href).ifPresent(id -> collections
                     .computeIfAbsent(id.collection(), ignored -> new HashMap<>())
                     .computeIfAbsent(id.id(), ignored -> new LinkedHashSet<>())
-                    .add(link.getHref()));
+                    .add(href));
         }
         return collections;
     }
@@ -100,6 +146,7 @@ public class RelationPageFetcher {
                                 DataFetchingEnvironment dfe) {
         Map<String, Set<String>> remaining = new HashMap<>(wanted);
         AtomicInteger pages = new AtomicInteger();
+        int pageSize = settings.getPageSize();
         String firstPage = collection + "?size=" + pageSize;
         Set<String> visited = new HashSet<>(Set.of(firstPage));
         return fetchPage(firstPage, remaining, pages, type, dfe)
@@ -181,4 +228,8 @@ public class RelationPageFetcher {
     }
 
     private record ResourceId(String collection, String id) { }
+
+    private record RelationKey(String parent, String name, Class<?> type) { }
+
+    private record BatchKey(RelationKey relation, String href) { }
 }

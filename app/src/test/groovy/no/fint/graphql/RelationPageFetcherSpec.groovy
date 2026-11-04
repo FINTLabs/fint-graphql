@@ -7,6 +7,7 @@ import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
 import no.fint.graphql.config.ConnectionProviderSettings
+import no.fint.graphql.config.RelationPaginationSettings
 import no.fint.graphql.model.Endpoints
 import no.fint.graphql.model.ResourceRoutes
 import no.fint.graphql.model.model.elevforhold.ElevforholdService
@@ -16,6 +17,7 @@ import no.novari.fint.model.resource.Link
 import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource
 import org.jetbrains.annotations.NotNull
+import org.springframework.graphql.execution.DefaultBatchLoaderRegistry
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.env.MockEnvironment
 import org.springframework.mock.web.MockHttpServletRequest
@@ -155,7 +157,7 @@ class RelationPageFetcherSpec extends Specification {
         def relation = [*links('A', 'B', 'C'), new Link("$BASE/utdanning/annet/elevforhold/systemid/X")]
 
         when:
-        fetcher(2, 2).prefetch(relation, ElevforholdResource, dfe()).block()
+        fetcher(2, 2).prefetch('Skole', 'elevforhold', relation, ElevforholdResource, dfe()).block()
 
         then:
         requests == ["$COLLECTION?size=2"]
@@ -212,7 +214,7 @@ class RelationPageFetcherSpec extends Specification {
         def environment = dfe(['/utdanning/vurdering/'])
 
         when:
-        fetcher(2, 2).prefetch(links('A', 'B', 'C'), ElevforholdResource, environment).block()
+        fetcher(2, 2).prefetch('Skole', 'elevforhold', links('A', 'B', 'C'), ElevforholdResource, environment).block()
 
         then:
         requests.isEmpty()
@@ -224,7 +226,7 @@ class RelationPageFetcherSpec extends Specification {
         environment.graphQlContext.get(GraphQLQueryContext).finish()
 
         when:
-        fetcher(2, 2).prefetch(links('A', 'B', 'C'), ElevforholdResource, environment).block()
+        fetcher(2, 2).prefetch('Skole', 'elevforhold', links('A', 'B', 'C'), ElevforholdResource, environment).block()
 
         then:
         requests.isEmpty()
@@ -253,18 +255,12 @@ class RelationPageFetcherSpec extends Specification {
         requests == ["$collection?size=2"]
     }
 
-    def "invalid sizes are rejected at startup"() {
+    def "a single-valued relation is never read from pages unless configured"() {
         when:
-        fetcher(threshold, pageSize)
+        fetcher(0, 2).prefetchSingle('Elevforhold', 'elev', links('A', 'B'), ElevforholdResource, dfe()).block()
 
         then:
-        thrown(IllegalArgumentException)
-
-        where:
-        threshold | pageSize
-        -1        | 500
-        500       | 0
-        500       | -1
+        requests.isEmpty()
     }
 
     private static List<String> ids(List<ElevforholdResource> resources) {
@@ -304,7 +300,8 @@ class RelationPageFetcherSpec extends Specification {
     }
 
     private RelationPageFetcher fetcher(int threshold, int pageSize) {
-        new RelationPageFetcher(sharedRequest(), JsonMapper.builder().build(), threshold, pageSize)
+        new RelationPageFetcher(sharedRequest(), JsonMapper.builder().build(),
+                new RelationPaginationSettings(threshold: threshold, pageSize: pageSize), new DefaultBatchLoaderRegistry())
     }
 
     private WebClientRequest shared

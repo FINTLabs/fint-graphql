@@ -97,16 +97,18 @@ change's working tree, based on commit
 `ccde97918ede3314d6dc8e7d6696e301f41a431c`. It uses the same pinned model and
 SHA-256 above. The earlier archives are unchanged.
 
-- Archive SHA-256: `ebe597c4926d225c79d0ee8d698c735b92fc062c4098f0461297d7ea359877a5`.
-- 37 entries with sorted paths and fixed ZIP timestamps: `common/` contains every
-  generated resolver with at least one list relation, 114 relations in total. The
-  other 35 resolvers have only single relations or none, and are unchanged.
+- Archive SHA-256: `afb13e4a42f7953d1882c421423b2f1c008009d28391294b56db376a2c271184`.
+- 72 entries with sorted paths and fixed ZIP timestamps: `common/` contains every
+  generated resolver, with 114 list relations and 213 single-valued relations in total.
 - All 72 resolvers were checked against both `legacy.zip` and `application.zip`
   using an independent text transformation. Each list relation changes from
   `Flux.fromIterable(links)` to
-  `relationPageFetcher.prefetch(links, <Target>Resource.class, dfe).thenMany(Flux.fromIterable(links))`,
-  and each changed resolver gains the `RelationPageFetcher` field and import.
-  Nothing else differs, and the public GraphQL schema is unchanged.
+  `relationPageFetcher.prefetch("<Parent>", "<relation>", links, <Target>Resource.class, dfe).thenMany(Flux.fromIterable(links))`.
+  Each single-valued relation wraps its `Flux.fromStream(...)` in
+  `relationPageFetcher.prefetchSingle("<Parent>", "<relation>", <links>, <Target>Resource.class, dfe).thenMany(...)`.
+  Each resolver gains the `RelationPageFetcher` field and import. Nothing else
+  differs, and the public GraphQL schema is unchanged.
 
 `GenerationParityTest` applies this overlay after the URI template overlay. Behavior
-is covered separately by `RelationPageFetcherSpec` in `app`.
+is covered separately by `RelationPageFetcherSpec` and
+`RelationPaginationIntegrationSpec` in `app`.

@@ -82,6 +82,27 @@ listerelasjoner og endrer ikke GraphQL-skjemaet.
   deler én gjennomgang.
 - Enkeltvis henting kan i praksis velges ved å sette terskelen svært høyt.
 
+Terskelen kan settes per relasjon under `relations`, som
+`<overordnet type>: <relasjon>: <terskel>`:
+
+```yaml
+fint:
+  graphql:
+    relation-pagination:
+      relations:
+        elevforhold:
+          elev: 1
+```
+
+En relasjon som er satt opp slik, telles på tvers av alle overordnede ressurser på
+samme nivå i spørringen, ikke per ressurs. Det gjør at dette også virker for relasjoner
+med én verdi: `elev` på 2000 `elevforhold` gir 2000 ulike elever og én gjennomgang av
+samlingen, i stedet for 2000 oppslag. Verdien er en øvre grense som må overskrides, så
+med `1` hentes én enkelt elev fortsatt direkte, mens to eller flere leses fra sider.
+Bruk `0` for å alltid lese fra sider. Relasjoner med én verdi som ikke er satt opp,
+hentes alltid enkeltvis. Navnene sammenlignes uten hensyn til store og små bokstaver.
+Ugyldige verdier stopper oppstarten.
+
 `spring.http.codecs.max-in-memory-size` (16 MB i `application.yml`) begrenser hvert svar og må
 økes sammen med sidestørrelsen ved behov. `fint.webclient.response-timeout` gjelder
 også for hver side.

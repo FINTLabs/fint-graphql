@@ -17,6 +17,9 @@ fint:
     relation-pagination:
       threshold: 50
       page-size: 500
+      relations:
+        elevforhold:
+          elev: 1
 
 server:
   forward-headers-strategy: framework

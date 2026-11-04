@@ -205,15 +205,14 @@ public final class GraphqlGenerator {
             if (target != type) imports.add(target.javaPackage() + "." + target.name + "Service");
             imports.add(target.resourceClass());
         }
-        if (!relations.isEmpty()) imports.addAll(List.of("graphql.schema.DataFetchingEnvironment", "no.novari.fint.model.resource.Link",
+        if (!relations.isEmpty()) imports.addAll(List.of("graphql.schema.DataFetchingEnvironment", "no.fint.graphql.RelationPageFetcher", "no.novari.fint.model.resource.Link",
                 type.resourceClass(), "org.springframework.beans.factory.annotation.Autowired", "org.springframework.graphql.data.method.annotation.SchemaMapping",
                 "reactor.core.publisher.Flux", "reactor.core.publisher.Mono", "java.util.concurrent.CompletionStage"));
-        boolean hasListRelation = relations.stream().anyMatch(Relation::list);
-        if (hasListRelation) imports.addAll(List.of("no.fint.graphql.RelationPageFetcher", "org.springframework.web.reactive.function.client.WebClientResponseException",
+        if (relations.stream().anyMatch(Relation::list)) imports.addAll(List.of("org.springframework.web.reactive.function.client.WebClientResponseException",
                 "java.util.List", "java.util.Optional", "java.util.concurrent.CompletableFuture", "java.util.stream.Collectors"));
         var text = new StringBuilder("package " + type.javaPackage() + ";\n\n" + imports(imports)
                 + "\n\n@Controller(\"model" + type.name + "Resolver\")\npublic class " + type.name + "Resolver {\n");
-        if (hasListRelation) text.append("    @Autowired\n    private RelationPageFetcher relationPageFetcher;\n\n");
+        if (!relations.isEmpty()) text.append("    @Autowired\n    private RelationPageFetcher relationPageFetcher;\n\n");
         for (var target : targets) text.append("    @Autowired\n    private ").append(target.name).append("Service ").append(target.lowerName()).append("Service;\n\n");
         for (var relation : relations) {
             String resource = relation.target().name + "Resource";
@@ -227,7 +226,7 @@ public final class GraphqlGenerator {
                             if (links.isEmpty()) {
                                 return CompletableFuture.completedFuture(List.of());
                             }
-                            return relationPageFetcher.prefetch(links, %sResource.class, dfe)
+                            return relationPageFetcher.prefetch("%s", "%s", links, %sResource.class, dfe)
                                     .thenMany(Flux.fromIterable(links))
                                     .map(Link::getHref)
                                     .flatMapSequential(href -> %sService.get%sResource(href, dfe)
@@ -241,16 +240,18 @@ public final class GraphqlGenerator {
                                             .map(opt -> opt.orElse(null))
                                             .collect(Collectors.toList()))
                                     .toFuture();
-                    """.formatted(type.lowerName(), upper(relation.name()), relation.target().name, relation.target().lowerName(), relation.target().name));
+                    """.formatted(type.lowerName(), upper(relation.name()), type.name, relation.name(), relation.target().name, relation.target().lowerName(), relation.target().name));
             else text.append("""
-                            return Flux.fromStream(%s.get%s()
+                            return relationPageFetcher.prefetchSingle("%s", "%s", %s.get%s(), %sResource.class, dfe)
+                                    .thenMany(Flux.fromStream(%s.get%s()
                                     .stream()
                                     .map(Link::getHref)
-                                    .map(l -> %sService.get%sResource(l, dfe)))
+                                    .map(l -> %sService.get%sResource(l, dfe))))
                                     .flatMap(Mono::flux)
                                     .next()
                                     .toFuture();
-                    """.formatted(type.lowerName(), upper(relation.name()), relation.target().lowerName(), relation.target().name));
+                    """.formatted(type.name, relation.name(), type.lowerName(), upper(relation.name()), relation.target().name,
+                    type.lowerName(), upper(relation.name()), relation.target().lowerName(), relation.target().name));
             text.append("    }\n\n");
         }
         return text.append("}\n").toString();
