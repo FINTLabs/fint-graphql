@@ -58,6 +58,34 @@ GraphQL-spørringen og krever ikke servlet-requesten under asynkrone oppslag.
 Når spørringen avsluttes eller avbrytes, kanselleres aktive og ventende
 WebClient-oppslag, og nye oppslag for spørringen stoppes.
 
+## Paginering av store relasjoner
+
+Listerelasjoner hentes normalt med ett oppslag per lenke. Når en relasjon peker på
+flere ressurser enn `fint.graphql.relation-pagination.threshold` (standard 50) i
+samme samling, for eksempel `elevforhold` på en stor `Skole`, leses i stedet
+samlingen side for side med `fint.graphql.relation-pagination.page-size` (standard
+500) ressurser per side. Klienten følger `_links.next` til det ikke finnes flere
+sider, eller til alle ønskede ressurser er funnet. Dette gjelder alle
+listerelasjoner og endrer ikke GraphQL-skjemaet.
+
+- Ressurser kobles til relasjonen via selvlenkene sine. FINT lager én selvlenke per
+  utfylt identifikator, så dette virker uavhengig av hvilken identifikator lenken
+  bruker. Feltnavnet sammenlignes uten hensyn til store og små bokstaver, verdien
+  med.
+- Ressurser som ikke ble funnet, hentes enkeltvis som før. Det gjelder også resten
+  av relasjonen hvis en side feiler. En ressurs som ikke finnes, gir fortsatt `null`
+  på sin plass i listen.
+- Sider bruker samme token, organisasjon, stikontroll og samtidighetsbegrensning som
+  andre oppslag, og `next`-lenker sendes alltid til `fint.endpoint.root`.
+- Sider lagres ikke i oppslagsbufferen, så en gjennomgang holder høyst én side i
+  minnet. Bare ønskede ressurser beholdes. Identiske relasjoner i samme spørring
+  deler én gjennomgang.
+- Enkeltvis henting kan i praksis velges ved å sette terskelen svært høyt.
+
+`fint.webclient.max-in-memory-size` (standard 16 MB) begrenser hvert svar og må
+økes sammen med sidestørrelsen ved behov. `fint.webclient.response-timeout` gjelder
+også for hver side.
+
 ## Modulene og kodegenerering
 
 Rotprosjektet samler `app` (Spring Boot-applikasjonen) og `model-generator`

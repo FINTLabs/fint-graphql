@@ -89,3 +89,24 @@ files. All other Java and GraphQL syntax still matches the historical references
 the resulting inventory is 395 files. New generator and application regression
 tests cover behavior separately. Reference archives are never regenerated during
 tests. Future changes must be reviewed before this overlay is updated.
+
+## Relation pagination implementation reference
+
+`paginated-relations.zip` is a second overlay captured 2026-11-04 from this
+change's working tree, based on commit
+`ccde97918ede3314d6dc8e7d6696e301f41a431c`. It uses the same pinned model and
+SHA-256 above. The earlier archives are unchanged.
+
+- Archive SHA-256: `ebe597c4926d225c79d0ee8d698c735b92fc062c4098f0461297d7ea359877a5`.
+- 37 entries with sorted paths and fixed ZIP timestamps: `common/` contains every
+  generated resolver with at least one list relation, 114 relations in total. The
+  other 35 resolvers have only single relations or none, and are unchanged.
+- All 72 resolvers were checked against both `legacy.zip` and `application.zip`
+  using an independent text transformation. Each list relation changes from
+  `Flux.fromIterable(links)` to
+  `relationPageFetcher.prefetch(links, <Target>Resource.class, dfe).thenMany(Flux.fromIterable(links))`,
+  and each changed resolver gains the `RelationPageFetcher` field and import.
+  Nothing else differs, and the public GraphQL schema is unchanged.
+
+`GenerationParityTest` applies this overlay after the URI template overlay. Behavior
+is covered separately by `RelationPageFetcherSpec` in `app`.
