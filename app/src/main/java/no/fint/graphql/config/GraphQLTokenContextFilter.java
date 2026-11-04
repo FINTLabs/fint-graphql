@@ -79,7 +79,7 @@ public class GraphQLTokenContextFilter extends OncePerRequestFilter {
         return claim instanceof String ? StringUtils.trimToNull((String) claim) : null;
     }
 
-    /** The validated token's name for the caller, unlike the x-client header, which the caller sets freely. */
+    /** Gets the client name from the validated token. The x-client header is not used because callers can set it to anything. */
     private String extractClientName(Jwt jwt) {
         String commonName = StringUtils.trimToNull(jwt.getClaimAsString("cn"));
         return commonName != null ? commonName : StringUtils.trimToNull(jwt.getSubject());

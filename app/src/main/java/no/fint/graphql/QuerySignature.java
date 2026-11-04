@@ -13,15 +13,16 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The shape of a query, safe to log: every literal value is blanked, and aliases and comments are
- * gone. Queries differing only in those values share text and hash, so they group as one query.
- * Variable values are not part of a document and never appear here.
+ * Turns a query into a version that is safe to log. It blanks every value written in the query
+ * and removes aliases and comments. Two queries that only differ in those things get the same text
+ * and the same hash, so they can be grouped as one query. Variable values are sent separately from
+ * the query, so they never end up here.
  */
 record QuerySignature(String operation, String text, String hash) {
 
     private static final int MAX_TEXT_LENGTH = 10_000;
 
-    /** Empty for a document that cannot be parsed or has no such operation; it never ran either. */
+    /** Returns nothing if the query cannot be parsed or does not contain the requested operation. */
     static Optional<QuerySignature> of(String document, String operationName) {
         try {
             Document parsed = Parser.parse(document);
@@ -37,7 +38,11 @@ record QuerySignature(String operation, String text, String hash) {
         }
     }
 
-    /** AstSignature treats no name as "the anonymous operation" and would drop a lone named one. */
+    /**
+     * Finds the operation name when the query only has one operation. AstSignature needs this
+     * because it removes named operations when it is not given a name, which would leave nothing
+     * to log.
+     */
     private static String onlyOperationName(Document document) {
         List<OperationDefinition> operations = document.getDefinitionsOfType(OperationDefinition.class);
         return operations.size() == 1 ? operations.getFirst().getName() : null;

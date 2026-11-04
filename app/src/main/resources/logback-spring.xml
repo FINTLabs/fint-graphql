@@ -18,7 +18,7 @@
                 <message/>
                 <!-- MDC (e.g., traceId from WebFlux/Sleuth if added) -->
                 <mdc/>
-                <!-- Key-value pairs added through the SLF4J fluent API, as separate fields -->
+                <!-- Writes key-value pairs added through the SLF4J fluent API as separate JSON fields -->
                 <keyValuePairs/>
                 <!-- Context: app name, pid -->
                 <contextName/>

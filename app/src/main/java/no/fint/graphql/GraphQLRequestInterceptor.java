@@ -85,8 +85,9 @@ public class GraphQLRequestInterceptor implements WebGraphQlInterceptor {
     }
 
     /**
-     * The one line per query that the query dashboard reads, with its values as separate JSON
-     * fields. queryId restarts with the application, so queryUid is what identifies a query there.
+     * Logs one line for each finished query, with the values as separate JSON fields that the
+     * query dashboard reads. The dashboard identifies a query by queryUid, because queryId starts
+     * over when the application restarts.
      */
     private void logCompleted(WebGraphQlRequest request, GraphQLQueryContext query, long durationMs, String outcome) {
         Optional<QuerySignature> signature = QuerySignature.of(request.getDocument(), request.getOperationName());
