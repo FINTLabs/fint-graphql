@@ -75,12 +75,8 @@ verdi, og endrer ikke GraphQL-skjemaet.
 | 30 `klasse` → 30 `klassemedlemskap` hver | 900 | Én gjennomgang av samlingen |
 | 1 `elevforhold` → `elev` | 1 | Ett oppslag |
 
-Klienten følger `_links.next` til det ikke finnes flere sider, til alle ønskede
-ressurser er funnet, eller til enkeltoppslag blir billigst. Det siste vurderes etter
-hver side ut fra `total_items`: gjenstår det minst like mange sider som ressurser,
-hentes resten enkeltvis. Da koster 60 elever av 50 000 én side og 60 oppslag, ikke
-100 sider. Vurderingen teller bare antall kall, selv om sider leses én om gangen
-mens enkeltoppslag går parallelt.
+Klienten følger `_links.next` til det ikke finnes flere sider, eller til alle ønskede
+ressurser er funnet.
 
 - Ressurser kobles til relasjonen via selvlenkene sine. FINT lager én selvlenke per
   utfylt identifikator, så dette virker uavhengig av hvilken identifikator lenken

@@ -8,6 +8,7 @@ import no.novari.fint.model.resource.Link;
 import org.apache.commons.lang3.StringUtils;
 import org.dataloader.BatchLoaderEnvironment;
 import org.dataloader.DataLoader;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.graphql.execution.BatchLoaderRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriUtils;
@@ -129,7 +130,6 @@ public class RelationPageFetcher {
         private final int pageSize = settings.getPageSize();
         private final Set<String> visited = new HashSet<>();
         private int pages;
-        private long entriesSeen;
 
         private Walk(String collection, Map<String, Set<String>> wanted, Class<T> type, DataFetchingEnvironment dfe) {
             this.collection = collection;
@@ -143,9 +143,7 @@ public class RelationPageFetcher {
             return fetchPage(collection + "?size=" + pageSize)
                     .expand(page -> {
                         String next = nextPage(page);
-                        return next == null || remaining.isEmpty() || individualRequestsAreCheaper(page)
-                                ? Mono.empty()
-                                : fetchPage(next);
+                        return next == null || remaining.isEmpty() ? Mono.empty() : fetchPage(next);
                     })
                     .then()
                     .doOnSuccess(ignored -> log.info(
@@ -154,7 +152,7 @@ public class RelationPageFetcher {
                     .onErrorResume(ex -> {
                         log.warn("Relation pages failed, requesting the remaining {} of {} individually: collection={} pages={} cause={}",
                                 remaining.size(), wantedCount, LogSanitizer.singleLine(collection), pages,
-                                LogSanitizer.singleLine(String.valueOf(ex.getMessage())));
+                                LogSanitizer.singleLine(String.valueOf(NestedExceptionUtils.getMostSpecificCause(ex))));
                         return Mono.empty();
                     });
         }
@@ -172,7 +170,6 @@ public class RelationPageFetcher {
 
         private void collectWanted(JsonNode page) {
             for (JsonNode entry : page.path("_embedded").path("_entries")) {
-                entriesSeen++;
                 T resource = null;
                 for (JsonNode self : entry.path("_links").path("self")) {
                     Set<String> hrefs = parse(self.path("href").asString(""))
@@ -189,15 +186,6 @@ public class RelationPageFetcher {
                     }
                 }
             }
-        }
-
-        /**
-         * Finding a few resources should not cost many pages, for example 60 elever out of 50,000.
-         * Checked after every page, since the answer changes as the walk finds what it wants.
-         */
-        private boolean individualRequestsAreCheaper(JsonNode page) {
-            long totalItems = page.path("total_items").asLong(-1);
-            return totalItems >= 0 && Math.ceilDiv(totalItems - entriesSeen, pageSize) >= remaining.size();
         }
 
         private String nextPage(JsonNode page) {

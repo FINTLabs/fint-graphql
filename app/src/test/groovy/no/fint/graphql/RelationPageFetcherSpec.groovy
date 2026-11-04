@@ -294,25 +294,14 @@ class RelationPageFetcherSpec extends Specification {
         requests == individualTargets('A')
     }
 
-    def "a walk stops after the first page when individual requests are cheaper"() {
-        given: "2 resources are left, but finding them could take 50 more pages"
-        stubPage("$COLLECTION?size=2", ['A'], "$BASE$COLLECTION?cursor=never", 100)
-        stubIndividual('B', 'C')
+    def "a walk follows next links whatever total_items says"() {
+        given: "2 resources are left, and total_items suggests many pages remain"
+        stubPage("$COLLECTION?size=2", ['A'], "$BASE$COLLECTION?cursor=c1", 100)
+        stubPage("$COLLECTION?cursor=c1", ['B', 'C'], null, 100)
 
         expect:
         ids(resolve(fetcher(2, 2), links('A', 'B', 'C'))) == ['A', 'B', 'C']
-        requests.toSet() == ["$COLLECTION?size=2", *individualTargets('B', 'C')].toSet()
-    }
-
-    def "a walk keeps going while pages are cheaper and stops once they are not"() {
-        given: "5 left and 4 pages after the first page, then 3 left and 3 pages after the second"
-        stubPage("$COLLECTION?size=2", ['A', 'B'], "$BASE$COLLECTION?cursor=c1", 10)
-        stubPage("$COLLECTION?cursor=c1", ['C', 'D'], "$BASE$COLLECTION?cursor=never", 10)
-        stubIndividual('E', 'F', 'G')
-
-        expect:
-        ids(resolve(fetcher(2, 2), links('A', 'B', 'C', 'D', 'E', 'F', 'G'))) == ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        requests.toSet() == ["$COLLECTION?size=2", "$COLLECTION?cursor=c1", *individualTargets('E', 'F', 'G')].toSet()
+        requests == ["$COLLECTION?size=2", "$COLLECTION?cursor=c1"]
     }
 
     private static List<String> ids(List<ElevforholdResource> resources) {
