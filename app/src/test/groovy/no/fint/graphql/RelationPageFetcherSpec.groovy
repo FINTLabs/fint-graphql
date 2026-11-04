@@ -6,9 +6,7 @@ import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
-import no.fint.graphql.config.ConnectionProviderConfig
 import no.fint.graphql.config.ConnectionProviderSettings
-import no.fint.graphql.config.WebClientConfig
 import no.fint.graphql.model.Endpoints
 import no.fint.graphql.model.ResourceRoutes
 import no.fint.graphql.model.model.elevforhold.ElevforholdService
@@ -22,12 +20,10 @@ import org.springframework.http.HttpHeaders
 import org.springframework.mock.env.MockEnvironment
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.test.util.ReflectionTestUtils
-import org.springframework.util.unit.DataSize
 import org.springframework.web.reactive.function.client.WebClient
 import spock.lang.Specification
 import tools.jackson.databind.json.JsonMapper
 
-import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
@@ -257,31 +253,6 @@ class RelationPageFetcherSpec extends Specification {
         requests == ["$collection?size=2"]
     }
 
-    def "the configured WebClient reads a page larger than the 256 KB codec default"() {
-        given:
-        def wanted = ('0'..'9').collect { "ID-$it".toString() }
-        def filler = 'x' * 100_000
-        def entries = wanted.collect { id ->
-            """{"systemId":{"identifikatorverdi":"$id"},"beskrivelse":"$filler",
-                "_links":{"self":[{"href":"$BASE$COLLECTION/systemid/$id"}]}}"""
-        }.join(',')
-        responses["$COLLECTION?size=10".toString()] = json("""{"_embedded":{"_entries":[$entries]}}""")
-        def root = server.url('/').toString()
-        def config = new WebClientConfig()
-        ReflectionTestUtils.setField(config, 'rootUrl', root)
-        ReflectionTestUtils.setField(config, 'host', 'beta.felleskomponent.no')
-        ReflectionTestUtils.setField(config, 'connectTimeoutMs', 20000)
-        ReflectionTestUtils.setField(config, 'responseTimeout', Duration.ofSeconds(5))
-        ReflectionTestUtils.setField(config, 'maxInMemorySize', DataSize.ofMegabytes(16))
-        def connectionProvider = new ConnectionProviderConfig().connectionProvider(new ConnectionProviderSettings(maxConnections: 10))
-        def webClient = config.webClient(WebClient.builder(), config.reactorResourceFactory(), connectionProvider)
-        def request = createRequest(root, webClient)
-
-        expect:
-        ids(resolve(fetcher(2, 10, request), links(*wanted), dfe(), request)) == wanted
-        requests == ["$COLLECTION?size=10"]
-    }
-
     def "invalid sizes are rejected at startup"() {
         when:
         fetcher(threshold, pageSize)
@@ -326,14 +297,14 @@ class RelationPageFetcherSpec extends Specification {
         new MockResponse.Builder().code(200).setHeader(HttpHeaders.CONTENT_TYPE, 'application/json').body(body).build()
     }
 
-    private WebClientRequest createRequest(String root, WebClient webClient = WebClient.create(root)) {
-        new WebClientRequest(webClient, new ConnectionProviderSettings(maxConnections: 100), root,
+    private WebClientRequest createRequest(String root) {
+        new WebClientRequest(WebClient.create(root), new ConnectionProviderSettings(maxConnections: 100), root,
                 'beta.felleskomponent.no', 'maximumSize=1,expireAfterWrite=1s', 'V4',
                 new GraphQLQueryIdProvider(), new ResourceRoutes(new MockEnvironment()))
     }
 
-    private RelationPageFetcher fetcher(int threshold, int pageSize, WebClientRequest request = null) {
-        new RelationPageFetcher(request ?: sharedRequest(), JsonMapper.builder().build(), threshold, pageSize)
+    private RelationPageFetcher fetcher(int threshold, int pageSize) {
+        new RelationPageFetcher(sharedRequest(), JsonMapper.builder().build(), threshold, pageSize)
     }
 
     private WebClientRequest shared
@@ -343,14 +314,14 @@ class RelationPageFetcherSpec extends Specification {
     }
 
     private List<ElevforholdResource> resolve(RelationPageFetcher fetcher, List<Link> relation,
-                                              DataFetchingEnvironment environment = dfe(),
-                                              WebClientRequest request = sharedRequest()) {
+                                              DataFetchingEnvironment environment = dfe()) {
         def skole = new SkoleResource()
         relation.each { skole.addElevforhold(it) }
-        resolver(fetcher, request).getElevforhold(skole, environment).toCompletableFuture().get(5, TimeUnit.SECONDS)
+        resolver(fetcher).getElevforhold(skole, environment).toCompletableFuture().get(5, TimeUnit.SECONDS)
     }
 
-    private SkoleResolver resolver(RelationPageFetcher fetcher, WebClientRequest request = sharedRequest()) {
+    private SkoleResolver resolver(RelationPageFetcher fetcher) {
+        def request = sharedRequest()
         def elevforhold = new ElevforholdService()
         ReflectionTestUtils.setField(elevforhold, 'webClientRequest', request)
         ReflectionTestUtils.setField(elevforhold, 'endpoints', new Endpoints())

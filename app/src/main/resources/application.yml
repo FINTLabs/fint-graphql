@@ -5,7 +5,6 @@ fint:
   webclient:
     connect-timeout-ms: 10000
     response-timeout: PT10S
-    max-in-memory-size: 16MB
     connection-provider:
       maxConnections: 100
       acquireTimeout: 2000
@@ -23,6 +22,10 @@ server:
   forward-headers-strategy: framework
 
 spring:
+  http:
+    codecs:
+      # The 256 KB default is far too small for a page of resources.
+      max-in-memory-size: 16MB
   graphql:
     schema:
       locations: classpath:schema/**/

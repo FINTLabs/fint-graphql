@@ -581,7 +581,6 @@ class WebClientRequestSpec extends Specification {
         ReflectionTestUtils.setField(config, 'host', host)
         ReflectionTestUtils.setField(config, 'connectTimeoutMs', 20000)
         ReflectionTestUtils.setField(config, 'responseTimeout', Duration.ofSeconds(5))
-        ReflectionTestUtils.setField(config, 'maxInMemorySize', org.springframework.util.unit.DataSize.ofMegabytes(16))
 
         def connectionProvider = new ConnectionProviderConfig().connectionProvider(new ConnectionProviderSettings(maxConnections: 100))
         return config.webClient(WebClient.builder(), config.reactorResourceFactory(), connectionProvider)

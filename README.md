@@ -82,7 +82,7 @@ listerelasjoner og endrer ikke GraphQL-skjemaet.
   deler én gjennomgang.
 - Enkeltvis henting kan i praksis velges ved å sette terskelen svært høyt.
 
-`fint.webclient.max-in-memory-size` (standard 16 MB) begrenser hvert svar og må
+`spring.http.codecs.max-in-memory-size` (16 MB i `application.yml`) begrenser hvert svar og må
 økes sammen med sidestørrelsen ved behov. `fint.webclient.response-timeout` gjelder
 også for hver side.
 

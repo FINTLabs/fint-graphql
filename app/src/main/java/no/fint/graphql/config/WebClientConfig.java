@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ReactorResourceFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.util.unit.DataSize;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import io.netty.handler.logging.LogLevel;
@@ -33,9 +32,6 @@ public class WebClientConfig {
 
     @Value("${fint.webclient.response-timeout:PT30S}")
     private Duration responseTimeout;
-
-    @Value("${fint.webclient.max-in-memory-size:16MB}")
-    private DataSize maxInMemorySize;
 
     @Bean
     public WebClient webClient(WebClient.Builder builder, ReactorResourceFactory factory, ConnectionProvider connectionProvider) {
@@ -62,8 +58,6 @@ public class WebClientConfig {
                     }
                     return client;
                 }))
-                // The 256 KB default is far too small for a page of resources.
-                .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(Math.toIntExact(maxInMemorySize.toBytes())))
                 .uriBuilderFactory(uriBuilderFactory)
                 .defaultHeader("Host", host)
                 .build();
