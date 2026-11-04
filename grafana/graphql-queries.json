@@ -1,0 +1,495 @@
+{
+  "title": "GraphQL queries",
+  "uid": "fint-graphql-queries",
+  "schemaVersion": 41,
+  "version": 1,
+  "editable": true,
+  "tags": [
+    "fint",
+    "graphql"
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "refresh": "1m",
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "Loki",
+        "type": "datasource",
+        "query": "loki",
+        "refresh": 1
+      },
+      {
+        "name": "stream",
+        "label": "Log stream",
+        "type": "textbox",
+        "description": "Loki stream selector for the GraphQL service.",
+        "query": "app=\"fint-graphql-v4\"",
+        "current": {
+          "text": "app=\"fint-graphql-v4\"",
+          "value": "app=\"fint-graphql-v4\""
+        }
+      },
+      {
+        "name": "queryHash",
+        "label": "Query shape",
+        "type": "textbox",
+        "description": "Set by clicking a queryHash in the table. Clear it to see all queries.",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        }
+      },
+      {
+        "name": "queryUid",
+        "label": "Clicked query",
+        "type": "textbox",
+        "description": "Set by clicking a query in the chart.",
+        "query": "",
+        "current": {
+          "text": "",
+          "value": ""
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Queries: one line per query, click a line to see the query below",
+      "description": "Height is how long the query took. Orange: queries are stopped at 110 s. Red: the gateway cuts every request at 120 s.",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 11
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "range",
+          "maxLines": 5000,
+          "direction": "backward",
+          "expr": "{$stream} |= \"GraphQL query completed\" |= \"$queryHash\" | json durationMs, queryUid | line_format \"{{.queryUid}}\""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "source": "labels",
+            "format": "json",
+            "replace": false,
+            "keepTime": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "includeByName": {
+              "Time": true,
+              "durationMs": true,
+              "queryUid": true
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "targetField": "durationMs",
+                "destinationType": "number"
+              }
+            ]
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "binary",
+            "alias": "Duration",
+            "replaceFields": false,
+            "binary": {
+              "left": {
+                "matcher": {
+                  "id": "byName",
+                  "options": "durationMs"
+                }
+              },
+              "operator": "/",
+              "right": {
+                "fixed": "1000"
+              }
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Time",
+                "desc": false
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "suffix: s",
+          "min": 0,
+          "max": 120,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 110
+              },
+              {
+                "color": "red",
+                "value": 120
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "barAlignment": 0,
+            "lineWidth": 2,
+            "fillOpacity": 100,
+            "gradientMode": "scheme",
+            "showPoints": "always",
+            "pointSize": 7,
+            "spanNulls": false,
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          },
+          "links": [
+            {
+              "title": "Show this query",
+              "targetBlank": false,
+              "url": "/d/fint-graphql-queries?var-queryUid=${__data.fields.queryUid}&${datasource:queryparam}&${stream:queryparam}&${queryHash:queryparam}&${__url_time_range}"
+            }
+          ],
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "durationMs"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "viz": true,
+                  "legend": true,
+                  "tooltip": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "all",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Clicked query",
+      "description": "Click a line in the chart. Values in the query are removed before it is logged.",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 24,
+        "h": 4
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "range",
+          "maxLines": 1,
+          "direction": "backward",
+          "expr": "{$stream} |= \"GraphQL query completed\" |= \"$queryUid\" | json | queryUid=\"$queryUid\""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "source": "labels",
+            "format": "json",
+            "replace": false,
+            "keepTime": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "includeByName": {
+              "Time": true,
+              "client": true,
+              "organisation": true,
+              "durationMs": true,
+              "outcome": true,
+              "requestCount": true,
+              "operation": true,
+              "queryHash": true
+            },
+            "indexByName": {
+              "Time": 0,
+              "client": 1,
+              "organisation": 2,
+              "durationMs": 3,
+              "outcome": 4,
+              "requestCount": 5,
+              "operation": 6,
+              "queryHash": 7
+            },
+            "renameByName": {
+              "durationMs": "Duration",
+              "requestCount": "Requests"
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "targetField": "Duration",
+                "destinationType": "number"
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      }
+    },
+    {
+      "id": 4,
+      "title": "Query text",
+      "description": "Values in the query are removed before it is logged.",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 15,
+        "w": 24,
+        "h": 7
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "queryType": "range",
+          "maxLines": 1,
+          "direction": "backward",
+          "expr": "{$stream} |= \"GraphQL query completed\" |= \"$queryUid\" | json | queryUid=\"$queryUid\""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "source": "labels",
+            "format": "json",
+            "replace": false,
+            "keepTime": false
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "includeByName": {
+              "query": true
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "cellOptions": {
+              "type": "auto",
+              "wrapText": true
+            },
+            "inspect": true
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": false
+      }
+    },
+    {
+      "id": 3,
+      "title": "Slowest query shapes per client",
+      "description": "Queries that differ only in their values share a queryHash. Click one to show only that shape in the chart.",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 10
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "count",
+          "queryType": "instant",
+          "expr": "sum by (queryHash, client, operation) (count_over_time({$stream} |= \"GraphQL query completed\" | json | __error__=\"\" [$__range]))"
+        },
+        {
+          "refId": "p95",
+          "queryType": "instant",
+          "expr": "quantile_over_time(0.95, {$stream} |= \"GraphQL query completed\" | json | __error__=\"\" | unwrap durationMs [$__range]) by (queryHash, client, operation)"
+        },
+        {
+          "refId": "max",
+          "queryType": "instant",
+          "expr": "max_over_time({$stream} |= \"GraphQL query completed\" | json | __error__=\"\" | unwrap durationMs [$__range]) by (queryHash, client, operation)"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
+        },
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "client": 0,
+              "operation": 1,
+              "queryHash": 2,
+              "Value #count": 3,
+              "Value #p95": 4,
+              "Value #max": 5
+            },
+            "renameByName": {
+              "Value #count": "Count",
+              "Value #p95": "p95",
+              "Value #max": "Max"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Max",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "p95|Max"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "queryHash"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Show only this query shape",
+                    "targetBlank": false,
+                    "url": "/d/fint-graphql-queries?var-queryHash=${__value.raw}&${datasource:queryparam}&${stream:queryparam}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      }
+    }
+  ]
+}

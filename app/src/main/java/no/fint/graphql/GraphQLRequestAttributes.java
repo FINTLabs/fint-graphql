@@ -14,6 +14,7 @@ public final class GraphQLRequestAttributes {
     public static final String REQUEST_COUNTER = "graphql.query.requestCounter";
     public static final String ALLOWED_PATH_PREFIXES = "graphql.query.allowedPathPrefixes";
     public static final String ORGANISATION_ID = "graphql.query.organisationId";
+    public static final String CLIENT_NAME = "graphql.query.clientName";
 
     private GraphQLRequestAttributes() {
     }
@@ -74,6 +75,21 @@ public final class GraphQLRequestAttributes {
             return;
         }
         request.setAttribute(ORGANISATION_ID, organisationId);
+    }
+
+    public static void setClientName(HttpServletRequest request, String clientName) {
+        if (request == null) {
+            return;
+        }
+        request.setAttribute(CLIENT_NAME, clientName);
+    }
+
+    public static String getClientName(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        Object value = request.getAttribute(CLIENT_NAME);
+        return value instanceof String ? (String) value : null;
     }
 
     public static String getOrganisationId(HttpServletRequest request) {

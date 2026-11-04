@@ -67,6 +67,7 @@ public class GraphQLTokenContextFilter extends OncePerRequestFilter {
                 jwtRolePathPrefixExtractor.extractAllowedPathPrefixes(jwt)
         );
         GraphQLRequestAttributes.setOrganisationId(request, organisationId);
+        GraphQLRequestAttributes.setClientName(request, extractClientName(jwt));
         filterChain.doFilter(request, response);
     }
 
@@ -76,6 +77,12 @@ public class GraphQLTokenContextFilter extends OncePerRequestFilter {
         }
         Object claim = jwt.getClaim("fintAssetIDs");
         return claim instanceof String ? StringUtils.trimToNull((String) claim) : null;
+    }
+
+    /** The validated token's name for the caller, unlike the x-client header, which the caller sets freely. */
+    private String extractClientName(Jwt jwt) {
+        String commonName = StringUtils.trimToNull(jwt.getClaimAsString("cn"));
+        return commonName != null ? commonName : StringUtils.trimToNull(jwt.getSubject());
     }
 
     private boolean isGraphQLRequest(HttpServletRequest request) {
