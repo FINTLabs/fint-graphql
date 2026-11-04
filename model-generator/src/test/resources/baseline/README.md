@@ -97,15 +97,15 @@ change's working tree, based on commit
 `ccde97918ede3314d6dc8e7d6696e301f41a431c`. It uses the same pinned model and
 SHA-256 above. The earlier archives are unchanged.
 
-- Archive SHA-256: `afb13e4a42f7953d1882c421423b2f1c008009d28391294b56db376a2c271184`.
+- Archive SHA-256: `ac5a6488b944f43c1449d6a712cc364b0184d109ead505e3036ca927711880c4`.
 - 72 entries with sorted paths and fixed ZIP timestamps: `common/` contains every
   generated resolver, with 114 list relations and 213 single-valued relations in total.
 - All 72 resolvers were checked against both `legacy.zip` and `application.zip`
   using an independent text transformation. Each list relation changes from
   `Flux.fromIterable(links)` to
-  `relationPageFetcher.prefetch("<Parent>", "<relation>", links, <Target>Resource.class, dfe).thenMany(Flux.fromIterable(links))`.
+  `relationPageFetcher.prefetch(links, <Target>Resource.class, dfe).thenMany(Flux.fromIterable(links))`.
   Each single-valued relation wraps its `Flux.fromStream(...)` in
-  `relationPageFetcher.prefetchSingle("<Parent>", "<relation>", <links>, <Target>Resource.class, dfe).thenMany(...)`.
+  `relationPageFetcher.prefetch(<links>, <Target>Resource.class, dfe).thenMany(...)`.
   Each resolver gains the `RelationPageFetcher` field and import. Nothing else
   differs, and the public GraphQL schema is unchanged.
 

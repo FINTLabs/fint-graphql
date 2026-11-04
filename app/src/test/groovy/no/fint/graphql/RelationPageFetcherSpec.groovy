@@ -16,6 +16,7 @@ import no.fint.graphql.model.model.skoleressurs.SkoleressursService
 import no.novari.fint.model.resource.Link
 import no.novari.fint.model.resource.utdanning.elev.ElevforholdResource
 import no.novari.fint.model.resource.utdanning.utdanningsprogram.SkoleResource
+import org.dataloader.DataLoaderRegistry
 import org.jetbrains.annotations.NotNull
 import org.springframework.graphql.execution.DefaultBatchLoaderRegistry
 import org.springframework.http.HttpHeaders
@@ -26,6 +27,8 @@ import org.springframework.web.reactive.function.client.WebClient
 import spock.lang.Specification
 import tools.jackson.databind.json.JsonMapper
 
+import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
@@ -37,6 +40,8 @@ class RelationPageFetcherSpec extends Specification {
     private MockWebServer server = new MockWebServer().tap { start() }
     private List<String> requests = new CopyOnWriteArrayList<>()
     private Map<String, MockResponse> responses = new ConcurrentHashMap<>()
+    private DefaultBatchLoaderRegistry batchLoaders = new DefaultBatchLoaderRegistry()
+    private List<DataLoaderRegistry> dataLoaders = []
 
     def setup() {
         server.dispatcher = new Dispatcher() {
@@ -157,7 +162,7 @@ class RelationPageFetcherSpec extends Specification {
         def relation = [*links('A', 'B', 'C'), new Link("$BASE/utdanning/annet/elevforhold/systemid/X")]
 
         when:
-        fetcher(2, 2).prefetch('Skole', 'elevforhold', relation, ElevforholdResource, dfe()).block()
+        prefetch(fetcher(2, 2), relation)
 
         then:
         requests == ["$COLLECTION?size=2"]
@@ -214,7 +219,7 @@ class RelationPageFetcherSpec extends Specification {
         def environment = dfe(['/utdanning/vurdering/'])
 
         when:
-        fetcher(2, 2).prefetch('Skole', 'elevforhold', links('A', 'B', 'C'), ElevforholdResource, environment).block()
+        prefetch(fetcher(2, 2), links('A', 'B', 'C'), environment)
 
         then:
         requests.isEmpty()
@@ -226,7 +231,7 @@ class RelationPageFetcherSpec extends Specification {
         environment.graphQlContext.get(GraphQLQueryContext).finish()
 
         when:
-        fetcher(2, 2).prefetch('Skole', 'elevforhold', links('A', 'B', 'C'), ElevforholdResource, environment).block()
+        prefetch(fetcher(2, 2), links('A', 'B', 'C'), environment)
 
         then:
         requests.isEmpty()
@@ -246,7 +251,9 @@ class RelationPageFetcherSpec extends Specification {
         ['A', 'B', 'C'].each { skole.addSkoleressurs(new Link("$BASE$collection/systemid/$it")) }
 
         when:
-        def result = resolver(fetcher(2, 2)).getSkoleressurs(skole, dfe()).toCompletableFuture().get(5, TimeUnit.SECONDS)
+        def pending = resolver(fetcher(2, 2)).getSkoleressurs(skole, dfe()).toCompletableFuture()
+        dispatch()
+        def result = pending.get(5, TimeUnit.SECONDS)
 
         then:
         result*.systemId*.identifikatorverdi == ['A', 'B', 'C']
@@ -255,12 +262,57 @@ class RelationPageFetcherSpec extends Specification {
         requests == ["$collection?size=2"]
     }
 
-    def "a single-valued relation is never read from pages unless configured"() {
+    def "links from several parents are counted together and share one walk"() {
+        given: "each parent is below the threshold of 3, but together they are above it"
+        stubPage("$COLLECTION?size=10", ['A', 'B', 'C', 'D'], null)
+        def fetcher = fetcher(3, 10)
+        def environment = dfe()
+
         when:
-        fetcher(0, 2).prefetchSingle('Elevforhold', 'elev', links('A', 'B'), ElevforholdResource, dfe()).block()
+        def first = resolveLater(fetcher, links('A', 'B'), environment)
+        def second = resolveLater(fetcher, links('C', 'D'), environment)
+        dispatch()
 
         then:
-        requests.isEmpty()
+        ids(first.get(5, TimeUnit.SECONDS)) == ['A', 'B']
+        ids(second.get(5, TimeUnit.SECONDS)) == ['C', 'D']
+        requests == ["$COLLECTION?size=10"]
+    }
+
+    def "the same resource wanted by many parents counts once"() {
+        given:
+        stubIndividual('A')
+        def fetcher = fetcher(2, 10)
+        def environment = dfe()
+
+        when:
+        def pending = (1..5).collect { resolveLater(fetcher, links('A'), environment) }
+        dispatch()
+
+        then:
+        pending.every { ids(it.get(5, TimeUnit.SECONDS)) == ['A'] }
+        requests == individualTargets('A')
+    }
+
+    def "a walk stops after the first page when individual requests are cheaper"() {
+        given: "2 resources are left, but finding them could take 50 more pages"
+        stubPage("$COLLECTION?size=2", ['A'], "$BASE$COLLECTION?cursor=never", 100)
+        stubIndividual('B', 'C')
+
+        expect:
+        ids(resolve(fetcher(2, 2), links('A', 'B', 'C'))) == ['A', 'B', 'C']
+        requests.toSet() == ["$COLLECTION?size=2", *individualTargets('B', 'C')].toSet()
+    }
+
+    def "a walk keeps going while pages are cheaper and stops once they are not"() {
+        given: "5 left and 4 pages after the first page, then 3 left and 3 pages after the second"
+        stubPage("$COLLECTION?size=2", ['A', 'B'], "$BASE$COLLECTION?cursor=c1", 10)
+        stubPage("$COLLECTION?cursor=c1", ['C', 'D'], "$BASE$COLLECTION?cursor=never", 10)
+        stubIndividual('E', 'F', 'G')
+
+        expect:
+        ids(resolve(fetcher(2, 2), links('A', 'B', 'C', 'D', 'E', 'F', 'G'))) == ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        requests.toSet() == ["$COLLECTION?size=2", "$COLLECTION?cursor=c1", *individualTargets('E', 'F', 'G')].toSet()
     }
 
     private static List<String> ids(List<ElevforholdResource> resources) {
@@ -280,9 +332,10 @@ class RelationPageFetcherSpec extends Specification {
         """{"systemId":{"identifikatorverdi":"$systemId"},"_links":{"self":[$self]}}"""
     }
 
-    private void stubPage(String target, List<String> ids, String next) {
+    private void stubPage(String target, List<String> ids, String next, Integer totalItems = null) {
         def links = next ? """"next":[{"href":"$next"}]""" : ''
-        responses[target.toString()] = json("""{"_embedded":{"_entries":[${ids.collect { entry(it) }.join(',')}]},"_links":{$links}}""")
+        def total = totalItems == null ? '' : ",\"total_items\":$totalItems"
+        responses[target.toString()] = json("""{"_embedded":{"_entries":[${ids.collect { entry(it) }.join(',')}]},"_links":{$links}$total}""")
     }
 
     private void stubIndividual(String... ids) {
@@ -301,7 +354,7 @@ class RelationPageFetcherSpec extends Specification {
 
     private RelationPageFetcher fetcher(int threshold, int pageSize) {
         new RelationPageFetcher(sharedRequest(), JsonMapper.builder().build(),
-                new RelationPaginationSettings(threshold: threshold, pageSize: pageSize), new DefaultBatchLoaderRegistry())
+                new RelationPaginationSettings(threshold: threshold, pageSize: pageSize), batchLoaders)
     }
 
     private WebClientRequest shared
@@ -312,9 +365,27 @@ class RelationPageFetcherSpec extends Specification {
 
     private List<ElevforholdResource> resolve(RelationPageFetcher fetcher, List<Link> relation,
                                               DataFetchingEnvironment environment = dfe()) {
+        def pending = resolveLater(fetcher, relation, environment)
+        dispatch()
+        pending.get(5, TimeUnit.SECONDS)
+    }
+
+    private CompletableFuture<List<ElevforholdResource>> resolveLater(RelationPageFetcher fetcher, List<Link> relation,
+                                                                      DataFetchingEnvironment environment) {
         def skole = new SkoleResource()
         relation.each { skole.addElevforhold(it) }
-        resolver(fetcher).getElevforhold(skole, environment).toCompletableFuture().get(5, TimeUnit.SECONDS)
+        resolver(fetcher).getElevforhold(skole, environment).toCompletableFuture()
+    }
+
+    private void prefetch(RelationPageFetcher fetcher, List<Link> relation, DataFetchingEnvironment environment = dfe()) {
+        def pending = fetcher.prefetch(relation, ElevforholdResource, environment)
+        dispatch()
+        pending.block(Duration.ofSeconds(5))
+    }
+
+    /** GraphQL Java does this once every resolver at a query level has run. */
+    private void dispatch() {
+        dataLoaders.each { it.dispatchAll() }
     }
 
     private SkoleResolver resolver(RelationPageFetcher fetcher) {
@@ -338,8 +409,16 @@ class RelationPageFetcherSpec extends Specification {
         GraphQLRequestAttributes.setAllowedPathPrefixes(servletRequest, new LinkedHashSet<>(allowedPrefixes))
         GraphQLRequestAttributes.setOrganisationId(servletRequest, 'org-1')
         def context = GraphQLContext.of([(GraphQLQueryContext): GraphQLQueryContext.capture(servletRequest, 10000)])
+        def loaders = new DataLoaderRegistry()
+        dataLoaders << loaders
         Mock(DataFetchingEnvironment) {
             getGraphQlContext() >> context
+            getDataLoader(_ as String) >> { String name ->
+                if (loaders.getDataLoader(name) == null) {
+                    batchLoaders.registerDataLoaders(loaders, context)
+                }
+                loaders.getDataLoader(name)
+            }
         }
     }
 }

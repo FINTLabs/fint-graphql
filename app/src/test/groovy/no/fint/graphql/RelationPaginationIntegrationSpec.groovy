@@ -17,16 +17,13 @@ import spock.lang.Specification
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.TimeUnit
 
-/** Runs with the application's own beans and configuration, only the thresholds are adjusted. */
+/** Runs with the application's own beans and configuration, only the threshold is lowered. */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = [Application, TestJwtDecoderConfig],
-        properties = [
-                'fint.graphql.relation-pagination.threshold=2',
-                'fint.graphql.relation-pagination.relations.klasse.klassemedlemskap=3',
-                'fint.graphql.blacklist='
-        ]
+        properties = ['fint.graphql.relation-pagination.threshold=2', 'fint.graphql.blacklist=']
 )
 @AutoConfigureWebTestClient
 class RelationPaginationIntegrationSpec extends Specification {
@@ -34,6 +31,9 @@ class RelationPaginationIntegrationSpec extends Specification {
     private static final String SKOLE = '/utdanning/utdanningsprogram/skole/systemid/S'
     private static final String COLLECTION = '/utdanning/elev/elevforhold'
     private static final String ELEV = '/utdanning/elev/elev'
+    private static final String KLASSE = '/utdanning/elev/klasse'
+    private static final String MEDLEMSKAP = '/utdanning/elev/klassemedlemskap'
+    private static final String KLASSE_QUERY = '{ skole(systemId: "S") { klasse { klassemedlemskap { systemId { identifikatorverdi } } } } }'
     private static final String ELEV_FIELD = 'elev { systemId { identifikatorverdi } }'
     private static final RecordingDispatcher DISPATCHER = new RecordingDispatcher()
     private static final MockWebServer SERVER = startServer()
@@ -101,7 +101,7 @@ class RelationPaginationIntegrationSpec extends Specification {
         DISPATCHER.targets == [SKOLE, "$COLLECTION?size=500", "$COLLECTION?offset=5&size=500&cursor=c1"]
     }
 
-    def "a configured single-valued relation shares one walk across all its parents"() {
+    def "a single-valued relation shares one walk across all its parents"() {
         given: "a skole whose elevforhold each point at their own elev"
         stubSkole(['EF-1', 'EF-2', 'EF-3'])
         DISPATCHER.responses["$COLLECTION?size=500".toString()] = page([
@@ -119,7 +119,7 @@ class RelationPaginationIntegrationSpec extends Specification {
         DISPATCHER.targets == [SKOLE, "$COLLECTION?size=500", "$ELEV?size=500", "$ELEV?offset=2&size=500&cursor=c1"]
     }
 
-    def "a single parent of a configured relation still requests its one resource directly"() {
+    def "a single parent still requests its one resource directly"() {
         given:
         DISPATCHER.responses["$COLLECTION/systemid/EF-1".toString()] = json(elevforhold('EF-1', 'E-1'))
         DISPATCHER.responses["$ELEV/systemid/E-1".toString()] = json(elev('E-1'))
@@ -133,7 +133,7 @@ class RelationPaginationIntegrationSpec extends Specification {
         DISPATCHER.targets == ["$COLLECTION/systemid/EF-1", "$ELEV/systemid/E-1"]
     }
 
-    def "a resource missing from the pages of a configured relation is requested individually and fails as before"() {
+    def "a resource missing from the pages is requested individually and fails as before"() {
         given:
         stubSkole(['EF-1', 'EF-2', 'EF-3'])
         DISPATCHER.responses["$COLLECTION?size=500".toString()] = page([
@@ -151,53 +151,96 @@ class RelationPaginationIntegrationSpec extends Specification {
                                        "$ELEV/systemid/GONE", "$ELEV/systemid/E-3"]*.toString().toSet()
     }
 
-    def "an unconfigured single-valued relation is requested individually above the default threshold"() {
+    def "many parents pointing at one resource request it once without reading pages"() {
         given:
-        def skoler = ['A', 'B', 'C']
         stubSkole(['EF-1', 'EF-2', 'EF-3'])
-        DISPATCHER.responses["$COLLECTION?size=500".toString()] = page([0, 1, 2].collect { index ->
-            """{"systemId":{"identifikatorverdi":"EF-${index + 1}"},"_links":{
-                "self":[{"href":"$BASE$COLLECTION/systemid/EF-${index + 1}"}],
-                "skole":[{"href":"$BASE/utdanning/utdanningsprogram/skole/systemid/${skoler[index]}"}]}}"""
+        DISPATCHER.responses["$COLLECTION?size=500".toString()] = page(['EF-1', 'EF-2', 'EF-3'].collect { id ->
+            """{"systemId":{"identifikatorverdi":"$id"},"_links":{
+                "self":[{"href":"$BASE$COLLECTION/systemid/$id"}],
+                "skole":[{"href":"$BASE$SKOLE"}]}}"""
         }, null)
-        skoler.each { id ->
-            DISPATCHER.responses["/utdanning/utdanningsprogram/skole/systemid/$id".toString()] = json("""{"navn":"$id"}""")
-        }
 
         when:
         def response = query('{ skole(systemId: "S") { elevforhold { skole { navn } } } }')
 
         then:
         response.errors == null
-        response.data.skole.elevforhold*.skole*.navn == skoler
-        !DISPATCHER.targets.any { it.startsWith('/utdanning/utdanningsprogram/skole?') }
+        response.data.skole.elevforhold*.skole*.navn == ['Skolen', 'Skolen', 'Skolen']
+        DISPATCHER.targets == [SKOLE, "$COLLECTION?size=500"]
     }
 
-    def "a configured list relation is counted across parents, not per parent"() {
-        given: "each klasse is below the threshold of 3, but together they are above it"
-        def klasse = '/utdanning/elev/klasse'
-        def medlemskap = '/utdanning/elev/klassemedlemskap'
-        def entry = { String id ->
-            """{"systemId":{"identifikatorverdi":"$id"},"_links":{"self":[{"href":"$BASE$medlemskap/systemid/$id"}]}}"""
-        }
-        def klasseWith = { String id, List<String> ids ->
-            def links = ids.collect { """{"href":"$BASE$medlemskap/systemid/$it"}""" }.join(',')
-            json("""{"systemId":{"identifikatorverdi":"$id"},"_links":{"klassemedlemskap":[$links]}}""")
-        }
-        DISPATCHER.responses[SKOLE] = json("""{"navn":"Skolen","_links":{"klasse":[
-                {"href":"$BASE$klasse/systemid/K1"},{"href":"$BASE$klasse/systemid/K2"}]}}""")
-        DISPATCHER.responses["$klasse/systemid/K1".toString()] = klasseWith('K1', ['M-1', 'M-2'])
-        DISPATCHER.responses["$klasse/systemid/K2".toString()] = klasseWith('K2', ['M-3', 'M-4'])
-        DISPATCHER.responses["$medlemskap?size=500".toString()] = page(['M-1', 'M-2', 'M-3', 'M-4'].collect(entry), null)
+    def "a list relation is counted across parents, not per parent"() {
+        given: "each klasse is at the threshold of 2, but together they are above it"
+        stubKlasser(json(klasseJson('K1', ['M-1', 'M-2'])), json(klasseJson('K2', ['M-3', 'M-4'])))
 
         when:
-        def response = query('{ skole(systemId: "S") { klasse { klassemedlemskap { systemId { identifikatorverdi } } } } }')
+        def response = query(KLASSE_QUERY)
 
         then:
         response.errors == null
         response.data.skole.klasse*.klassemedlemskap*.systemId*.identifikatorverdi == [['M-1', 'M-2'], ['M-3', 'M-4']]
-        DISPATCHER.targets.count("$medlemskap?size=500".toString()) == 1
-        !DISPATCHER.targets.any { it.startsWith("$medlemskap/systemid/") }
+        DISPATCHER.targets.count("$MEDLEMSKAP?size=500".toString()) == 1
+        !DISPATCHER.targets.any { it.startsWith("$MEDLEMSKAP/systemid/") }
+    }
+
+    def "a slow parent holds its level back so its links still join the same walk"() {
+        given:
+        def slow = new MockResponse.Builder().code(200).setHeader(HttpHeaders.CONTENT_TYPE, 'application/json')
+                .body(klasseJson('K2', ['M-3', 'M-4'])).bodyDelay(500, TimeUnit.MILLISECONDS).build()
+        stubKlasser(json(klasseJson('K1', ['M-1', 'M-2'])), slow)
+
+        when:
+        def response = query(KLASSE_QUERY)
+
+        then:
+        response.errors == null
+        response.data.skole.klasse*.klassemedlemskap*.systemId*.identifikatorverdi == [['M-1', 'M-2'], ['M-3', 'M-4']]
+        DISPATCHER.targets.count("$MEDLEMSKAP?size=500".toString()) == 1
+        !DISPATCHER.targets.any { it.startsWith("$MEDLEMSKAP/systemid/") }
+    }
+
+    def "the same relation at different depths of a query completes without extra requests"() {
+        given:
+        DISPATCHER.responses[SKOLE] = json("""{"navn":"Skolen","_links":{
+                "elevforhold":[${['EF-1', 'EF-2', 'EF-3'].collect { """{"href":"$BASE$COLLECTION/systemid/$it"}""" }.join(',')}],
+                "klasse":[{"href":"$BASE$KLASSE/systemid/K1"}]}}""")
+        DISPATCHER.responses["$KLASSE/systemid/K1".toString()] = json(klasseJson('K1', ['M-1', 'M-2', 'M-3']))
+        DISPATCHER.responses["$COLLECTION?size=500".toString()] = page([
+                elevforhold('EF-1', 'E-1'), elevforhold('EF-2', 'E-2'), elevforhold('EF-3', 'E-3')], null)
+        DISPATCHER.responses["$ELEV?size=500".toString()] = page([elev('E-1'), elev('E-2'), elev('E-3')], null)
+        DISPATCHER.responses["$MEDLEMSKAP?size=500".toString()] = page(['1', '2', '3'].collect { index ->
+            """{"systemId":{"identifikatorverdi":"M-$index"},"_links":{
+                "self":[{"href":"$BASE$MEDLEMSKAP/systemid/M-$index"}],
+                "elevforhold":[{"href":"$BASE$COLLECTION/systemid/EF-$index"}]}}"""
+        }, null)
+
+        when:
+        def response = query("""{ skole(systemId: "S") {
+            elevforhold { $ELEV_FIELD }
+            klasse { klassemedlemskap { elevforhold { $ELEV_FIELD } } }
+        } }""")
+
+        then:
+        response.errors == null
+        response.data.skole.elevforhold*.elev*.systemId*.identifikatorverdi == ['E-1', 'E-2', 'E-3']
+        response.data.skole.klasse[0].klassemedlemskap*.elevforhold*.elev*.systemId*.identifikatorverdi == ['E-1', 'E-2', 'E-3']
+        DISPATCHER.targets.toSet() == [SKOLE, "$KLASSE/systemid/K1", "$COLLECTION?size=500", "$ELEV?size=500", "$MEDLEMSKAP?size=500"]*.toString().toSet()
+        DISPATCHER.targets.size() == 5
+    }
+
+    private static void stubKlasser(MockResponse first, MockResponse second) {
+        DISPATCHER.responses[SKOLE] = json("""{"navn":"Skolen","_links":{"klasse":[
+                {"href":"$BASE$KLASSE/systemid/K1"},{"href":"$BASE$KLASSE/systemid/K2"}]}}""")
+        DISPATCHER.responses["$KLASSE/systemid/K1".toString()] = first
+        DISPATCHER.responses["$KLASSE/systemid/K2".toString()] = second
+        DISPATCHER.responses["$MEDLEMSKAP?size=500".toString()] = page(['M-1', 'M-2', 'M-3', 'M-4'].collect { id ->
+            """{"systemId":{"identifikatorverdi":"$id"},"_links":{"self":[{"href":"$BASE$MEDLEMSKAP/systemid/$id"}]}}"""
+        }, null)
+    }
+
+    private static String klasseJson(String id, List<String> medlemskapIds) {
+        def links = medlemskapIds.collect { """{"href":"$BASE$MEDLEMSKAP/systemid/$it"}""" }.join(',')
+        """{"systemId":{"identifikatorverdi":"$id"},"_links":{"klassemedlemskap":[$links]}}"""
     }
 
     private Map query(String query) {

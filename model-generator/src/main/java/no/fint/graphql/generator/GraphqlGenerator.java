@@ -226,7 +226,7 @@ public final class GraphqlGenerator {
                             if (links.isEmpty()) {
                                 return CompletableFuture.completedFuture(List.of());
                             }
-                            return relationPageFetcher.prefetch("%s", "%s", links, %sResource.class, dfe)
+                            return relationPageFetcher.prefetch(links, %sResource.class, dfe)
                                     .thenMany(Flux.fromIterable(links))
                                     .map(Link::getHref)
                                     .flatMapSequential(href -> %sService.get%sResource(href, dfe)
@@ -240,9 +240,9 @@ public final class GraphqlGenerator {
                                             .map(opt -> opt.orElse(null))
                                             .collect(Collectors.toList()))
                                     .toFuture();
-                    """.formatted(type.lowerName(), upper(relation.name()), type.name, relation.name(), relation.target().name, relation.target().lowerName(), relation.target().name));
+                    """.formatted(type.lowerName(), upper(relation.name()), relation.target().name, relation.target().lowerName(), relation.target().name));
             else text.append("""
-                            return relationPageFetcher.prefetchSingle("%s", "%s", %s.get%s(), %sResource.class, dfe)
+                            return relationPageFetcher.prefetch(%s.get%s(), %sResource.class, dfe)
                                     .thenMany(Flux.fromStream(%s.get%s()
                                     .stream()
                                     .map(Link::getHref)
@@ -250,7 +250,7 @@ public final class GraphqlGenerator {
                                     .flatMap(Mono::flux)
                                     .next()
                                     .toFuture();
-                    """.formatted(type.name, relation.name(), type.lowerName(), upper(relation.name()), relation.target().name,
+                    """.formatted(type.lowerName(), upper(relation.name()), relation.target().name,
                     type.lowerName(), upper(relation.name()), relation.target().lowerName(), relation.target().name));
             text.append("    }\n\n");
         }

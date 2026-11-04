@@ -60,52 +60,46 @@ WebClient-oppslag, og nye oppslag for spørringen stoppes.
 
 ## Paginering av store relasjoner
 
-Listerelasjoner hentes normalt med ett oppslag per lenke. Når en relasjon peker på
-flere ressurser enn `fint.graphql.relation-pagination.threshold` (standard 50) i
-samme samling, for eksempel `elevforhold` på en stor `Skole`, leses i stedet
-samlingen side for side med `fint.graphql.relation-pagination.page-size` (standard
-500) ressurser per side. Klienten følger `_links.next` til det ikke finnes flere
-sider, eller til alle ønskede ressurser er funnet. Dette gjelder alle
-listerelasjoner og endrer ikke GraphQL-skjemaet.
+Relasjoner hentes normalt med ett oppslag per lenke. En resolver ser bare lenkene til
+sin egen overordnede ressurs, så alle lenker samles først opp på tvers av alle
+ressurser på samme nivå i spørringen. Når et nivå ønsker flere ulike ressurser fra
+samme samling enn `fint.graphql.relation-pagination.threshold` (standard 50), leses
+samlingen i stedet side for side, med `fint.graphql.relation-pagination.page-size`
+(standard 500) ressurser per side. Dette gjelder alle relasjoner, også de med én
+verdi, og endrer ikke GraphQL-skjemaet.
+
+| På ett nivå i spørringen | Ulike ressurser | Resultat |
+|---|---|---|
+| 2000 `elevforhold` → `elev` | 2000 | Én gjennomgang av samlingen |
+| 2000 `elevforhold` → `skole` | 1 | Ett oppslag, deretter buffer |
+| 30 `klasse` → 30 `klassemedlemskap` hver | 900 | Én gjennomgang av samlingen |
+| 1 `elevforhold` → `elev` | 1 | Ett oppslag |
+
+Klienten følger `_links.next` til det ikke finnes flere sider, til alle ønskede
+ressurser er funnet, eller til enkeltoppslag blir billigst. Det siste vurderes etter
+hver side ut fra `total_items`: gjenstår det minst like mange sider som ressurser,
+hentes resten enkeltvis. Da koster 60 elever av 50 000 én side og 60 oppslag, ikke
+100 sider. Vurderingen teller bare antall kall, selv om sider leses én om gangen
+mens enkeltoppslag går parallelt.
 
 - Ressurser kobles til relasjonen via selvlenkene sine. FINT lager én selvlenke per
   utfylt identifikator, så dette virker uavhengig av hvilken identifikator lenken
   bruker. Feltnavnet sammenlignes uten hensyn til store og små bokstaver, verdien
   med.
 - Ressurser som ikke ble funnet, hentes enkeltvis som før. Det gjelder også resten
-  av relasjonen hvis en side feiler. En ressurs som ikke finnes, gir fortsatt `null`
-  på sin plass i listen.
+  hvis en side feiler. Feil på et enkeltoppslag gir samme resultat som før.
 - Sider bruker samme token, organisasjon, stikontroll og samtidighetsbegrensning som
   andre oppslag, og `next`-lenker sendes alltid til `fint.endpoint.root`.
 - Sider lagres ikke i oppslagsbufferen, så en gjennomgang holder høyst én side i
-  minnet. Bare ønskede ressurser beholdes. Identiske relasjoner i samme spørring
-  deler én gjennomgang.
-- Enkeltvis henting kan i praksis velges ved å sette terskelen svært høyt.
+  minnet. Bare ønskede ressurser beholdes.
+- Et nivå venter til alle resolvere på nivået har kjørt, så en treg overordnet
+  ressurs forsinker hele nivået.
+- Enkeltvis henting kan i praksis velges ved å sette terskelen svært høyt. Ugyldige
+  verdier stopper oppstarten.
 
-Terskelen kan settes per relasjon under `relations`, som
-`<overordnet type>: <relasjon>: <terskel>`:
-
-```yaml
-fint:
-  graphql:
-    relation-pagination:
-      relations:
-        elevforhold:
-          elev: 1
-```
-
-En relasjon som er satt opp slik, telles på tvers av alle overordnede ressurser på
-samme nivå i spørringen, ikke per ressurs. Det gjør at dette også virker for relasjoner
-med én verdi: `elev` på 2000 `elevforhold` gir 2000 ulike elever og én gjennomgang av
-samlingen, i stedet for 2000 oppslag. Verdien er en øvre grense som må overskrides, så
-med `1` hentes én enkelt elev fortsatt direkte, mens to eller flere leses fra sider.
-Bruk `0` for å alltid lese fra sider. Relasjoner med én verdi som ikke er satt opp,
-hentes alltid enkeltvis. Navnene sammenlignes uten hensyn til store og små bokstaver.
-Ugyldige verdier stopper oppstarten.
-
-`spring.http.codecs.max-in-memory-size` (16 MB i `application.yml`) begrenser hvert svar og må
-økes sammen med sidestørrelsen ved behov. `fint.webclient.response-timeout` gjelder
-også for hver side.
+`spring.http.codecs.max-in-memory-size` (16 MB i `application.yml`) begrenser hvert
+svar og må økes sammen med sidestørrelsen ved behov. `fint.webclient.response-timeout`
+gjelder også for hver side.
 
 ## Modulene og kodegenerering
 

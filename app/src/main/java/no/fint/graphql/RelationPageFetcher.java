@@ -29,14 +29,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * Loads large relation lists by walking the target collection's pages instead of requesting
- * every resource on its own. Found resources are placed in the query cache under the relation's
- * own link, so the resolver's ordinary per-link lookup picks them up. Anything a walk does not
- * find, for any reason, is simply requested on its own as before.
+ * Loads large relations by walking the target collection's pages instead of requesting every
+ * resource on its own. Found resources are placed in the query cache under the relation's own
+ * link, so the resolver's ordinary per-link lookup picks them up. Anything a walk does not find,
+ * for any reason, is simply requested on its own as before.
+ *
+ * <p>A resolver only sees the links of one parent, so one elev per elevforhold would never look
+ * large. All links therefore go through a DataLoader, which holds them back until every resolver
+ * at the same query level has run. The threshold then counts the distinct resources wanted from
+ * a collection across all parents, and they share one walk.
  *
  * <p>Entries are matched on their self links rather than on systemId. FINT generates one self
  * link per populated identifier, so this works for relations using any identifier and needs no
@@ -64,63 +68,37 @@ public class RelationPageFetcher {
         batchLoaderRegistry.<BatchKey, Object>forName(BATCH_LOADER).registerMappedBatchLoader(this::loadBatch);
     }
 
-    /** For list relations. Completes when the query cache holds what the pages could provide. Never fails on a page error. */
-    public <T> Mono<Void> prefetch(String parent, String relation, List<Link> links, Class<T> type,
-                                   DataFetchingEnvironment dfe) {
-        if (settings.configuredThreshold(parent, relation).isPresent()) {
-            return loadWithSiblings(new RelationKey(parent, relation, type), links, dfe);
-        }
-        return walkLargeCollections(links.stream().map(Link::getHref).toList(), settings.getThreshold(), type, dfe);
-    }
-
-    /** For single-valued relations, which are only ever read from pages when configured. */
-    public <T> Mono<Void> prefetchSingle(String parent, String relation, List<Link> links, Class<T> type,
-                                         DataFetchingEnvironment dfe) {
-        if (settings.configuredThreshold(parent, relation).isEmpty()) {
-            return Mono.empty();
-        }
-        return loadWithSiblings(new RelationKey(parent, relation, type), links, dfe);
-    }
-
     /**
-     * Each parent's resolver only sees its own links. Going through a DataLoader holds them back
-     * until every resolver at this query level has run, so they are counted together and share
-     * one walk. This must be called while the resolver runs, not on subscription.
+     * Completes when the query cache holds what the pages could provide. Never fails on a page
+     * error. The links are registered immediately, because the DataLoader must see them while the
+     * resolver runs and not on subscription.
      */
-    private Mono<Void> loadWithSiblings(RelationKey relation, List<Link> links, DataFetchingEnvironment dfe) {
+    public <T> Mono<Void> prefetch(List<Link> links, Class<T> type, DataFetchingEnvironment dfe) {
         DataLoader<BatchKey, Object> loader = dfe.getDataLoader(BATCH_LOADER);
         CompletableFuture<?>[] loads = links.stream()
                 .map(Link::getHref)
                 .filter(StringUtils::isNotBlank)
-                .map(href -> loader.load(new BatchKey(relation, href), dfe))
+                .map(href -> loader.load(new BatchKey(href, type), dfe))
                 .toArray(CompletableFuture[]::new);
         return Mono.fromFuture(CompletableFuture.allOf(loads));
     }
 
     private Mono<Map<BatchKey, Object>> loadBatch(Set<BatchKey> keys, BatchLoaderEnvironment environment) {
         DataFetchingEnvironment dfe = (DataFetchingEnvironment) environment.getKeyContextsList().getFirst();
-        Map<RelationKey, List<String>> byRelation = keys.stream().collect(Collectors.groupingBy(
-                BatchKey::relation, Collectors.mapping(BatchKey::href, Collectors.toList())));
-        return Flux.fromIterable(byRelation.entrySet())
-                .flatMap(batch -> {
-                    RelationKey relation = batch.getKey();
-                    int threshold = settings.configuredThreshold(relation.parent(), relation.name()).orElseThrow();
-                    return walkLargeCollections(batch.getValue(), threshold, relation.type(), dfe);
-                })
+        Map<Class<?>, List<String>> hrefsByType = keys.stream().collect(Collectors.groupingBy(
+                BatchKey::type, Collectors.mapping(BatchKey::href, Collectors.toList())));
+        return Flux.fromIterable(hrefsByType.entrySet())
+                .flatMap(batch -> walkLargeCollections(batch.getValue(), batch.getKey(), dfe))
                 // The loaded values are unused: resolvers read the query cache afterwards.
                 .then(Mono.just(Map.of()));
     }
 
-    private <T> Mono<Void> walkLargeCollections(List<String> hrefs, int threshold, Class<T> type,
-                                                DataFetchingEnvironment dfe) {
-        if (hrefs.size() <= threshold) {
-            return Mono.empty();
-        }
+    private <T> Mono<Void> walkLargeCollections(List<String> hrefs, Class<T> type, DataFetchingEnvironment dfe) {
         return Flux.fromIterable(groupByCollection(hrefs).entrySet())
-                .filter(group -> group.getValue().size() > threshold)
+                .filter(group -> group.getValue().size() > settings.getThreshold())
                 .flatMap(group -> webClientRequest.oncePerQuery(
                         walkKey(group.getKey(), group.getValue()), type,
-                        () -> walk(group.getKey(), group.getValue(), type, dfe), dfe))
+                        () -> new Walk<>(group.getKey(), group.getValue(), type, dfe).run(), dfe))
                 .then();
     }
 
@@ -136,71 +114,95 @@ public class RelationPageFetcher {
         return collections;
     }
 
-    /** Identical relations in one query, such as a parent reached by several paths, share a walk. */
     private String walkKey(String collection, Map<String, Set<String>> wanted) {
         String ids = new TreeSet<>(wanted.keySet()).toString();
         return "relation-pages:" + collection + ":" + Hashing.murmur3_128().hashUnencodedChars(ids);
     }
 
-    private <T> Mono<Void> walk(String collection, Map<String, Set<String>> wanted, Class<T> type,
-                                DataFetchingEnvironment dfe) {
-        Map<String, Set<String>> remaining = new HashMap<>(wanted);
-        AtomicInteger pages = new AtomicInteger();
-        int pageSize = settings.getPageSize();
-        String firstPage = collection + "?size=" + pageSize;
-        Set<String> visited = new HashSet<>(Set.of(firstPage));
-        return fetchPage(firstPage, remaining, pages, type, dfe)
-                .expand(page -> {
-                    String next = remaining.isEmpty() ? null : nextPage(page);
-                    // Page contents are not cached, but a repeating next link must still not loop.
-                    return next != null && visited.add(next)
-                            ? fetchPage(next, remaining, pages, type, dfe)
-                            : Mono.empty();
-                })
-                .then()
-                .doOnSuccess(ignored -> log.info(
-                        "Relation pages: collection={} wanted={} notFound={} pages={} pageSize={}",
-                        LogSanitizer.singleLine(collection), wanted.size(), remaining.size(), pages.get(), pageSize))
-                .onErrorResume(ex -> {
-                    log.warn("Relation pages failed, requesting the remaining {} of {} individually: collection={} pages={} cause={}",
-                            remaining.size(), wanted.size(), LogSanitizer.singleLine(collection), pages.get(),
-                            LogSanitizer.singleLine(String.valueOf(ex.getMessage())));
-                    return Mono.empty();
-                });
-    }
+    /** One pass over a collection's pages. Pages are read one at a time, so its state needs no locking. */
+    private final class Walk<T> {
+        private final String collection;
+        private final int wantedCount;
+        private final Map<String, Set<String>> remaining;
+        private final Class<T> type;
+        private final DataFetchingEnvironment dfe;
+        private final int pageSize = settings.getPageSize();
+        private final Set<String> visited = new HashSet<>();
+        private int pages;
+        private long entriesSeen;
 
-    private <T> Mono<JsonNode> fetchPage(String uri, Map<String, Set<String>> remaining, AtomicInteger pages,
-                                         Class<T> type, DataFetchingEnvironment dfe) {
-        return webClientRequest.getUncached(uri, JsonNode.class, dfe)
-                .doOnNext(page -> {
-                    pages.incrementAndGet();
-                    collectWanted(page, remaining, type, dfe);
-                });
-    }
+        private Walk(String collection, Map<String, Set<String>> wanted, Class<T> type, DataFetchingEnvironment dfe) {
+            this.collection = collection;
+            this.wantedCount = wanted.size();
+            this.remaining = new HashMap<>(wanted);
+            this.type = type;
+            this.dfe = dfe;
+        }
 
-    private <T> void collectWanted(JsonNode page, Map<String, Set<String>> remaining, Class<T> type,
-                                   DataFetchingEnvironment dfe) {
-        for (JsonNode entry : page.path("_embedded").path("_entries")) {
-            T resource = null;
-            for (JsonNode self : entry.path("_links").path("self")) {
-                Set<String> hrefs = parse(self.path("href").asString(""))
-                        .map(id -> remaining.remove(id.id()))
-                        .orElse(null);
-                if (hrefs == null) {
-                    continue;
-                }
-                if (resource == null) {
-                    resource = objectMapper.treeToValue(entry, type);
-                }
-                for (String href : hrefs) {
-                    webClientRequest.primeQueryCache(href, type, resource, dfe);
+        private Mono<Void> run() {
+            return fetchPage(collection + "?size=" + pageSize)
+                    .expand(page -> {
+                        String next = nextPage(page);
+                        return next == null || remaining.isEmpty() || individualRequestsAreCheaper(page)
+                                ? Mono.empty()
+                                : fetchPage(next);
+                    })
+                    .then()
+                    .doOnSuccess(ignored -> log.info(
+                            "Relation pages: collection={} wanted={} individually={} pages={} pageSize={}",
+                            LogSanitizer.singleLine(collection), wantedCount, remaining.size(), pages, pageSize))
+                    .onErrorResume(ex -> {
+                        log.warn("Relation pages failed, requesting the remaining {} of {} individually: collection={} pages={} cause={}",
+                                remaining.size(), wantedCount, LogSanitizer.singleLine(collection), pages,
+                                LogSanitizer.singleLine(String.valueOf(ex.getMessage())));
+                        return Mono.empty();
+                    });
+        }
+
+        private Mono<JsonNode> fetchPage(String uri) {
+            // Page contents are not cached, but a repeating next link must still not loop.
+            if (!visited.add(uri)) {
+                return Mono.empty();
+            }
+            return webClientRequest.getUncached(uri, JsonNode.class, dfe).doOnNext(page -> {
+                pages++;
+                collectWanted(page);
+            });
+        }
+
+        private void collectWanted(JsonNode page) {
+            for (JsonNode entry : page.path("_embedded").path("_entries")) {
+                entriesSeen++;
+                T resource = null;
+                for (JsonNode self : entry.path("_links").path("self")) {
+                    Set<String> hrefs = parse(self.path("href").asString(""))
+                            .map(id -> remaining.remove(id.id()))
+                            .orElse(null);
+                    if (hrefs == null) {
+                        continue;
+                    }
+                    if (resource == null) {
+                        resource = objectMapper.treeToValue(entry, type);
+                    }
+                    for (String href : hrefs) {
+                        webClientRequest.primeQueryCache(href, type, resource, dfe);
+                    }
                 }
             }
         }
-    }
 
-    private String nextPage(JsonNode page) {
-        return StringUtils.trimToNull(page.path("_links").path("next").path(0).path("href").asString(""));
+        /**
+         * Finding a few resources should not cost many pages, for example 60 elever out of 50,000.
+         * Checked after every page, since the answer changes as the walk finds what it wants.
+         */
+        private boolean individualRequestsAreCheaper(JsonNode page) {
+            long totalItems = page.path("total_items").asLong(-1);
+            return totalItems >= 0 && Math.ceilDiv(totalItems - entriesSeen, pageSize) >= remaining.size();
+        }
+
+        private String nextPage(JsonNode page) {
+            return StringUtils.trimToNull(page.path("_links").path("next").path(0).path("href").asString(""));
+        }
     }
 
     /**
@@ -229,7 +231,5 @@ public class RelationPageFetcher {
 
     private record ResourceId(String collection, String id) { }
 
-    private record RelationKey(String parent, String name, Class<?> type) { }
-
-    private record BatchKey(RelationKey relation, String href) { }
+    private record BatchKey(String href, Class<?> type) { }
 }
