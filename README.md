@@ -188,12 +188,6 @@ Hver spørring gir én JSON-logglinje, `GraphQL query completed`, med feltene `q
 - `durationMs` måles i GraphQL-laget og tar ikke med skriving av svaret til klienten.
 - Spørringer som ikke kan parses, logges uten `operation`, `queryHash` og `query`.
 
-`grafana/graphql-queries.json` er et Grafana-dashboard som leser disse linjene fra Loki. Grafen viser
-én linje per spørring opp til 120 sekunder, med markering ved 110 sekunder (`fint.graphql.query-timeout`)
-og 120 sekunder (gatewayen). Klikk på en linje for å se klient, varighet og spørring, eller på en
-`queryHash` for å vise bare den spørringsformen. Sett `Log stream` til Lokis etiketter for tjenesten
-ved import. Grafen viser de siste 5000 spørringene i tidsrommet, og historikken følger Lokis retention.
-
 ## Container
 
 ```sh

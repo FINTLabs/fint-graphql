@@ -27,7 +27,7 @@ import tools.jackson.databind.ObjectMapper
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
-/** The line the query dashboard reads, from a real request through to the production JSON format. */
+/** Sends real requests through the application and checks the log line in the production JSON format. */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = [Application, TestJwtDecoderConfig],
