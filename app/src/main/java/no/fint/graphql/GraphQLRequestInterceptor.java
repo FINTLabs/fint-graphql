@@ -2,6 +2,7 @@ package no.fint.graphql;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
@@ -12,16 +13,17 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import reactor.core.publisher.Mono;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 public class GraphQLRequestInterceptor implements WebGraphQlInterceptor {
     private final GraphQLQueryIdProvider queryIdProvider;
+    private final long requestCacheMaximumSize;
 
-    public GraphQLRequestInterceptor(GraphQLQueryIdProvider queryIdProvider) {
+    public GraphQLRequestInterceptor(GraphQLQueryIdProvider queryIdProvider,
+            @Value("${fint.webclient.request-cache-maximum-size:10000}") long requestCacheMaximumSize) {
         this.queryIdProvider = queryIdProvider;
+        this.requestCacheMaximumSize = requestCacheMaximumSize;
     }
 
     @Override
@@ -33,12 +35,12 @@ public class GraphQLRequestInterceptor implements WebGraphQlInterceptor {
         long startNanos = System.nanoTime();
         servletRequest.setAttribute(GraphQLRequestAttributes.QUERY_ID, queryId);
         servletRequest.setAttribute(GraphQLRequestAttributes.QUERY_START_NANOS, startNanos);
-        servletRequest.setAttribute(GraphQLRequestAttributes.REQUEST_COUNTER, new AtomicLong());
+        GraphQLQueryContext queryContext = GraphQLQueryContext.capture(servletRequest, requestCacheMaximumSize);
         request.configureExecutionInput((input, builder) -> builder.graphQLContext(context -> {
-            context.put(HttpServletRequest.class, servletRequest);
+            context.put(GraphQLQueryContext.class, queryContext);
             context.put(GraphQLRequestAttributes.ALLOWED_PATH_PREFIXES,
-                    GraphQLRequestAttributes.getAllowedPathPrefixes(servletRequest));
-            String organisationId = GraphQLRequestAttributes.getOrganisationId(servletRequest);
+                    queryContext.getAllowedPathPrefixes());
+            String organisationId = queryContext.getOrganisationId();
             if (organisationId != null) {
                 context.put(GraphQLRequestAttributes.ORGANISATION_ID, organisationId);
             }
@@ -47,7 +49,10 @@ public class GraphQLRequestInterceptor implements WebGraphQlInterceptor {
                 LogSanitizer.singleLine(servletRequest.getRequestURI()),
                 LogSanitizer.singleLine(servletRequest.getHeader(GraphQLRequestAttributes.CLIENT_HEADER)),
                 LogSanitizer.singleLine(servletRequest.getRemoteAddr()));
-        return chain.next(request).doFinally(signal -> log.info(
-                "GraphQL query completed queryId={} durationMs={}", queryId, (System.nanoTime() - startNanos) / 1_000_000));
+        return chain.next(request).doFinally(signal -> {
+            queryContext.finish();
+            log.info("GraphQL query completed queryId={} durationMs={}",
+                    queryId, (System.nanoTime() - startNanos) / 1_000_000);
+        });
     }
 }

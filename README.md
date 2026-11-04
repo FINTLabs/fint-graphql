@@ -38,11 +38,25 @@ Byggepluginenes classpath har fortsatt en minimumsversjon av Commons Lang
 forespørsler og Spring sine blokkerende GraphQL-metoder. WebClient og eksisterende
 asynkrone resolvere beholder sin reaktive kjøring og tilkoblingsbegrensning.
 
-`fint.graphql.query-timeout` og `fint.graphql.async-request-timeout` beholdes.
-Den minste positive verdien brukes som frist; hvis begge er null eller negative,
-settes ingen GraphQL-frist. Tidsavbrudd gir fortsatt HTTP 200 med feilkoden
-`QUERY_TIMEOUT` for JSON-klienter. Spring MVC sin separate frist er deaktivert
-slik at den ikke konkurrerer med GraphQL-svaret.
+API-et som applikasjonen henter data fra, er tregt, og spørringer kan omfatte
+store datamengder. Brannmuren setter en øvre grense på 120 sekunder for brukerens
+forespørsel. Derfor er `fint.graphql.query-timeout` satt til 110 sekunder:
+spørringen får tid til å hente data, samtidig som applikasjonen har en margin
+til å returnere et GraphQL-svar før brannmuren bryter forbindelsen.
+Ved tidsavbrudd får JSON-klienter HTTP 200 med feilkoden `QUERY_TIMEOUT`.
+
+`fint.graphql.async-request-timeout` setter Tomcat sin async-frist til 115 sekunder,
+slik at GraphQL-fristen på 110 sekunder rekker å utløse og svaret kan skrives.
+Tomcat-fristen settes eksplisitt for å unngå standardfristen på 30 sekunder.
+Spring MVC sin separate frist er deaktivert. Ved egendefinerte verdier begrenses
+GraphQL-fristen til før servlet-fristen med en margin på 10 prosent, maksimalt
+ett sekund. Hvis begge verdiene er null eller negative, deaktiveres begge
+fristene i applikasjonen; brannmurens grense på 120 sekunder gjelder fortsatt.
+
+Autorisasjon, organisasjon, tillatte stier, tellere og oppslagsbuffer tilhører
+GraphQL-spørringen og krever ikke servlet-requesten under asynkrone oppslag.
+Når spørringen avsluttes eller avbrytes, kanselleres aktive og ventende
+WebClient-oppslag, og nye oppslag for spørringen stoppes.
 
 ## Modulene og kodegenerering
 

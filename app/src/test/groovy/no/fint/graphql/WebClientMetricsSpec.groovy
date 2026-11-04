@@ -6,7 +6,6 @@ import io.micrometer.core.instrument.config.MeterFilter
 import io.micrometer.core.instrument.observation.DefaultMeterObservationHandler
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.micrometer.observation.ObservationRegistry
-import jakarta.servlet.http.HttpServletRequest
 import no.fint.graphql.config.ConnectionProviderSettings
 import no.fint.graphql.model.ResourceRoutes
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
@@ -128,8 +127,9 @@ class WebClientMetricsSpec extends Specification {
         given:
         def client = requestClient { Mono.just(ClientResponse.create(HttpStatusCode.valueOf(200)).body('ok').build()) }
         def servlet = servletRequest()
+        def context = GraphQLContext.of([(GraphQLQueryContext): GraphQLQueryContext.capture(servlet, 10000)])
         def dfe = Stub(DataFetchingEnvironment) {
-            getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest): servlet])
+            getGraphQlContext() >> context
             getArguments() >> [navn: 'A%2FB']
         }
 
@@ -146,13 +146,14 @@ class WebClientMetricsSpec extends Specification {
             exchange.call(request)
         }.build()
         new WebClientRequest(webClient, new ConnectionProviderSettings(), 'http://downstream.example',
-                'beta.example', 'maximumSize=100,expireAfterWrite=1m', 10000, 'V4', new GraphQLQueryIdProvider(), catalog)
+                'beta.example', 'maximumSize=100,expireAfterWrite=1m', 'V4', new GraphQLQueryIdProvider(), catalog)
     }
 
     private DataFetchingEnvironment environment() {
         def servlet = servletRequest()
+        def context = GraphQLContext.of([(GraphQLQueryContext): GraphQLQueryContext.capture(servlet, 10000)])
         Stub(DataFetchingEnvironment) {
-            getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest): servlet])
+            getGraphQlContext() >> context
         }
     }
 

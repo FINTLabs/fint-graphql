@@ -6,6 +6,7 @@ import no.fint.graphql.model.model.rolle.RolleService
 import no.novari.fint.model.felles.kompleksedatatyper.Identifikator
 import no.novari.fint.model.resource.administrasjon.fullmakt.RolleResource
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
@@ -73,7 +74,7 @@ class GraphQLQueryTimeoutSpec extends Specification {
     static class TimeoutTestConfig {
         @Bean
         @Primary
-        RolleService slowRolleService() {
+        RolleService slowRolleService(@Value('${test.resolver-delay:PT1S}') Duration delay) {
             return new RolleService() {
                 @Override
                 Mono<RolleResource> getRolleResourceById(String id, String value, DataFetchingEnvironment dfe) {
@@ -84,7 +85,7 @@ class GraphQLQueryTimeoutSpec extends Specification {
                     def navn = new Identifikator()
                     navn.setIdentifikatorverdi("SLOW")
                     rolle.setNavn(navn)
-                    return Mono.delay(Duration.ofSeconds(1)).thenReturn(rolle)
+                    return Mono.delay(delay).thenReturn(rolle)
                 }
             }
         }

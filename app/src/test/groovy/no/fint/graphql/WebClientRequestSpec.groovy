@@ -27,6 +27,9 @@ import no.fint.graphql.config.WebClientConfig
 import jakarta.servlet.http.HttpServletRequest
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicBoolean
+import reactor.test.StepVerifier
+import spock.util.concurrent.PollingConditions
 import java.util.concurrent.TimeUnit
 
 class WebClientRequestSpec extends Specification {
@@ -44,7 +47,6 @@ class WebClientRequestSpec extends Specification {
             url,
             'beta.felleskomponent.no',
             'maximumSize=1,expireAfterWrite=1s',
-            10000,
             'V4',
             queryIdProvider,
             routeCatalog)
@@ -78,7 +80,6 @@ class WebClientRequestSpec extends Specification {
                 server.url('/').toString(),
                 configuredHost,
                 'maximumSize=1,expireAfterWrite=1s',
-                10000,
                 'V4',
                 queryIdProvider,
                 routeCatalog
@@ -140,7 +141,6 @@ class WebClientRequestSpec extends Specification {
                 server.url('/').toString(),
                 configuredHost,
                 'maximumSize=1,expireAfterWrite=1s',
-                10000,
                 'V4',
                 queryIdProvider,
                 routeCatalog
@@ -224,7 +224,6 @@ class WebClientRequestSpec extends Specification {
                 requestRoot,
                 'beta.felleskomponent.no',
                 'maximumSize=1,expireAfterWrite=1s',
-                10000,
                 'V4',
                 queryIdProvider,
                 routeCatalog
@@ -307,7 +306,6 @@ class WebClientRequestSpec extends Specification {
                 url,
                 'beta.felleskomponent.no',
                 'maximumSize=1,expireAfterWrite=1s',
-                10000,
                 'V4',
                 queryIdProvider,
                 routeCatalog
@@ -362,7 +360,6 @@ class WebClientRequestSpec extends Specification {
                 url,
                 'beta.felleskomponent.no',
                 'maximumSize=1,expireAfterWrite=1s',
-                10000,
                 'V4',
                 queryIdProvider,
                 routeCatalog
@@ -412,7 +409,7 @@ class WebClientRequestSpec extends Specification {
 
         then:
         [response.t1, response.t2].toSet() == ['one', 'two'] as Set
-        ((AtomicLong) servletRequest.getAttribute(GraphQLRequestAttributes.REQUEST_COUNTER)).get() == 2
+        dfe.graphQlContext.get(GraphQLQueryContext).nextRequestSequence() == 3
     }
 
     def "Unauthorized path prefix blocks outbound request"() {
@@ -459,8 +456,88 @@ class WebClientRequestSpec extends Specification {
         [result.t1, result.t2].toSet() == ['first', 'second'].toSet()
         requests.collect { it.headers.get('Authorization') }.toSet() == ['Bearer first', 'Bearer second'].toSet()
         requests.collect { it.headers.get('x-org-id') }.toSet() == ['org-first', 'org-second'].toSet()
-        GraphQLRequestAttributes.nextRequestSequence(first.graphQlContext.get(HttpServletRequest)) == 2
-        GraphQLRequestAttributes.nextRequestSequence(second.graphQlContext.get(HttpServletRequest)) == 2
+        first.graphQlContext.get(GraphQLQueryContext).nextRequestSequence() == 2
+        second.graphQlContext.get(GraphQLQueryContext).nextRequestSequence() == 2
+    }
+
+    def "delayed fetch uses captured credentials after servlet request recycling"() {
+        given:
+        def recycled = new AtomicBoolean()
+        def attributes = [(GraphQLRequestAttributes.QUERY_ID): 42L,
+                          (GraphQLRequestAttributes.ORGANISATION_ID): 'org-1',
+                          (GraphQLRequestAttributes.ALLOWED_PATH_PREFIXES): ['/'].toSet()]
+        def servlet = Stub(HttpServletRequest) {
+            getHeader(HttpHeaders.AUTHORIZATION) >> {
+                if (recycled.get()) throw new IllegalStateException('Request recycled')
+                'Bearer captured'
+            }
+            getAttribute(_) >> { String key ->
+                if (recycled.get()) throw new IllegalStateException('Request recycled')
+                attributes[key]
+            }
+        }
+        def dfe = createDataFetchingEnvironmentMock(servlet)
+        recycled.set(true)
+        server.enqueue(new MockResponse.Builder().code(200).body('response').build())
+
+        when:
+        def response = webClientRequest.get(url, String, dfe).block(Duration.ofSeconds(5))
+        def outbound = server.takeRequest(1, TimeUnit.SECONDS)
+
+        then:
+        response == 'response'
+        outbound.headers.get('Authorization') == 'Bearer captured'
+        outbound.headers.get('x-org-id') == 'org-1'
+        dfe.graphQlContext.get(GraphQLQueryContext).queryId == 42L
+    }
+
+    def "query completion cancels cached in-flight fetches and prevents later fetches"() {
+        given:
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ['/'], 'org-1')
+        def context = dfe.graphQlContext.get(GraphQLQueryContext)
+        server.enqueue(new MockResponse.Builder().code(200).body('late')
+                .bodyDelay(10, TimeUnit.SECONDS).build())
+
+        expect:
+        StepVerifier.create(webClientRequest.get(url, String, dfe))
+                .then {
+                    assert server.takeRequest(2, TimeUnit.SECONDS) != null
+                    context.finish()
+                }
+                .verifyComplete()
+        new PollingConditions(timeout: 2).eventually {
+            assert webClientRequest.availableConcurrencyPermits == webClientRequest.maxConcurrentRequests
+        }
+        webClientRequest.get(server.url('/later').toString(), String, dfe).block() == null
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
+        context.requestCache.estimatedSize() == 0
+    }
+
+    def "query completion removes queued fetches without starting another HTTP request"() {
+        given:
+        def constrained = new WebClientRequest(webClient, new ConnectionProviderSettings(maxConnections: 1),
+                url, 'beta.felleskomponent.no', 'maximumSize=1,expireAfterWrite=1s', 'V4',
+                queryIdProvider, routeCatalog)
+        def dfe = createDataFetchingEnvironmentMock('Bearer abc123', null, ['/'], 'org-1')
+        def context = dfe.graphQlContext.get(GraphQLQueryContext)
+        server.enqueue(new MockResponse.Builder().code(200).body('late')
+                .bodyDelay(10, TimeUnit.SECONDS).build())
+
+        expect:
+        StepVerifier.create(reactor.core.publisher.Flux.merge(
+                constrained.get(server.url('/first').toString(), String, dfe),
+                constrained.get(server.url('/queued').toString(), String, dfe)))
+                .then {
+                    assert server.takeRequest(2, TimeUnit.SECONDS) != null
+                    assert constrained.queuedConcurrencyWaiters == 1
+                    context.finish()
+                }
+                .verifyComplete()
+        new PollingConditions(timeout: 2).eventually {
+            assert constrained.availableConcurrencyPermits == 1
+            assert constrained.queuedConcurrencyWaiters == 0
+        }
+        server.takeRequest(200, TimeUnit.MILLISECONDS) == null
     }
 
     private DataFetchingEnvironment createDataFetchingEnvironmentMock(String token = null,
@@ -471,11 +548,12 @@ class WebClientRequestSpec extends Specification {
         return createDataFetchingEnvironmentMock(createServletRequest(token, allowedPrefixes, organisationId), executionId, arguments)
     }
 
-    private DataFetchingEnvironment createDataFetchingEnvironmentMock(MockHttpServletRequest request,
+    private DataFetchingEnvironment createDataFetchingEnvironmentMock(HttpServletRequest request,
                                                                       String executionId = null,
                                                                       Map<String, Object> arguments = [:]) {
+        def context = GraphQLContext.of([(GraphQLQueryContext): GraphQLQueryContext.capture(request, 10000)])
         Mock(DataFetchingEnvironment) {
-            getGraphQlContext() >> GraphQLContext.of([(HttpServletRequest.class): request])
+            getGraphQlContext() >> context
             getArguments() >> arguments
             if (executionId != null) {
                 getExecutionId() >> ExecutionId.from(executionId)
