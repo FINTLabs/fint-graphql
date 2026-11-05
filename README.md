@@ -175,6 +175,19 @@ kontroller i eksisterende overvåkning at antallet URI-etiketter er stabilt og a
 loggen ikke viser advarsler om maksimalgrensen. Actuator-eksponeringen er uendret;
 endringen åpner ikke nye metrikkeendepunkter.
 
+## Oversikt over spørringer
+
+Hver spørring gir én JSON-logglinje, `GraphQL query completed`, med feltene `queryUid`,
+`durationMs`, `outcome` (`ok`, `partial`, `error`, `timeout`, `cancelled` eller `unknown`),
+`requestCount`, `client`, `organisation`, `operation`, `queryHash` og `query`.
+
+- `query` er spørringens form. Alle verdier, aliaser og kommentarer er fjernet med graphql-javas
+  `AstSignature`, og teksten kuttes ved 10 000 tegn. Variabelverdier logges aldri.
+- `queryHash` er lik for spørringer som bare skiller seg i verdier.
+- `client` kommer fra tokenets `cn`-claim, eller `sub` hvis den mangler, ikke fra `x-client`-headeren.
+- `durationMs` måles i GraphQL-laget og tar ikke med skriving av svaret til klienten.
+- Spørringer som ikke kan parses, logges uten `operation`, `queryHash` og `query`.
+
 ## Container
 
 ```sh
