@@ -58,6 +58,45 @@ GraphQL-spørringen og krever ikke servlet-requesten under asynkrone oppslag.
 Når spørringen avsluttes eller avbrytes, kanselleres aktive og ventende
 WebClient-oppslag, og nye oppslag for spørringen stoppes.
 
+## Paginering av store relasjoner
+
+Relasjoner hentes normalt med ett oppslag per lenke. En resolver ser bare lenkene til
+sin egen overordnede ressurs, så alle lenker samles først opp på tvers av alle
+ressurser på samme nivå i spørringen. Når et nivå ønsker flere ulike ressurser fra
+samme samling enn `fint.graphql.relation-pagination.threshold` (standard 50), leses
+samlingen i stedet side for side, med `fint.graphql.relation-pagination.page-size`
+(standard 500) ressurser per side. Dette gjelder alle relasjoner, også de med én
+verdi, og endrer ikke GraphQL-skjemaet.
+
+| På ett nivå i spørringen | Ulike ressurser | Resultat |
+|---|---|---|
+| 2000 `elevforhold` → `elev` | 2000 | Én gjennomgang av samlingen |
+| 2000 `elevforhold` → `skole` | 1 | Ett oppslag, deretter buffer |
+| 30 `klasse` → 30 `klassemedlemskap` hver | 900 | Én gjennomgang av samlingen |
+| 1 `elevforhold` → `elev` | 1 | Ett oppslag |
+
+Klienten følger `_links.next` til det ikke finnes flere sider, eller til alle ønskede
+ressurser er funnet.
+
+- Ressurser kobles til relasjonen via selvlenkene sine. FINT lager én selvlenke per
+  utfylt identifikator, så dette virker uavhengig av hvilken identifikator lenken
+  bruker. Feltnavnet sammenlignes uten hensyn til store og små bokstaver, verdien
+  med.
+- Ressurser som ikke ble funnet, hentes enkeltvis som før. Det gjelder også resten
+  hvis en side feiler. Feil på et enkeltoppslag gir samme resultat som før.
+- Sider bruker samme token, organisasjon, stikontroll og samtidighetsbegrensning som
+  andre oppslag, og `next`-lenker sendes alltid til `fint.endpoint.root`.
+- Sider lagres ikke i oppslagsbufferen, så en gjennomgang holder høyst én side i
+  minnet. Bare ønskede ressurser beholdes.
+- Et nivå venter til alle resolvere på nivået har kjørt, så en treg overordnet
+  ressurs forsinker hele nivået.
+- Enkeltvis henting kan i praksis velges ved å sette terskelen svært høyt. Ugyldige
+  verdier stopper oppstarten.
+
+`spring.http.codecs.max-in-memory-size` (16 MB i `application.yml`) begrenser hvert
+svar og må økes sammen med sidestørrelsen ved behov. `fint.webclient.response-timeout`
+gjelder også for hver side.
+
 ## Modulene og kodegenerering
 
 Rotprosjektet samler `app` (Spring Boot-applikasjonen) og `model-generator`

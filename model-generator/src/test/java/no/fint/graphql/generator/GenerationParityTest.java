@@ -58,6 +58,12 @@ class GenerationParityTest {
                 expected.put(path, source);
             }
         });
+        var relations = baseline("paginated-relations");
+        assertEquals(72, relations.size(), "Review any new implementation-reference entries explicitly");
+        relations.forEach((name, source) -> {
+            assertTrue(name.startsWith("common/") && name.endsWith("Resolver.java"), name);
+            expected.put(name.substring("common/".length()), source);
+        });
         assertEquals(395, expected.size());
         return expected;
     }

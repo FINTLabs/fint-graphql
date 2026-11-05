@@ -57,7 +57,9 @@ class GraphqlGeneratorTest {
         source.outgoing.add(new Relation("foreldre", source, true, true));
         var resolver = generate(source).get("model/model/elev/ElevResolver.java");
         for (var text : List.of("@SchemaMapping(typeName = \"Elev\", field = \"elevforhold\")", "flatMapSequential", "8, 1)",
-                ".defaultIfEmpty(Optional.empty())", ".onErrorResume(WebClientResponseException.class", "opt.orElse(null)", "CompletableFuture.completedFuture(List.of())")) {
+                ".defaultIfEmpty(Optional.empty())", ".onErrorResume(WebClientResponseException.class", "opt.orElse(null)", "CompletableFuture.completedFuture(List.of())",
+                "import no.fint.graphql.RelationPageFetcher;", "private RelationPageFetcher relationPageFetcher;",
+                "relationPageFetcher.prefetch(links, ElevforholdResource.class, dfe)", ".thenMany(Flux.fromIterable(links))")) {
             assertTrue(resolver.contains(text), text);
         }
         assertFalse(resolver.contains("import no.fint.graphql.model.model.elev.ElevService;"));
@@ -66,6 +68,7 @@ class GraphqlGeneratorTest {
         resolver = generate(source).get("model/model/elev/ElevResolver.java");
         assertTrue(resolver.contains("getRegistrertAv("));
         assertTrue(resolver.contains(".next()"));
+        assertTrue(resolver.contains("relationPageFetcher.prefetch(elev.getRegistrertAv(), ElevforholdResource.class, dfe)"));
         for (var unused : List.of("java.util.List", "Optional;", "CompletableFuture;", "Collectors;", "WebClientResponseException;")) assertFalse(resolver.contains(unused), unused);
     }
 

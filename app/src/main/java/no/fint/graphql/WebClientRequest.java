@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 @Slf4j
 @Component
@@ -95,11 +96,7 @@ public class WebClientRequest {
 
     public <T> Mono<T> get(String uri, Class<T> type, DataFetchingEnvironment dfe) {
         String cacheKeyUri = normalizeRequestUri(uri);
-        GraphQLContext context = dfe != null ? dfe.getGraphQlContext() : null;
-        GraphQLQueryContext query = context != null ? context.get(GraphQLQueryContext.class) : null;
-        if (query == null) {
-            throw new MissingAuthorizationException("Missing query context");
-        }
+        GraphQLQueryContext query = queryContext(dfe);
         return Mono.defer(() -> {
             if (query.isFinished()) {
                 return Mono.empty();
@@ -112,6 +109,42 @@ public class WebClientRequest {
                             .cache());
             return mono.cast(type);
         });
+    }
+
+    /** Same access checks and limits as {@link #get}, for responses too large to keep for the whole query. */
+    public <T> Mono<T> getUncached(String uri, Class<T> type, DataFetchingEnvironment dfe) {
+        GraphQLQueryContext query = queryContext(dfe);
+        return Mono.defer(() -> query.isFinished()
+                ? Mono.<T>empty()
+                : getDirect(uri, type, query).takeUntilOther(query.completion()));
+    }
+
+    /** Makes later {@link #get} calls for this uri and type in the same query answer with the value. */
+    public <T> void primeQueryCache(String uri, Class<T> type, T value, DataFetchingEnvironment dfe) {
+        GraphQLQueryContext query = queryContext(dfe);
+        ResourceRequestKey key = new ResourceRequestKey(normalizeRequestUri(uri), type, query.getAuthorization());
+        query.getRequestCache().put(key, Mono.just(value));
+    }
+
+    /** Runs work once per key within a query. Later callers wait for the same run, and it stops with the query. */
+    public Mono<Void> oncePerQuery(String key, Class<?> type, Supplier<Mono<Void>> work, DataFetchingEnvironment dfe) {
+        GraphQLQueryContext query = queryContext(dfe);
+        ResourceRequestKey cacheKey = new ResourceRequestKey(key, type, query.getAuthorization());
+        return query.getRequestCache().get(cacheKey,
+                        ignored -> Mono.defer(work)
+                                .takeUntilOther(query.completion())
+                                .cast(Object.class)
+                                .cache())
+                .then();
+    }
+
+    private GraphQLQueryContext queryContext(DataFetchingEnvironment dfe) {
+        GraphQLContext context = dfe != null ? dfe.getGraphQlContext() : null;
+        GraphQLQueryContext query = context != null ? context.get(GraphQLQueryContext.class) : null;
+        if (query == null) {
+            throw new MissingAuthorizationException("Missing query context");
+        }
+        return query;
     }
 
     private <T> Mono<T> getDirect(String uri, Class<T> type, GraphQLQueryContext query) {
