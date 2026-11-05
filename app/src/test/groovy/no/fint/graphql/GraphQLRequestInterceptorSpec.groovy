@@ -3,6 +3,7 @@ package no.fint.graphql
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.graphql.server.WebGraphQlInterceptor
 import org.springframework.graphql.server.WebGraphQlRequest
@@ -40,7 +41,7 @@ class GraphQLRequestInterceptorSpec extends Specification {
         def chain = Mock(WebGraphQlInterceptor.Chain)
 
         when:
-        new GraphQLRequestInterceptor(new GraphQLQueryIdProvider()).intercept(request, chain).block()
+        new GraphQLRequestInterceptor(new GraphQLQueryIdProvider(), 10000).intercept(request, chain).block()
 
         then:
         1 * chain.next(request) >> Mono.empty()
@@ -59,5 +60,42 @@ class GraphQLRequestInterceptorSpec extends Specification {
 
         where:
         value << [null, '/graphql', 'client@example.no', '2001:db8::1']
+    }
+
+    def "interceptor captures query state and finishes it on cancellation"() {
+        given:
+        def servlet = new MockHttpServletRequest('POST', '/graphql')
+        servlet.addHeader(HttpHeaders.AUTHORIZATION, 'Bearer captured')
+        GraphQLRequestAttributes.setOrganisationId(servlet, 'org')
+        GraphQLRequestAttributes.setAllowedPathPrefixes(servlet, ['/allowed'].toSet())
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servlet))
+        def request = new WebGraphQlRequest(URI.create('/graphql'), new HttpHeaders(),
+                new LinkedMultiValueMap(), [:], [query: '{ __typename }'], 'request', Locale.ROOT)
+        def chain = Stub(WebGraphQlInterceptor.Chain) {
+            next(request) >> Mono.never()
+        }
+
+        when:
+        def subscription = new GraphQLRequestInterceptor(new GraphQLQueryIdProvider(), 3)
+                .intercept(request, chain).subscribe()
+        servlet.removeHeader(HttpHeaders.AUTHORIZATION)
+        GraphQLRequestAttributes.setOrganisationId(servlet, 'changed')
+        GraphQLRequestAttributes.setAllowedPathPrefixes(servlet, ['/changed'].toSet())
+        def context = request.toExecutionInput().graphQLContext
+        def query = context.get(GraphQLQueryContext)
+
+        then:
+        !context.hasKey(HttpServletRequest)
+        query.authorization == 'Bearer captured'
+        query.organisationId == 'org'
+        query.allowedPathPrefixes == ['/allowed'].toSet()
+        query.queryId == 1L
+        !query.finished
+
+        when:
+        subscription.dispose()
+
+        then:
+        query.finished
     }
 }

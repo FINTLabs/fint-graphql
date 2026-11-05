@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
@@ -26,8 +27,8 @@ import java.time.Duration
         properties = [
                 "spring.profiles.active=timeout-test",
                 "spring.main.allow-bean-definition-overriding=true",
-                "fint.graphql.query-timeout=PT2S",
-                "fint.graphql.async-request-timeout=PT0.2S"
+                "fint.graphql.query-timeout=PT5S",
+                "fint.graphql.async-request-timeout=PT2S"
         ]
 )
 @ContextConfiguration
@@ -36,6 +37,9 @@ class GraphQLAsyncTimeoutSpec extends Specification {
 
     @Autowired
     private WebTestClient webTestClient
+
+    @Autowired
+    private ServletWebServerApplicationContext applicationContext
 
     def "Async request timeout returns GraphQL timeout error within a few seconds"() {
         given:
@@ -50,6 +54,8 @@ class GraphQLAsyncTimeoutSpec extends Specification {
         body.errors?.size() == 1
         body.errors[0].extensions?.code == "QUERY_TIMEOUT"
         body.errors[0].message?.contains("timed out")
+        body.errors[0].extensions.timeoutMs == 1800
+        applicationContext.webServer.tomcat.connector.asyncTimeout == 2000
     }
 
     private String executeQuery(String query) {
@@ -84,7 +90,7 @@ class GraphQLAsyncTimeoutSpec extends Specification {
                     def navn = new Identifikator()
                     navn.setIdentifikatorverdi("SLOW")
                     rolle.setNavn(navn)
-                    return Mono.delay(Duration.ofSeconds(1)).thenReturn(rolle)
+                    return Mono.delay(Duration.ofSeconds(3)).thenReturn(rolle)
                 }
             }
         }

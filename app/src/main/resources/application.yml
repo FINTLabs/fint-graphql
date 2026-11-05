@@ -14,11 +14,18 @@ fint:
   graphql:
     async-request-timeout: PT1M55S
     query-timeout: PT1M50S
+    relation-pagination:
+      threshold: 50
+      page-size: 500
 
 server:
   forward-headers-strategy: framework
 
 spring:
+  http:
+    codecs:
+      # The 256 KB default is far too small for a page of resources.
+      max-in-memory-size: 16MB
   graphql:
     schema:
       locations: classpath:schema/**/

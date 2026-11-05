@@ -12,13 +12,14 @@ class GraphQLQueryTimeoutConfigSpec extends Specification {
         GraphQLQueryTimeoutConfig.effectiveTimeoutMillis(Duration.ofMillis(query), Duration.ofMillis(servlet)) == expected
 
         where:
-        query | servlet | expected
-        110   | 115     | 110
-        200   | 100     | 100
-        0     | 100     | 100
-        100   | 0       | 100
-        -1    | 100     | 100
-        100   | -1      | 100
-        0     | 0       | 0
+        query  | servlet | expected
+        110000 | 115000 | 110000
+        115000 | 115000 | 114000
+        200    | 100    | 90
+        0      | 100    | 90
+        100    | 0      | 100
+        -1     | 100    | 90
+        100    | -1     | 100
+        0      | 0      | 0
     }
 }
