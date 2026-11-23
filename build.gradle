@@ -1,7 +1,7 @@
 buildscript {
     dependencies {
         constraints {
-            classpath('org.apache.commons:commons-lang3:3.21.0') {
+            classpath('org.apache.commons:commons-lang3:3.22.0') {
                 because 'The build plugin classpath also needs the fix for GHSA-j288-q9x7-2f5v.'
             }
         }
