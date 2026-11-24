@@ -98,4 +98,41 @@ class GraphQLRequestInterceptorSpec extends Specification {
         then:
         query.finished
     }
+
+    def "a query the caller abandons is logged as cancelled"() {
+        given:
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest('POST', '/graphql')))
+        def request = new WebGraphQlRequest(URI.create('/graphql'), new HttpHeaders(),
+                new LinkedMultiValueMap(), [:], [query: '{ __typename }'], 'request', Locale.ROOT)
+        def chain = Stub(WebGraphQlInterceptor.Chain) {
+            next(request) >> Mono.never()
+        }
+
+        when:
+        new GraphQLRequestInterceptor(new GraphQLQueryIdProvider(), 3).intercept(request, chain).subscribe().dispose()
+
+        then:
+        outcomeLogged() == 'cancelled'
+    }
+
+    def "a failing query is logged as error"() {
+        given:
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest('POST', '/graphql')))
+        def request = new WebGraphQlRequest(URI.create('/graphql'), new HttpHeaders(),
+                new LinkedMultiValueMap(), [:], [query: '{ __typename }'], 'request', Locale.ROOT)
+        def chain = Stub(WebGraphQlInterceptor.Chain) {
+            next(request) >> Mono.error(new IllegalStateException('boom'))
+        }
+
+        when:
+        new GraphQLRequestInterceptor(new GraphQLQueryIdProvider(), 3).intercept(request, chain).onErrorComplete().block()
+
+        then:
+        outcomeLogged() == 'error'
+    }
+
+    private String outcomeLogged() {
+        appender.list.find { it.formattedMessage.startsWith('GraphQL query completed') }
+                .keyValuePairs.find { it.key == 'outcome' }.value
+    }
 }

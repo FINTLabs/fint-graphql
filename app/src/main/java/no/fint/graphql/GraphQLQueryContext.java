@@ -18,6 +18,7 @@ public final class GraphQLQueryContext {
     @Getter private final Long queryId;
     @Getter private final String authorization;
     @Getter private final String organisationId;
+    @Getter private final String clientName;
     @Getter private final Set<String> allowedPathPrefixes;
     @Getter private final Cache<ResourceRequestKey, Mono<Object>> requestCache;
     private final AtomicLong requestCounter = new AtomicLong();
@@ -28,6 +29,7 @@ public final class GraphQLQueryContext {
         queryId = GraphQLRequestAttributes.getQueryId(request);
         authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
         organisationId = GraphQLRequestAttributes.getOrganisationId(request);
+        clientName = GraphQLRequestAttributes.getClientName(request);
         allowedPathPrefixes = Set.copyOf(GraphQLRequestAttributes.getAllowedPathPrefixes(request));
         requestCache = Caffeine.newBuilder().maximumSize(cacheMaximumSize).build();
     }
@@ -38,6 +40,10 @@ public final class GraphQLQueryContext {
 
     public long nextRequestSequence() {
         return requestCounter.incrementAndGet();
+    }
+
+    public long getRequestCount() {
+        return requestCounter.get();
     }
 
     public boolean isFinished() {
